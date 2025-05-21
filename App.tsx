@@ -1,19 +1,19 @@
 import { StatusBar } from "expo-status-bar";
-import { Text, View } from "react-native";
-import "./global.css"
+import { Provider } from "react-redux";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { NavigationContainer } from "@react-navigation/native";
+import store from "./src/store/store";
+import StackNavigator from "./src/navigation/StackNavigator";
 
 export default function App() {
   return (
-    <View className="flex-1 items-center justify-center bg-gradient-to-b from-blue-50 via-blue-100 to-white">
-      <StatusBar style="auto" />
-      <View className="p-8 rounded-xl shadow-lg bg-white border-2 border-blue-200">
-        <Text className="text-3xl font-extrabold text-blue-700 text-center">
-          Bienvenue Medis
-        </Text>
-        <Text className="mt-2 text-blue-600 text-center font-medium">
-          Votre partenaire en solutions constructivesqsdfa
-        </Text>
-      </View>
-    </View>
+    <Provider store={store}>
+      <NavigationContainer>
+        <SafeAreaProvider>
+          <StatusBar style="auto" translucent={true} backgroundColor="transparent" />
+          <StackNavigator />
+        </SafeAreaProvider>
+      </NavigationContainer>
+    </Provider>
   );
 }
