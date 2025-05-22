@@ -37,7 +37,7 @@ const TabItem: React.FC<TabItemProps> = ({
     if (isActive) {
       Animated.parallel([
         Animated.timing(scaleAnim, {
-          toValue: 1.2,
+          toValue: 1.05,
           duration: 200,
           easing: Easing.bounce,
           useNativeDriver: true,

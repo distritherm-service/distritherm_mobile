@@ -1,38 +1,41 @@
 import React from "react";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { moderateScale as ms } from "react-native-size-matters";
+import { ViewStyle } from "react-native";
 import BackHeader from "./BackHeader/BackHeader";
 import PageContainerPresenter from "./PageContainerPresenter";
 
 interface PageContainerProps {
   headerBack?: boolean;
   headerTitle?: string;
+  onCustomBack?: () => void;
+  hideBackButton?: boolean;
   children: React.ReactNode;
-  style?: object;
-  contentStyle?: object;
+  style?: ViewStyle;
+  contentStyle?: ViewStyle;
 }
 
 const PageContainer: React.FC<PageContainerProps> = ({
-  headerBack,
+  headerBack = false,
   headerTitle,
+  onCustomBack,
+  hideBackButton = false,
   children,
   style,
   contentStyle,
 }) => {
-  const insets = useSafeAreaInsets();
-
-  // Calcul des valeurs nécessaires
-  const bottomPadding = insets.bottom;
-  const topPadding = !headerBack ? insets.top : ms(20);
-  const headerComponent = headerBack ? <BackHeader title={headerTitle} /> : null;
+  // Création du composant d'en-tête si nécessaire
+  const headerComponent = headerBack ? (
+    <BackHeader 
+      title={headerTitle} 
+      onCustomBack={onCustomBack}
+      hideBackButton={hideBackButton}
+    />
+  ) : null;
 
   return (
     <PageContainerPresenter
       headerComponent={headerComponent}
       style={style}
       contentStyle={contentStyle}
-      bottomPadding={bottomPadding}
-      topPadding={topPadding}
     >
       {children}
     </PageContainerPresenter>

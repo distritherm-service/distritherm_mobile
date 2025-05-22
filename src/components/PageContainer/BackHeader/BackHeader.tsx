@@ -5,14 +5,24 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface BackHeaderProps {
   title?: string;
+  onCustomBack?: () => void;
+  hideBackButton?: boolean;
 }
 
-const BackHeader: React.FC<BackHeaderProps> = ({ title }) => {
+const BackHeader: React.FC<BackHeaderProps> = ({ 
+  title,
+  onCustomBack,
+  hideBackButton = false
+}) => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   
   const handleBackPress = () => {
-    navigation.goBack();
+    if (onCustomBack) {
+      onCustomBack();
+    } else {
+      navigation.goBack();
+    }
   };
 
   return (
@@ -20,6 +30,7 @@ const BackHeader: React.FC<BackHeaderProps> = ({ title }) => {
       title={title}
       onBackPress={handleBackPress}
       insets={insets}
+      hideBackButton={hideBackButton}
     />
   );
 };

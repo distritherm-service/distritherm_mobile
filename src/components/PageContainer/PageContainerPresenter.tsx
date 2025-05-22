@@ -5,18 +5,18 @@ import {
   Platform,
   ScrollView,
   View,
+  StatusBar,
+  ViewStyle
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { moderateScale as ms } from 'react-native-size-matters';
-
+import { colors } from "../../utils/colors";
 
 interface PageContainerPresenterProps {
   headerComponent?: React.ReactNode;
   children: React.ReactNode;
-  style?: object;
-  contentStyle?: object;
-  bottomPadding: number;
-  topPadding: number;
+  style?: ViewStyle;
+  contentStyle?: ViewStyle;
 }
 
 const PageContainerPresenter: React.FC<PageContainerPresenterProps> = ({
@@ -24,41 +24,44 @@ const PageContainerPresenter: React.FC<PageContainerPresenterProps> = ({
   children,
   style,
   contentStyle,
-  bottomPadding,
-  topPadding,
 }) => {
   // Ajuster le padding pour éviter que le contenu touche le bas
-  // Utiliser une valeur fixe pour le paddingBottom quand il est utilisé avec BottomBar
-  const paddingBottomValue = ms(5);
   
   return (
-    <SafeAreaView
-      style={[styles.safeContainer, style]}
-      edges={["bottom"]}
-    >
-      {headerComponent}
-
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.keyboardAvoid}
+    <>
+      <StatusBar 
+        translucent 
+        backgroundColor="transparent" 
+        barStyle="dark-content" 
+      />
+      <SafeAreaView
+        style={[styles.safeContainer, style]}
+        edges={["top", "bottom"]}
       >
-        <ScrollView
-          style={[
-            styles.scrollView,
-            contentStyle,
-          ]}
-          contentContainerStyle={[
-            styles.scrollContent,
-            {
-              paddingBottom: paddingBottomValue,
-              paddingTop: topPadding > 0 ? ms(topPadding) : 0,
-            }
-          ]}
+        {headerComponent}
+
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={styles.keyboardAvoid}
         >
-          {children}
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+          <ScrollView
+            style={[
+              styles.scrollView,
+              contentStyle,
+            ]}
+            contentContainerStyle={[
+              styles.scrollContent
+            ]}
+            showsVerticalScrollIndicator={false}
+            bounces={false}
+            automaticallyAdjustContentInsets={false}
+            contentInsetAdjustmentBehavior="never"
+          >
+            {children}
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </>
   );
 };
 
@@ -67,7 +70,7 @@ export default PageContainerPresenter;
 const styles = StyleSheet.create({
   safeContainer: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.primary[50],
   },
   keyboardAvoid: {
     flex: 1,

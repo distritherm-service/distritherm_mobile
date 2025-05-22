@@ -39,7 +39,11 @@ const TabItemPresenter: React.FC<TabItemPresenterProps> = ({
 }) => {
   if (isCartTab) {
     return (
-      <Pressable onPress={handlePress} style={styles.cartButton}>
+      <Pressable 
+        onPress={handlePress} 
+        style={styles.cartButton}
+        hitSlop={{ top: 0, bottom: 0, left: 0, right: 0 }}
+      >
         <Animated.View 
           style={[
             styles.cartIconWrapper,
@@ -131,11 +135,6 @@ const TabItemPresenter: React.FC<TabItemPresenterProps> = ({
           {label}
         </Text>
       </View>
-      
-      {/* Indicateur actif */}
-      {isActive && (
-        <View style={styles.activeIndicator} />
-      )}
     </Pressable>
   );
 };
@@ -189,14 +188,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary[50],
     opacity: 0,
     borderRadius: ms(15),
-  },
-  activeIndicator: {
-    position: 'absolute',
-    bottom: 0,
-    width: ms(20),
-    height: ms(3),
-    backgroundColor: colors.primary[50],
-    borderRadius: ms(1.5),
   },
   badge: {
     position: 'absolute',

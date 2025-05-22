@@ -5,7 +5,51 @@ import { ms } from "react-native-size-matters";
 
 const Home = () => {
   return (
-    <PageContainer>
+    <PageContainer headerBack={true}>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
+      <Text style={{ fontSize: ms(20) }}>Home</Text>
       <Text style={{ fontSize: ms(20) }}>Home</Text>
     </PageContainer>
   );
