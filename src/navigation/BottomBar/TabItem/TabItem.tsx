@@ -3,7 +3,7 @@ import { Animated, Easing, ViewStyle, TextStyle } from 'react-native';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import TabItemPresenter from './TabItemPresenter';
 
-interface TabItemContainerProps {
+interface TabItemProps {
   icon: IconProp;
   label: string;
   isActive: boolean;
@@ -15,7 +15,7 @@ interface TabItemContainerProps {
   badgeCount?: number;
 }
 
-const TabItemContainer: React.FC<TabItemContainerProps> = ({ 
+const TabItem: React.FC<TabItemProps> = ({ 
   icon, 
   label, 
   isActive, 
@@ -97,4 +97,4 @@ const TabItemContainer: React.FC<TabItemContainerProps> = ({
   );
 };
 
-export default TabItemContainer; 
+export default TabItem; 

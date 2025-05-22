@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Platform } from 'react-native';
 import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { moderateScale as ms } from 'react-native-size-matters';
 import { colors } from '../../utils/colors';
@@ -18,7 +18,6 @@ const CurvedBottomBar: React.FC<CurvedBottomBarProps> = ({
   cartButtonSize
 }) => {
   // Paramètres de la courbe
-  const circleRadius = cartButtonSize / 2;
   const curveDepth = ms(25); // Profondeur du creux
   const curveWidth = cartButtonSize + ms(35); // Largeur du creux
   

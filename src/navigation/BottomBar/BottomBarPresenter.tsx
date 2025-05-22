@@ -14,11 +14,12 @@ import {
 } from '@fortawesome/free-regular-svg-icons';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import TabItemContainer from './TabItem';
 import CurvedBottomBar from './CurvedBottomBar';
 import { colors } from '../../utils/colors';
 import { moderateScale as ms } from 'react-native-size-matters';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import TabItem from './TabItem/TabItem';
+import { BOTTOM_BAR_HEIGHT, CART_BUTTON_SIZE, SCREEN_WIDTH, ICON_SIZE, isTablet } from './constants';
 
 interface BottomBarPresenterProps {
   activeTab: string;
@@ -26,11 +27,6 @@ interface BottomBarPresenterProps {
   renderScreen: (tabName: string) => React.ReactNode;
 }
 
-const isTablet = Dimensions.get('window').width >= 768;
-const SCREEN_WIDTH = Dimensions.get('window').width;
-export const ICON_SIZE = ms(isTablet ? 13 : 23);
-const BOTTOM_BAR_HEIGHT = ms(60);
-const CART_BUTTON_SIZE = ms(60);
 const CART_ELEVATION = Platform.OS === 'ios' ? ms(22) : ms(30);
 
 const BottomBarPresenter: React.FC<BottomBarPresenterProps> = ({ 
@@ -39,7 +35,7 @@ const BottomBarPresenter: React.FC<BottomBarPresenterProps> = ({
   renderScreen
 }) => {
   const insets = useSafeAreaInsets();
-  const bottomInset = Math.max(insets.bottom, 10);
+  const bottomInset = Platform.OS == "android" ? Math.max(insets.bottom, 10) : isTablet ? Math.max(insets.bottom, 10) : Math.max(insets.bottom, 10) - 14;
   
   // État pour les dimensions de l'écran (utile pour la rotation)
   const [dimensions, setDimensions] = useState({ 
@@ -76,7 +72,7 @@ const BottomBarPresenter: React.FC<BottomBarPresenterProps> = ({
   const cartTab = { name: 'Cart', label: 'Panier', icon: faShoppingCart };
   
   // Exemple de nombre d'articles dans le panier (à remplacer par une vraie logique)
-  const cartItemCount = 3;
+  const cartItemCount = 0;
 
   return (
     <View style={styles.container}>
@@ -90,8 +86,8 @@ const BottomBarPresenter: React.FC<BottomBarPresenterProps> = ({
         {/* Fond de la barre avec creux */}
         <CurvedBottomBar
           width={dimensions.width}
-          height={dimensions.height}
-          color={colors.secondary[400]}
+          height={Platform.OS == "android" ? dimensions.height : dimensions.height + ms(5)}
+          color={colors.secondary[800]}
           cartButtonSize={CART_BUTTON_SIZE}
         />
         
@@ -100,7 +96,7 @@ const BottomBarPresenter: React.FC<BottomBarPresenterProps> = ({
           {/* Première moitié des onglets */}
           <View style={styles.tabGroup}>
             {tabs.slice(0, 2).map((tab) => (
-              <TabItemContainer
+              <TabItem
                 key={tab.name}
                 icon={tab.icon as IconProp}
                 label={tab.label}
@@ -116,7 +112,7 @@ const BottomBarPresenter: React.FC<BottomBarPresenterProps> = ({
           {/* Seconde moitié des onglets */}
           <View style={styles.tabGroup}>
             {tabs.slice(2).map((tab) => (
-              <TabItemContainer
+              <TabItem
                 key={tab.name}
                 icon={tab.icon as IconProp}
                 label={tab.label}
@@ -129,7 +125,7 @@ const BottomBarPresenter: React.FC<BottomBarPresenterProps> = ({
         
         {/* Bouton panier flottant */}
         <View style={styles.cartButtonContainer}>
-          <TabItemContainer
+          <TabItem
             key={cartTab.name}
             icon={cartTab.icon as IconProp}
             label=""
@@ -176,16 +172,16 @@ const styles = StyleSheet.create({
   },
   cartButtonContainer: {
     position: 'absolute',
-    top: Platform.OS === 'ios' ? -CART_ELEVATION - ms(2) : -CART_ELEVATION,
+    top: Platform.OS === 'ios' ? -CART_ELEVATION - ms(12) : -CART_ELEVATION + ms(4),
     alignSelf: 'center',
     zIndex: 10,
     width: CART_BUTTON_SIZE,
     height: CART_BUTTON_SIZE,
   },
   cartIconContainer: {
-    width: CART_BUTTON_SIZE,
-    height: CART_BUTTON_SIZE,
-    borderRadius: CART_BUTTON_SIZE / 2,
+    width: CART_BUTTON_SIZE + ms(5),
+    height: CART_BUTTON_SIZE + ms(5),
+    borderRadius: CART_BUTTON_SIZE / 2 + ms(5),
     backgroundColor: colors.secondary[500],
     alignItems: 'center',
     justifyContent: 'center',
@@ -194,11 +190,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.35,
     shadowRadius: 10,
     elevation: 12,
-    borderWidth: 3,
+    borderWidth: ms(3),
     borderColor: colors.primary[50],
   },
   cartLabelContainer: {
-    display: 'none', // On cache le label pour un design plus épuré
+    display: 'none',
   },
   cartLabel: {
     fontSize: ms(9),
