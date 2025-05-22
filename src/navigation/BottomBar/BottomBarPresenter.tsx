@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Platform, StyleSheet, Dimensions } from 'react-native';
 import { 
   faHome, 
@@ -15,8 +15,10 @@ import {
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TabItemContainer from './TabItem';
+import CurvedBottomBar from './CurvedBottomBar';
 import { colors } from '../../utils/colors';
 import { moderateScale as ms } from 'react-native-size-matters';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface BottomBarPresenterProps {
   activeTab: string;
@@ -25,13 +27,43 @@ interface BottomBarPresenterProps {
 }
 
 const isTablet = Dimensions.get('window').width >= 768;
+const SCREEN_WIDTH = Dimensions.get('window').width;
 export const ICON_SIZE = ms(isTablet ? 13 : 23);
+const BOTTOM_BAR_HEIGHT = ms(60);
+const CART_BUTTON_SIZE = ms(60);
+const CART_ELEVATION = Platform.OS === 'ios' ? ms(22) : ms(30);
 
 const BottomBarPresenter: React.FC<BottomBarPresenterProps> = ({ 
   activeTab, 
   onTabPress,
   renderScreen
 }) => {
+  const insets = useSafeAreaInsets();
+  const bottomInset = Math.max(insets.bottom, 10);
+  
+  // État pour les dimensions de l'écran (utile pour la rotation)
+  const [dimensions, setDimensions] = useState({ 
+    width: SCREEN_WIDTH, 
+    height: BOTTOM_BAR_HEIGHT + bottomInset 
+  });
+  
+  // Mise à jour des dimensions en cas de changement d'orientation
+  useEffect(() => {
+    const updateDimensions = () => {
+      setDimensions({
+        width: Dimensions.get('window').width,
+        height: BOTTOM_BAR_HEIGHT + bottomInset
+      });
+    };
+    
+    // Utilisation de l'API moderne pour les écouteurs d'événements
+    const subscription = Dimensions.addEventListener('change', updateDimensions);
+    
+    return () => {
+      subscription.remove();
+    };
+  }, [bottomInset]);
+  
   // Configuration des tabs
   const tabs = [
     { name: 'Home', label: 'Accueil', icon: faHome },
@@ -42,55 +74,75 @@ const BottomBarPresenter: React.FC<BottomBarPresenterProps> = ({
 
   // Séparation de l'onglet Panier pour un traitement spécial
   const cartTab = { name: 'Cart', label: 'Panier', icon: faShoppingCart };
+  
+  // Exemple de nombre d'articles dans le panier (à remplacer par une vraie logique)
+  const cartItemCount = 3;
 
   return (
     <View style={styles.container}>
-      {/* Contenu principal */}
-      <View style={styles.content}>
+      {/* Contenu principal avec padding pour éviter que le contenu ne soit sous le bouton panier */}
+      <View style={[styles.content, { paddingBottom: BOTTOM_BAR_HEIGHT + bottomInset }]}>
         {renderScreen(activeTab)}
       </View>
 
-      {/* Barre de navigation avec SafeAreaView optimisé */}
-      <SafeAreaView edges={['bottom']} style={{ backgroundColor: styles.bottomBar.backgroundColor }}>
-        <View style={styles.bottomBar}>
+      {/* Barre de navigation avec creux arrondi */}
+      <View style={[styles.bottomBarContainer, { height: BOTTOM_BAR_HEIGHT + bottomInset }]}>
+        {/* Fond de la barre avec creux */}
+        <CurvedBottomBar
+          width={dimensions.width}
+          height={dimensions.height}
+          color={colors.secondary[400]}
+          cartButtonSize={CART_BUTTON_SIZE}
+        />
+        
+        {/* Contenu de la barre de navigation */}
+        <View style={[styles.bottomBarContent, { paddingBottom: bottomInset }]}>
           {/* Première moitié des onglets */}
-          {tabs.slice(0, 2).map((tab) => (
-            <TabItemContainer
-              key={tab.name}
-              icon={tab.icon as IconProp}
-              label={tab.label}
-              isActive={activeTab === tab.name}
-              onPress={() => onTabPress(tab.name)}
-            />
-          ))}
-          
-          {/* Onglet Panier au centre avec style spécial */}
-          <View style={styles.cartTabItem}>
-            <TabItemContainer
-              key={cartTab.name}
-              icon={cartTab.icon as IconProp}
-              label={cartTab.label}
-              isActive={activeTab === cartTab.name}
-              onPress={() => onTabPress(cartTab.name)}
-              isCartTab={true}
-              customIconStyle={styles.cartIconContainer}
-              customLabelStyle={styles.cartLabelContainer}
-              customTextStyle={styles.cartLabel}
-            />
+          <View style={styles.tabGroup}>
+            {tabs.slice(0, 2).map((tab) => (
+              <TabItemContainer
+                key={tab.name}
+                icon={tab.icon as IconProp}
+                label={tab.label}
+                isActive={activeTab === tab.name}
+                onPress={() => onTabPress(tab.name)}
+              />
+            ))}
           </View>
           
+          {/* Espace pour le creux */}
+          <View style={styles.centerSpace} />
+          
           {/* Seconde moitié des onglets */}
-          {tabs.slice(2).map((tab) => (
-            <TabItemContainer
-              key={tab.name}
-              icon={tab.icon as IconProp}
-              label={tab.label}
-              isActive={activeTab === tab.name}
-              onPress={() => onTabPress(tab.name)}
-            />
-          ))}
+          <View style={styles.tabGroup}>
+            {tabs.slice(2).map((tab) => (
+              <TabItemContainer
+                key={tab.name}
+                icon={tab.icon as IconProp}
+                label={tab.label}
+                isActive={activeTab === tab.name}
+                onPress={() => onTabPress(tab.name)}
+              />
+            ))}
+          </View>
         </View>
-      </SafeAreaView>
+        
+        {/* Bouton panier flottant */}
+        <View style={styles.cartButtonContainer}>
+          <TabItemContainer
+            key={cartTab.name}
+            icon={cartTab.icon as IconProp}
+            label=""
+            isActive={activeTab === cartTab.name}
+            onPress={() => onTabPress(cartTab.name)}
+            isCartTab={true}
+            customIconStyle={styles.cartIconContainer}
+            customLabelStyle={styles.cartLabelContainer}
+            customTextStyle={styles.cartLabel}
+            badgeCount={cartItemCount}
+          />
+        </View>
+      </View>
     </View>
   );
 };
@@ -99,91 +151,60 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  bottomBar: {
-    flexDirection: 'row',
-    backgroundColor: colors.primary[50],
-    paddingBottom: Platform.OS === 'ios' ? ms(12) : ms(4),
-    paddingTop: ms(4),
-    borderTopWidth: 1,
-    borderTopColor: colors.primary[100],
-    position: 'relative',
-  },
-  tabItem: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: ms(2),
-    position: 'relative',
-  },
-  tabItemActive: {
-    backgroundColor: 'transparent',
-  },
-  // Styles spécifiques pour l'onglet Panier
-  cartTabItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: ms(2),
-    position: 'relative',
+  content: {
     flex: 1,
   },
-  cartIconContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: ms(50),
-    height: ms(50),
-    backgroundColor: colors.primary[50],
-    borderRadius: ms(25),
-    position: 'absolute',
-    bottom: ms(10),
-    left: '50%',
-    transform: [{ translateX: ms(-25) }],
-    shadowColor: colors.tertiary[500],
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 6,
-    borderWidth: 1,
-    borderColor: colors.primary[200],
-  },
-  iconContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: ms(22),
-    height: ms(22),
-  },
-  labelContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: ms(1),
-  },
-  cartLabelContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
+  bottomBarContainer: {
     position: 'absolute',
     bottom: 0,
-    left: '50%',
-    transform: [{ translateX: ms(-25) }],
-    width: ms(50),
+    left: 0,
+    right: 0,
   },
-  label: {
-    fontSize: ms(8),
-    fontWeight: '500',
-    color: colors.primary[700],
-    textAlign: 'center',
+  bottomBarContent: {
+    flexDirection: 'row',
+    height: BOTTOM_BAR_HEIGHT,
+    paddingTop: ms(10),
   },
-  labelActive: {
-    fontSize: ms(9),
-    fontWeight: 'bold',
-    color: colors.secondary[400],
+  tabGroup: {
+    flexDirection: 'row',
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'space-around',
+  },
+  centerSpace: {
+    width: CART_BUTTON_SIZE + ms(10),
+  },
+  cartButtonContainer: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? -CART_ELEVATION - ms(2) : -CART_ELEVATION,
+    alignSelf: 'center',
+    zIndex: 10,
+    width: CART_BUTTON_SIZE,
+    height: CART_BUTTON_SIZE,
+  },
+  cartIconContainer: {
+    width: CART_BUTTON_SIZE,
+    height: CART_BUTTON_SIZE,
+    borderRadius: CART_BUTTON_SIZE / 2,
+    backgroundColor: colors.secondary[500],
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: colors.tertiary[500],
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 12,
+    borderWidth: 3,
+    borderColor: colors.primary[50],
+  },
+  cartLabelContainer: {
+    display: 'none', // On cache le label pour un design plus épuré
   },
   cartLabel: {
     fontSize: ms(9),
     fontWeight: 'bold',
-    color: colors.primary[700],
+    color: colors.primary[50],
   },
-  content: {
-    flex: 1,
-  }
 });
 
 export default BottomBarPresenter; 

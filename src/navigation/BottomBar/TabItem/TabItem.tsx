@@ -12,6 +12,7 @@ interface TabItemContainerProps {
   customIconStyle?: ViewStyle;
   customLabelStyle?: ViewStyle;
   customTextStyle?: TextStyle;
+  badgeCount?: number;
 }
 
 const TabItemContainer: React.FC<TabItemContainerProps> = ({ 
@@ -22,7 +23,8 @@ const TabItemContainer: React.FC<TabItemContainerProps> = ({
   isCartTab = false,
   customIconStyle,
   customLabelStyle,
-  customTextStyle
+  customTextStyle,
+  badgeCount = 0
 }) => {
   // Animation references
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -90,6 +92,7 @@ const TabItemContainer: React.FC<TabItemContainerProps> = ({
       customIconStyle={customIconStyle}
       customLabelStyle={customLabelStyle}
       customTextStyle={customTextStyle}
+      badgeCount={badgeCount}
     />
   );
 };

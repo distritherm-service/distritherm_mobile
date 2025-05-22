@@ -20,6 +20,7 @@ interface TabItemPresenterProps {
   customIconStyle?: ViewStyle;
   customLabelStyle?: ViewStyle;
   customTextStyle?: TextStyle;
+  badgeCount?: number;
 }
 
 const TabItemPresenter: React.FC<TabItemPresenterProps> = ({
@@ -33,13 +34,15 @@ const TabItemPresenter: React.FC<TabItemPresenterProps> = ({
   isCartTab = false,
   customIconStyle,
   customLabelStyle,
-  customTextStyle
+  customTextStyle,
+  badgeCount = 0
 }) => {
   if (isCartTab) {
     return (
-      <Pressable onPress={handlePress}>
+      <Pressable onPress={handlePress} style={styles.cartButton}>
         <Animated.View 
           style={[
+            styles.cartIconWrapper,
             customIconStyle,
             {
               transform: [{ scale: scaleAnim }],
@@ -48,31 +51,43 @@ const TabItemPresenter: React.FC<TabItemPresenterProps> = ({
         >
           <FontAwesomeIcon 
             icon={icon} 
-            size={ms(ICON_SIZE * 1.2)}
-            color={isActive ? colors.secondary[400] : colors.primary[700]} 
+            size={ms(ICON_SIZE * 1.4)}
+            color={isActive ? colors.primary[50] : colors.primary[200]} 
           />
+          
+          {/* Badge de notification */}
+          {badgeCount > 0 && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>
+                {badgeCount > 99 ? '99+' : badgeCount}
+              </Text>
+            </View>
+          )}
         </Animated.View>
 
-        <Animated.View style={[customLabelStyle]}>
-          <Text 
-            style={[customTextStyle]}
-            numberOfLines={1}
-          >
-            {label}
-          </Text>
-        </Animated.View>
+        {label && (
+          <Animated.View style={[styles.labelContainer, customLabelStyle]}>
+            <Text 
+              style={[styles.label, isActive && styles.labelActive, customTextStyle]}
+              numberOfLines={1}
+            >
+              {label}
+            </Text>
+          </Animated.View>
+        )}
       </Pressable>
     );
   }
 
   return (
     <Pressable 
-      style={[styles.tabItem, isActive && styles.tabItemActive]} 
+      style={[styles.tabItem]} 
       onPress={handlePress}
     >
       {/* Effet de ripple */}
       <Animated.View 
         style={[
+          styles.rippleEffect,
           {
             opacity: rippleAnim.interpolate({
               inputRange: [0, 0.2, 1],
@@ -102,8 +117,8 @@ const TabItemPresenter: React.FC<TabItemPresenterProps> = ({
       >
         <FontAwesomeIcon 
           icon={icon} 
-          size={ms(ICON_SIZE * (isActive ? 0.85 : 0.75))}
-          color={isActive ? styles.labelActive.color : styles.label.color} 
+          size={ms(ICON_SIZE * (isActive ? 0.9 : 0.8))}
+          color={isActive ? colors.primary[50] : colors.primary[200]} 
         />
       </Animated.View>
 
@@ -116,6 +131,11 @@ const TabItemPresenter: React.FC<TabItemPresenterProps> = ({
           {label}
         </Text>
       </View>
+      
+      {/* Indicateur actif */}
+      {isActive && (
+        <View style={styles.activeIndicator} />
+      )}
     </Pressable>
   );
 };
@@ -128,30 +148,74 @@ const styles = StyleSheet.create({
     paddingVertical: ms(2),
     position: 'relative',
   },
-  tabItemActive: {
-    backgroundColor: 'transparent',
+  cartButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cartIconWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    height: '100%',
   },
   iconContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: ms(22),
-    height: ms(22),
+    width: ms(24),
+    height: ms(24),
   },
   labelContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: ms(1),
+    marginTop: ms(3),
   },
   label: {
     fontSize: ms(8),
     fontWeight: '500',
-    color: colors.primary[700],
+    color: colors.primary[200],
     textAlign: 'center',
   },
   labelActive: {
     fontSize: ms(9),
     fontWeight: 'bold',
-    color: colors.secondary[400],
+    color: colors.primary[50],
+  },
+  rippleEffect: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: colors.primary[50],
+    opacity: 0,
+    borderRadius: ms(15),
+  },
+  activeIndicator: {
+    position: 'absolute',
+    bottom: 0,
+    width: ms(20),
+    height: ms(3),
+    backgroundColor: colors.primary[50],
+    borderRadius: ms(1.5),
+  },
+  badge: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    minWidth: ms(18),
+    height: ms(18),
+    borderRadius: ms(9),
+    backgroundColor: colors.tertiary[500],
+    borderWidth: 2,
+    borderColor: colors.primary[50],
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: ms(4),
+  },
+  badgeText: {
+    color: colors.primary[50],
+    fontSize: ms(8),
+    fontWeight: 'bold',
   }
 });
 
