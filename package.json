@@ -29,6 +29,7 @@
     "react": "19.0.0",
     "react-hook-form": "^7.56.4",
     "react-native": "0.79.2",
+    "react-native-config": "^1.5.5",
     "react-native-gesture-handler": "^2.25.0",
     "react-native-maps": "^1.23.8",
     "react-native-reanimated": "^3.17.5",
@@ -42,6 +43,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "@types/axios": "^0.9.36",
     "@types/react": "~19.0.10",
     "glob": "^10.3.10",
     "lru-cache": "^10.2.0",

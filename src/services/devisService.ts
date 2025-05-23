@@ -1,0 +1,78 @@
+import api from "../interceptors/api";
+
+// DTOs et interfaces pour les devis
+interface CreateDeviDto {
+  cartId: number;
+  commercialId: number;
+}
+
+interface PostDeviDto {
+  id: number;
+  fileUrl: string;
+  endDate: string;
+}
+
+interface PaginationDto {
+  page?: number;
+  limit?: number;
+}
+
+type DevisStatus = "SENDED" | "PROGRESS" | "CONSULTED" | "EXPIRED";
+
+const devisService = {
+  // GET /devis/by-client/:id - Récupérer les devis d'un client
+  getDevisByClient: async (
+    clientId: number,
+    status?: DevisStatus,
+    search?: string,
+    paginationDto?: PaginationDto
+  ): Promise<any> => {
+    try {
+      const params = new URLSearchParams();
+      if (status) params.append("status", status);
+      if (search) params.append("s", search);
+      if (paginationDto?.page)
+        params.append("page", paginationDto.page.toString());
+      if (paginationDto?.limit)
+        params.append("limit", paginationDto.limit.toString());
+
+      const queryString = params.toString();
+      const url = queryString
+        ? `/devis/by-client/${clientId}?${queryString}`
+        : `/devis/by-client/${clientId}`;
+
+      const response = await api.get(url);
+      return await response.data;
+    } catch (error) {
+      console.error(
+        "Erreur lors de la récupération des devis du client:",
+        error
+      );
+      throw error;
+    }
+  },
+
+  // GET /devis/download/:id - Télécharger un devis par son ID
+  downloadDevis: async (id: number): Promise<any> => {
+    try {
+      const response = await api.get(`/devis/download/${id}`);
+      return await response.data;
+    } catch (error) {
+      console.error("Erreur lors du téléchargement du devis:", error);
+      throw error;
+    }
+  },
+
+  // GET /devis/:id - Récupérer un devis par son ID
+  getDevisById: async (id: number): Promise<any> => {
+    try {
+      const response = await api.get(`/devis/${id}`);
+      return await response.data;
+    } catch (error) {
+      console.error("Erreur lors de la récupération du devis:", error);
+      throw error;
+    }
+  },
+};
+
+export default devisService;
