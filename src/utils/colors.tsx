@@ -29,16 +29,16 @@ export const colors = {
   
   // Tertiary colors - Black (from lightest to darkest)
   tertiary: {
-    50: '#f5f5f5',
-    100: '#e6e6e6',
-    200: '#b3b3b3',
-    300: '#808080',
-    400: '#4d4d4d',
+    50: '#f8f8f8',  // Blanc légèrement foncé
+    100: '#e8e8e8', // Gris très clair
+    200: '#d0d0d0', 
+    300: '#a8a8a8',
+    400: '#808080',
     500: '#1a1a1a', // Main tertiary color (black)
-    600: '#000000',
-    700: '#000000',
-    800: '#000000',
-    900: '#000000',
+    600: '#121212',
+    700: '#0a0a0a',
+    800: '#050505',
+    900: '#000000', // Noir pur
   },
 
   // Text color

@@ -41,13 +41,9 @@ export interface LogoutResponse {
 
 const authService = {
   // POST /auth/regular-login - Connexion standard avec email/mot de passe
-  regularLogin: async (loginDto: RegularLoginDto, platform: string = 'mobile'): Promise<any> => {
+  regularLogin: async (loginDto: RegularLoginDto): Promise<any> => {
     try {
-      const response = await api.post("/auth/regular-login", loginDto, {
-        headers: {
-          'x-platform': platform
-        }
-      });
+      const response = await api.post("/auth/regular-login", loginDto);
       return await response.data;
     } catch (error) {
       console.error("Erreur lors de la connexion:", error);
@@ -56,13 +52,9 @@ const authService = {
   },
 
   // POST /auth/regular-register - Inscription standard
-  regularRegister: async (registerDto: RegularRegisterDto, platform: string = 'mobile'): Promise<any> => {
+  regularRegister: async (registerDto: RegularRegisterDto): Promise<any> => {
     try {
-      const response = await api.post("/auth/regular-register", registerDto, {
-        headers: {
-          'x-platform': platform
-        }
-      });
+      const response = await api.post("/auth/regular-register", registerDto);
       return response.data;
     } catch (error) {
       console.error("Erreur lors de l'inscription:", error);
@@ -71,13 +63,9 @@ const authService = {
   },
 
   // POST /auth/refresh-token - Rafraîchir le token d'accès
-  refreshToken: async (refreshToken: string, platform: string = 'mobile'): Promise<RefreshTokenResponse> => {
+  refreshToken: async (refreshToken: string): Promise<RefreshTokenResponse> => {
     try {
-      const response = await api.post(`/auth/refresh-token?refresh_token=${encodeURIComponent(refreshToken)}`, {}, {
-        headers: {
-          'x-platform': platform
-        }
-      });
+      const response = await api.post(`/auth/refresh-token?refresh_token=${encodeURIComponent(refreshToken)}`, {});
       return response.data as RefreshTokenResponse;
     } catch (error) {
       console.error("Erreur lors du rafraîchissement du token:", error);
@@ -86,13 +74,9 @@ const authService = {
   },
 
   // POST /auth/provider-login - Connexion via fournisseur d'identité
-  providerLogin: async (providerAuthDto: ProviderAuthDto, platform: string = 'mobile'): Promise<any> => {
+  providerLogin: async (providerAuthDto: ProviderAuthDto): Promise<any> => {
     try {
-      const response = await api.post("/auth/provider-login", providerAuthDto, {
-        headers: {
-          'x-platform': platform
-        }
-      });
+      const response = await api.post("/auth/provider-login", providerAuthDto);
       return response.data;
     } catch (error) {
       console.error("Erreur lors de la connexion via fournisseur:", error);
@@ -101,13 +85,9 @@ const authService = {
   },
 
   // POST /auth/provider-register - Inscription via fournisseur d'identité
-  providerRegister: async (providerAuthDto: ProviderAuthDto, platform: string = 'mobile'): Promise<any> => {
+  providerRegister: async (providerAuthDto: ProviderAuthDto): Promise<any> => {
     try {
-      const response = await api.post("/auth/provider-register", providerAuthDto, {
-        headers: {
-          'x-platform': platform
-        }
-      });
+      const response = await api.post("/auth/provider-register", providerAuthDto);
       return response.data;
     } catch (error) {
       console.error("Erreur lors de l'inscription via fournisseur:", error);
@@ -116,13 +96,9 @@ const authService = {
   },
 
   // POST /auth/logout - Déconnexion de l'utilisateur
-  logout: async (refreshToken: string, platform: string = 'mobile'): Promise<LogoutResponse> => {
+  logout: async (refreshToken: string): Promise<LogoutResponse> => {
     try {
-      const response = await api.post(`/auth/logout?refresh_token=${encodeURIComponent(refreshToken)}`, {}, {
-        headers: {
-          'x-platform': platform
-        }
-      });
+      const response = await api.post(`/auth/logout?refresh_token=${encodeURIComponent(refreshToken)}`, {});
       return response.data as LogoutResponse;
     } catch (error) {
       console.error("Erreur lors de la déconnexion:", error);
