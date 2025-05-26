@@ -3,12 +3,14 @@ import React from "react";
 import PageContainer from "../PageContainer/PageContainer";
 import Header from "./Header/Header";
 import PromotionsBanner from "./PromotionsBanner/PromotionsBanner";
+import Recommandation from "./Recommandation/Recommandations";
 
 const HomePresenter = () => {
   return (
     <PageContainer>
       <Header />
       <PromotionsBanner />
+      <Recommandation />
     </PageContainer>
   );
 };
