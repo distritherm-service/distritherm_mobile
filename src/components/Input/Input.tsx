@@ -1,4 +1,3 @@
-import { StyleSheet, TextInput, View, Text } from "react-native";
 import React from "react";
 import InputPresenter from "./InputPresenter";
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";

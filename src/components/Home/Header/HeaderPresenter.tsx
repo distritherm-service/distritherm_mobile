@@ -205,7 +205,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: ms(12),
     paddingVertical: ms(6),
   },
   bottomContent: {
@@ -215,6 +214,7 @@ const styles = StyleSheet.create({
   },
   dropdownContainer: {
     position: "relative",
+    paddingRight: ms(15)
   },
   dropdownButton: {
     width: ms(170),
