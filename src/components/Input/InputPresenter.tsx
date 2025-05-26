@@ -27,7 +27,7 @@ const InputPresenter: React.FC<InputPresenterProps> = ({
   leftLogo,
 }) => {
   return (
-    <View style={styles.container}>
+    <View>
       {label && <Text style={styles.label}>{label}</Text>}
       <View style={styles.inputContainer}>
         {leftLogo && (
@@ -66,9 +66,6 @@ const InputPresenter: React.FC<InputPresenterProps> = ({
 export default InputPresenter;
 
 const styles = StyleSheet.create({
-  container: {
-    marginBottom: ms(20),
-  },
   label: {
     fontSize: ms(14),
     fontWeight: "500",
@@ -80,14 +77,14 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   input: {
-    height: ms(50),
+    height: ms(45),
     borderWidth: 1,
     borderColor: colors.tertiary[100],
     borderRadius: ms(12),
     paddingHorizontal: ms(18),
     fontSize: ms(15),
     color: colors.tertiary[600],
-    backgroundColor: colors.tertiary[50],
+    backgroundColor: colors.primary[50],
     shadowColor: colors.tertiary[50],
     shadowOffset: { width: ms(0), height: ms(2) },
     shadowOpacity: 0.1,

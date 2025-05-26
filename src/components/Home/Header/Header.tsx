@@ -18,6 +18,7 @@ const Header = () => {
   const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [searchValue, setSearchValue] = useState('');
+  const { register, handleSubmit, control, formState: { errors } } = useForm();
 
   // Animations
   const slideAnim = useRef(new Animated.Value(screenHeight)).current;

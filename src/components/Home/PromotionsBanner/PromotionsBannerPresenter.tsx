@@ -15,7 +15,7 @@ const PromotionBannerItem = ({ item }: { item: PromotionBannerDto }) => {
       <Image
         source={{ uri: item.imageUrl }}
         style={styles.bannerImage}
-        resizeMode="cover"
+        resizeMode="stretch"
       />
     </View>
   );
@@ -55,6 +55,5 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: "100%",
     height: "100%",
-    resizeMode: "cover",
   },
 });
