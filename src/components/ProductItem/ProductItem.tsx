@@ -1,39 +1,70 @@
 import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 import ProductItemPresenter from './ProductItemPresenter'
-
-interface Product {
-  id: string;
-  name: string;
-  category: string;
-  price: number;
-  unit: string;
-  imageUrl?: string;
-  inStock: boolean;
-}
+import { ProductBasicDto } from 'src/types/Product'
+import { isTablet } from 'src/utils/deviceUtils'
 
 interface ProductItemProps {
-  product?: Product;
-  onProductPress?: (product: Product) => void;
+  product?: ProductBasicDto;
+  onProductPress?: (product: ProductBasicDto) => void;
+  onFavoritePress?: (product: ProductBasicDto) => void;
 }
+
+const DEFAULT_IMAGE_URL = "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg?20200913095930";
 
 const ProductItem: React.FC<ProductItemProps> = ({ 
   product, 
-  onProductPress 
+  onProductPress,
+  onFavoritePress
 }) => {
+  // États pour la gestion de l'image
+  const [imageError, setImageError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Logique métier
+  const isTabletDevice = isTablet();
   // Données d'exemple pour un produit de construction
-  const defaultProduct: Product = {
-    id: '1',
+  const defaultProduct: ProductBasicDto = {
+    id: 1,
     name: 'Plaque de plâtre BA13 standard',
-    category: 'Plâtrerie',
-    price: 8.50,
-    unit: 'm²',
-    imageUrl: undefined, // Pas d'image pour l'exemple
-    inStock: true,
+    priceTtc: 8.50,
+    quantity: 10,
+    imagesUrl: [],
+    description: 'Plaque de plâtre standard pour cloisons',
+    categoryId: 1,
+    markId: 1,
+    category: {
+      id: 1,
+      name: 'Plâtrerie'
+    },
+    isInPromotion: false,
+    promotionPrice: undefined,
+    promotionEndDate: undefined,
+    promotionPercentage: undefined,
+    isFavorited: false,
   };
 
   const currentProduct = product || defaultProduct;
 
+  // Handlers pour l'image
+  const handleImageError = () => {
+    setImageError(true);
+    setIsLoading(false);
+  };
+
+  const handleImageLoad = () => {
+    setIsLoading(false);
+  };
+
+  const getImageSource = () => {
+    // if (imageError || !currentProduct.imagesUrl?.[0]) {
+    //   return { uri: DEFAULT_IMAGE_URL };
+    // }
+      return { uri: DEFAULT_IMAGE_URL };
+      // return { uri: currentProduct.imagesUrl[0] };
+  };
+
+  // Handlers pour les actions
   const handlePress = () => {
     if (onProductPress) {
       onProductPress(currentProduct);
@@ -43,15 +74,32 @@ const ProductItem: React.FC<ProductItemProps> = ({
     }
   };
 
+  const handleFavoritePress = () => {
+    if (onFavoritePress) {
+      onFavoritePress(currentProduct);
+    } else {
+      // Action par défaut pour les favoris
+      console.log('Favori togglé:', currentProduct.name);
+    }
+  };
+
   return (
     <ProductItemPresenter
       name={currentProduct.name}
-      category={currentProduct.category}
-      price={currentProduct.price}
-      unit={currentProduct.unit}
-      imageUrl={currentProduct.imageUrl}
-      inStock={currentProduct.inStock}
+      category={currentProduct.category?.name || 'Construction'}
+      price={currentProduct.promotionPrice || currentProduct.priceTtc}
+      unit="unité"
+      imageSource={getImageSource()}
+      inStock={currentProduct.quantity > 0}
       onPress={handlePress}
+      isFavorited={currentProduct.isFavorited}
+      onFavoritePress={handleFavoritePress}
+      promotionPercentage={currentProduct.promotionPercentage}
+      isTabletDevice={isTabletDevice}
+      imageError={imageError}
+      isLoading={isLoading}
+      onImageError={handleImageError}
+      onImageLoad={handleImageLoad}
     />
   );
 };

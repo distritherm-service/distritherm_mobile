@@ -6,10 +6,10 @@ import {
   ScrollView,
   View,
   StatusBar,
-  ViewStyle
+  ViewStyle,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { moderateScale as ms } from 'react-native-size-matters';
+import { moderateScale as ms } from "react-native-size-matters";
 import { colors } from "../../utils/colors";
 
 interface PageContainerPresenterProps {
@@ -26,13 +26,13 @@ const PageContainerPresenter: React.FC<PageContainerPresenterProps> = ({
   contentStyle,
 }) => {
   // Ajuster le padding pour éviter que le contenu touche le bas
-  
+
   return (
     <>
-      <StatusBar 
-        translucent 
-        backgroundColor="transparent" 
-        barStyle="dark-content" 
+      <StatusBar
+        translucent
+        backgroundColor="transparent"
+        barStyle="dark-content"
       />
       <SafeAreaView
         style={[styles.safeContainer, style]}
@@ -45,13 +45,8 @@ const PageContainerPresenter: React.FC<PageContainerPresenterProps> = ({
           style={styles.keyboardAvoid}
         >
           <ScrollView
-            style={[
-              styles.scrollView,
-              contentStyle,
-            ]}
-            contentContainerStyle={[
-              styles.scrollContent
-            ]}
+            style={[styles.scrollView, contentStyle]}
+            contentContainerStyle={[styles.scrollContent]}
             showsVerticalScrollIndicator={false}
             bounces={false}
             automaticallyAdjustContentInsets={false}
@@ -71,6 +66,7 @@ const styles = StyleSheet.create({
   safeContainer: {
     flex: 1,
     backgroundColor: colors.primary[50],
+    paddingBottom: Platform.OS == "ios" ? ms(47) : ms(65),
   },
   keyboardAvoid: {
     flex: 1,

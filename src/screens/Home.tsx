@@ -1,10 +1,10 @@
 import React from "react";
-import HomePresenter from "../components/Home/HomePresenter";
+import Home from "../components/Home/Home";
 
-const Home = () => {
+const HomeScreen = () => {
   return (
-    <HomePresenter />
+    <Home />
   );
 };
 
-export default Home;
+export default HomeScreen;

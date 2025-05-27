@@ -6,4 +6,7 @@ export const globalStyles = StyleSheet.create({
     paddingHorizontal: ms(20),
     paddingVertical: ms(10),
   },
+  buttonPressed: {
+    transform: [{ scale: 0.96 }],
+  },
 });

@@ -57,30 +57,6 @@ export interface UpdateProductDto {
   ecoContributionApplication?: boolean;
 }
 
-export interface ProductBasicDto {
-  id: number;
-  name: string;
-  priceTtc: number;
-  quantity: number;
-  imagesUrl: string[];
-  description: string;
-  categoryId: number;
-  markId: number;
-  category?: {
-    id: number;
-    name: string;
-  };
-  mark?: {
-    id: number;
-    name: string;
-  };
-  isInPromotion?: boolean;
-  promotionPrice?: number | null;
-  promotionEndDate?: Date | null;
-  promotionPercentage?: number | null;
-  isFavorited?: boolean;
-}
-
 export interface PaginationDto {
   page?: number;
   limit?: number;
@@ -216,9 +192,17 @@ const productsService = {
   },
 
   // GET /products/recommendations - Récupérer les produits recommandés
-  getRecommendedProducts: async (): Promise<any> => {
+  getRecommendedProducts: async (excludedIds?: number[], paginationDto?: PaginationDto): Promise<any> => {
     try {
-      const response = await api.get("/products/recommendations");
+      const params = new URLSearchParams();
+      if (excludedIds && excludedIds.length > 0) {
+        params.append('excludedIds', excludedIds.join(','));
+      }
+      if (paginationDto?.page) params.append('page', paginationDto.page.toString());
+      if (paginationDto?.limit) params.append('limit', paginationDto.limit.toString());
+      
+      const queryString = params.toString();
+      const response = await api.get(`/products/recommendations${queryString ? '?' + queryString : ''}`);
       return await response.data;
     } catch (error) {
       console.error("Erreur lors de la récupération des produits recommandés:", error);
