@@ -5,10 +5,10 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Any additional state management for the Home screen can be added here
+  // Any additional state management for the HomeScreen screen can be added here
   
   return (
-    <HomePresenter 
+    <HomePresenter
       isLoading={isLoading}
       error={error}
     />

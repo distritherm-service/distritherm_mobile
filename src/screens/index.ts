@@ -1,8 +1,8 @@
-import Cart from "./Cart";
-import Favorite from "./Favorite";
-import Home from "./Home";
-import Profil from "./Profil";
-import Search from "./Search";
+import Cart from "./CartScreen/Cart";
+import Favorite from "./FavoriteScreen/Favorite";
+import Home from "./HomeScreen/Home";
+import Profil from "./ProfilScreen/Profil";
+import Search from "./SearchScreen/Search";
 
 export default {
     Cart,

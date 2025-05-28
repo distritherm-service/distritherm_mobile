@@ -19,7 +19,7 @@ export const colors = {
     100: '#b8e7ed',
     200: '#8ad8e2',
     300: '#5cc9d7',
-    400: '#3da5b5', // Main secondary color
+    400: '#3DA5B5', // Main secondary color
     500: '#2e8a99',
     600: '#256e7a',
     700: '#1c525b',

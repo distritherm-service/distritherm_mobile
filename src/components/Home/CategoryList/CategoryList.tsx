@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import CategoryListPresenter from './CategoryListPresenter';
+import CategoryListSkeleton from './CategoryListSkeleton/CategoryListSkeleton';
 import categoriesService from '../../../services/categoriesService';
 
 export interface Category {
@@ -20,6 +21,11 @@ const CategoryList = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Logique de génération du skeleton
+  const generateSkeleton = useCallback(() => {
+    return <CategoryListSkeleton itemCount={6} />;
+  }, []);
+
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -28,7 +34,6 @@ const CategoryList = () => {
     try {
       setLoading(true);
       setError(null);
-      console.log('Fetching categories...');
       
       const response = await categoriesService.getAllCategories();
       
@@ -41,7 +46,6 @@ const CategoryList = () => {
       // Ensure we have an array
       if (Array.isArray(categoriesData)) {
         setCategories(categoriesData);
-        console.log('Categories loaded:', categoriesData.length);
       } else {
         console.warn('Categories response is not an array:', categoriesData);
         setCategories([]);
@@ -53,7 +57,6 @@ const CategoryList = () => {
       
       // For development: Add some mock data if API fails
       if (__DEV__) {
-        console.log('Adding mock categories for development');
         setCategories([
           {
             id: 1,
@@ -133,6 +136,7 @@ const CategoryList = () => {
       error={error}
       onCategoryPress={handleCategoryPress}
       onRefresh={handleRefresh}
+      skeleton={generateSkeleton()}
     />
   );
 };

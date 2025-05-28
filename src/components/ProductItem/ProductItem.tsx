@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import ProductItemPresenter from './ProductItemPresenter'
 import { ProductBasicDto } from 'src/types/Product'
 import { isTablet } from 'src/utils/deviceUtils'
+import { NO_IMAGE_URL } from 'src/utils/noImage'
 
 interface ProductItemProps {
   product?: ProductBasicDto;
@@ -10,7 +11,6 @@ interface ProductItemProps {
   onFavoritePress?: (product: ProductBasicDto) => void;
 }
 
-const DEFAULT_IMAGE_URL = "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg?20200913095930";
 
 const ProductItem: React.FC<ProductItemProps> = ({ 
   product, 
@@ -60,7 +60,7 @@ const ProductItem: React.FC<ProductItemProps> = ({
     // if (imageError || !currentProduct.imagesUrl?.[0]) {
     //   return { uri: DEFAULT_IMAGE_URL };
     // }
-      return { uri: DEFAULT_IMAGE_URL };
+      return { uri: NO_IMAGE_URL };
       // return { uri: currentProduct.imagesUrl[0] };
   };
 

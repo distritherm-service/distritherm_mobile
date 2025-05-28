@@ -2,11 +2,12 @@ import React, { useState, useCallback } from 'react';
 import { BackHandler, Platform } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import BottomBarPresenter from './BottomBarPresenter';
-import Home from '../../screens/Home';
-import Search from '../../screens/Search';
-import Favorite from '../../screens/Favorite';
-import Cart from '../../screens/Cart';
-import Profil from '../../screens/Profil';
+import Home from '../../screens/HomeScreen/Home';
+import Cart from '../../screens/CartScreen/Cart';
+import Favorite from '../../screens/FavoriteScreen/Favorite';
+import Profil from '../../screens/ProfilScreen/Profil';
+import Search from '../../screens/SearchScreen/Search';
+
 
 /**
  * Container component for BottomBar

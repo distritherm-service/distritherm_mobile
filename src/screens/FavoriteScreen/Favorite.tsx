@@ -1,16 +1,16 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
-import PageContainer from "../components/PageContainer/PageContainer";
 import { ms } from "react-native-size-matters";
+import PageContainer from "src/components/PageContainer/PageContainer";
 
-const Search = () => {
+const Favorite = () => {
   return (
     <PageContainer>
-      <Text style={{ fontSize: ms(20) }}>Search</Text>
+      <Text style={{ fontSize: ms(20) }}>Favorite</Text>
     </PageContainer>
   );
 };
 
-export default Search;
+export default Favorite;
 
 const styles = StyleSheet.create({});

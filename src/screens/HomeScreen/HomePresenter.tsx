@@ -1,10 +1,10 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
-import PageContainer from "../PageContainer/PageContainer";
-import Header from "./Header/Header";
-import PromotionsBanner from "./PromotionsBanner/PromotionsBanner";
-import Recommandation from "./Recommandation/Recommandations";
-import CategoryList from "./CategoryList/CategoryList";
+import PageContainer from "src/components/PageContainer/PageContainer";
+import CategoryList from "src/components/Home/CategoryList/CategoryList";
+import PromotionsBanner from "src/components/Home/PromotionsBanner/PromotionsBanner";
+import Recommandation from "src/components/Home/Recommandation/Recommandations";
+import Header from "src/components/Home/Header/Header";
 
 interface HomePresenterProps {
   isLoading: boolean;
@@ -13,7 +13,7 @@ interface HomePresenterProps {
 
 const HomePresenter: React.FC<HomePresenterProps> = ({ isLoading, error }) => {
   return (
-    <PageContainer>
+    <PageContainer isScrollable={true}>
       <Header />
       <View style={styles.categorySection}>
         <CategoryList />

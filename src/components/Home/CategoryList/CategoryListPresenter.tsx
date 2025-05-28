@@ -5,7 +5,6 @@ import {
   View,
   FlatList,
   Pressable,
-  ActivityIndicator,
   Image,
   Dimensions,
 } from 'react-native';
@@ -22,6 +21,7 @@ interface CategoryListPresenterProps {
   error: string | null;
   onCategoryPress: (category: Category) => void;
   onRefresh: () => void;
+  skeleton: React.ReactElement;
 }
 
 const CategoryListPresenter: React.FC<CategoryListPresenterProps> = ({
@@ -30,6 +30,7 @@ const CategoryListPresenter: React.FC<CategoryListPresenterProps> = ({
   error,
   onCategoryPress,
   onRefresh,
+  skeleton,
 }) => {
   const renderCategoryItem = ({ item }: { item: Category }) => (
     <Pressable
@@ -57,35 +58,23 @@ const CategoryListPresenter: React.FC<CategoryListPresenterProps> = ({
     </View>
   );
 
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.sectionTitle}>Catégories</Text>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="small" color={colors.secondary[400]} />
-          <Text style={styles.loadingText}>Chargement...</Text>
-        </View>
-      </View>
-    );
-  }
+  const renderContent = () => {
+    if (loading) {
+      return skeleton;
+    }
 
-  if (error) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.sectionTitle}>Catégories</Text>
+    if (error) {
+      return (
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>Erreur de chargement</Text>
           <Pressable style={styles.retryButton} onPress={onRefresh}>
             <Text style={styles.retryText}>Réessayer</Text>
           </Pressable>
         </View>
-      </View>
-    );
-  }
+      );
+    }
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.sectionTitle}>Catégories</Text>
+    return (
       <FlatList
         data={categories}
         renderItem={renderCategoryItem}
@@ -100,6 +89,13 @@ const CategoryListPresenter: React.FC<CategoryListPresenterProps> = ({
         snapToInterval={ms(90)} // Snap to each item
         snapToAlignment="start"
       />
+    );
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.sectionTitle}>Catégories</Text>
+      {renderContent()}
     </View>
   );
 };
@@ -167,18 +163,6 @@ const styles = StyleSheet.create({
     lineHeight: ms(13),
     maxWidth: ms(75),
     letterSpacing: -0.2,
-  },
-  loadingContainer: {
-    height: ms(100),
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-  },
-  loadingText: {
-    marginLeft: ms(8),
-    fontSize: ms(14),
-    color: colors.tertiary[400],
-    fontWeight: '400',
   },
   errorContainer: {
     height: ms(100),

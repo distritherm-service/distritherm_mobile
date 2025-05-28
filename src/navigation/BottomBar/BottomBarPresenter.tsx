@@ -24,8 +24,8 @@ import {
   CART_BUTTON_SIZE,
   SCREEN_WIDTH,
   ICON_SIZE,
-  isTablet,
 } from "./constants";
+import { isTablet } from "src/utils/deviceUtils";
 
 interface BottomBarPresenterProps {
   activeTab: string;
@@ -44,7 +44,7 @@ const BottomBarPresenter: React.FC<BottomBarPresenterProps> = ({
   const bottomInset =
     Platform.OS == "android"
       ? Math.max(insets.bottom, 10)
-      : isTablet
+      : isTablet()
       ? Math.max(insets.bottom, 10)
       : Math.max(insets.bottom, 10) - 14;
 

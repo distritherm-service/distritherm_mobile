@@ -17,6 +17,7 @@ interface PageContainerPresenterProps {
   children: React.ReactNode;
   style?: ViewStyle;
   contentStyle?: ViewStyle;
+  isScrollable?: boolean;
 }
 
 const PageContainerPresenter: React.FC<PageContainerPresenterProps> = ({
@@ -24,6 +25,7 @@ const PageContainerPresenter: React.FC<PageContainerPresenterProps> = ({
   children,
   style,
   contentStyle,
+  isScrollable = false,
 }) => {
   // Ajuster le padding pour éviter que le contenu touche le bas
 
@@ -44,16 +46,22 @@ const PageContainerPresenter: React.FC<PageContainerPresenterProps> = ({
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={styles.keyboardAvoid}
         >
-          <ScrollView
-            style={[styles.scrollView, contentStyle]}
-            contentContainerStyle={[styles.scrollContent]}
-            showsVerticalScrollIndicator={false}
-            bounces={false}
-            automaticallyAdjustContentInsets={false}
-            contentInsetAdjustmentBehavior="never"
-          >
-            {children}
-          </ScrollView>
+          {isScrollable ? (
+            <ScrollView
+              style={[styles.scrollView, contentStyle]}
+              contentContainerStyle={[styles.scrollContent]}
+              showsVerticalScrollIndicator={false}
+              bounces={false}
+              automaticallyAdjustContentInsets={false}
+              contentInsetAdjustmentBehavior="never"
+            >
+              {children}
+            </ScrollView>
+          ) : (
+            <View style={[styles.scrollView, contentStyle, styles.scrollContent]}>
+              {children}
+            </View>
+          )}
         </KeyboardAvoidingView>
       </SafeAreaView>
     </>
