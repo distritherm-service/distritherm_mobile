@@ -9,7 +9,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { Category } from './CategoryList';
-import { colors } from '../../../utils/colors';
+import colors from "src/utils/colors";
 import { ms } from 'react-native-size-matters';
 
 const { width } = Dimensions.get('window');

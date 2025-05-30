@@ -1,40 +1,40 @@
-import { StyleSheet, Text, View, TextInput } from "react-native";
-import React from "react";
-import { colors } from "src/utils/colors";
-import { ms } from "react-native-size-matters";
+import React from 'react';
+import { StyleSheet, TextInput, View, Text } from 'react-native';
+import colors from "src/utils/colors";
+import { scale, verticalScale } from 'react-native-size-matters';
 import { InputType } from "src/types/InputType";
 import { Controller } from "react-hook-form";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 
-interface InputPresenterProps {
-  placeholder?: string;
+type InputPresenterProps = {
   value: string;
-  onChangeText: any;
-  label?: string;
-  secureTextEntry?: boolean;
+  onChangeText: (text: string) => void;
   type?: InputType;
+  placeholder?: string;
+  error?: string;
+  label?: string;
   leftLogo?: IconDefinition;
-}
+};
 
-const InputPresenter: React.FC<InputPresenterProps> = ({
-  placeholder,
+const InputPresenter = ({
   value,
   onChangeText,
-  label,
-  secureTextEntry = false,
   type = InputType.DEFAULT,
+  placeholder,
+  error,
+  label,
   leftLogo,
-}) => {
+}: InputPresenterProps) => {
   return (
-    <View>
+    <View style={styles.container}>
       {label && <Text style={styles.label}>{label}</Text>}
       <View style={styles.inputContainer}>
         {leftLogo && (
           <View style={styles.leftLogoContainer}>
             <FontAwesomeIcon 
               icon={leftLogo} 
-              size={ms(16)} 
+              size={scale(16)} 
               color={colors.tertiary[500]} 
             />
           </View>
@@ -42,61 +42,50 @@ const InputPresenter: React.FC<InputPresenterProps> = ({
         <TextInput
           style={[
             styles.input,
-            type === InputType.TEXTAREA && styles.textarea,
             leftLogo && styles.inputWithLeftLogo,
           ]}
-          placeholder={placeholder}
           value={value}
           onChangeText={onChangeText}
-          secureTextEntry={secureTextEntry || type === InputType.PASSWORD}
-          keyboardType={
-            type === InputType.PASSWORD || type === InputType.TEXTAREA
-              ? "default"
-              : type
-          }
+          placeholder={placeholder}
+          secureTextEntry={type === 'password'}
+          keyboardType={type === InputType.EMAIL_ADDRESS ? 'email-address' : 'default'}
           placeholderTextColor={colors.tertiary[500]}
-          multiline={type === InputType.TEXTAREA}
-          numberOfLines={type === InputType.TEXTAREA ? 4 : 1}
         />
       </View>
+      {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
 };
 
-export default InputPresenter;
-
 const styles = StyleSheet.create({
+  container: {
+    marginBottom: verticalScale(16),
+  },
   label: {
-    fontSize: ms(14),
+    fontSize: scale(14),
     fontWeight: "500",
     color: colors.secondary[500],
-    marginBottom: ms(10),
+    marginBottom: verticalScale(10),
     letterSpacing: 0.5,
   },
   inputContainer: {
     position: "relative",
   },
   input: {
-    height: ms(45),
+    height: verticalScale(40),
     borderWidth: 1,
-    borderColor: colors.tertiary[100],
-    borderRadius: ms(12),
-    paddingHorizontal: ms(18),
-    fontSize: ms(15),
-    color: colors.tertiary[600],
-    backgroundColor: colors.primary[50],
-    shadowColor: colors.tertiary[50],
-    shadowOffset: { width: ms(0), height: ms(2) },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 2,
+    borderColor: colors.border,
+    borderRadius: scale(8),
+    paddingHorizontal: scale(12),
+    fontSize: scale(14),
+    color: colors.text,
   },
   inputWithLeftLogo: {
-    paddingLeft: ms(50),
+    paddingLeft: scale(50),
   },
   leftLogoContainer: {
     position: "absolute",
-    left: ms(15),
+    left: scale(15),
     top: 0,
     bottom: 0,
     display: "flex",
@@ -104,17 +93,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     zIndex: 1,
   },
-  textarea: {
-    height: ms(100),
-    textAlignVertical: "top",
-    paddingTop: ms(14),
-  },
-  searchIcon: {
-    position: "absolute",
-    right: ms(15),
-    top: ms(13),
-  },
-  searchIconText: {
-    fontSize: ms(18),
+  errorText: {
+    color: colors.error,
+    fontSize: scale(12),
+    marginTop: verticalScale(4),
   },
 });
+
+export default InputPresenter;

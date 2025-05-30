@@ -6,7 +6,7 @@ import {
   Platform,
 } from 'react-native';
 import { ms } from 'react-native-size-matters';
-import { colors } from 'src/utils/colors';
+import colors from 'src/utils/colors';
 
 interface ProductItemSkeletonPresenterProps {
   fadeAnim: Animated.Value;

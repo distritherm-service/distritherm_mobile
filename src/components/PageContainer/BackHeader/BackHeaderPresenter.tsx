@@ -10,7 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import { EdgeInsets } from "react-native-safe-area-context";
 import { moderateScale as ms } from "react-native-size-matters";
-import { colors } from "../../../utils/colors";
+import colors from "src/utils/colors";
 
 interface BackHeaderPresenterProps {
   title?: string;

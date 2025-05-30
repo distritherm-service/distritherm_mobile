@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { globalStyles } from "src/utils/globalStyles";
-import { colors } from "src/utils/colors";
+import colors from "src/utils/colors";
 import { ms } from "react-native-size-matters";
 import ProductItem from "src/components/ProductItem/ProductItem";
 import { ProductBasicDto } from "src/types/Product";

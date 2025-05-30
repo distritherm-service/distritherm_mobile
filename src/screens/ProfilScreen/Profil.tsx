@@ -3,19 +3,24 @@ import React from "react";
 import { ms } from "react-native-size-matters";
 import PageContainer from "src/components/PageContainer/PageContainer";
 import ProfilPresenter from "./ProfilPresenter";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "src/navigation/types";
+
+type ProfilNavigationProp = StackNavigationProp<RootStackParamList>;
 
 const Profil = () => {
+
+  const navigation = useNavigation<ProfilNavigationProp>();
+
   const handleNavigation = (screen: string) => {
-    // Ici vous pouvez ajouter votre logique de navigation
-    // Par exemple avec React Navigation:
-    // navigation.navigate(screen);
     
     switch (screen) {
       case 'Login':
-        console.log('Navigate to Login screen');
+        navigation.navigate('Auth', { screen: 'Login' });
         break;
       case 'Register':
-        console.log('Navigate to Register screen');
+        navigation.navigate('Auth', { screen: 'Register' });
         break;
       case 'Orders':
         console.log('Navigate to Orders screen');

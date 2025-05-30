@@ -1,6 +1,6 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { BackHandler, Platform } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import BottomBarPresenter from './BottomBarPresenter';
 import Home from '../../screens/HomeScreen/Home';
 import Cart from '../../screens/CartScreen/Cart';
@@ -14,7 +14,17 @@ import Search from '../../screens/SearchScreen/Search';
  * Handles business logic, data fetching, and state management
  */
 const BottomBar = () => {
-  const [activeTab, setActiveTab] = useState('Home');
+  const route = useRoute();
+  const params = route.params as { initialTab?: string } | undefined;
+  
+  const [activeTab, setActiveTab] = useState(params?.initialTab || 'Home');
+
+  // Mettre à jour l'onglet actif si les paramètres changent
+  useEffect(() => {
+    if (params?.initialTab) {
+      setActiveTab(params.initialTab);
+    }
+  }, [params?.initialTab]);
 
   // Gestion du bouton retour sur Android
   useFocusEffect(

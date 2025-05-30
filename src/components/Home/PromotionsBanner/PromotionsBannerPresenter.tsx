@@ -6,12 +6,13 @@ import {
   Dimensions,
   Text,
   Pressable,
+  Animated,
 } from "react-native";
-import React, { RefObject } from "react";
+import React, { RefObject, useRef, useEffect } from "react";
 import { globalStyles } from "src/utils/globalStyles";
 import { PromotionBannerDto } from "src/services/promotionBannersService";
 import { ms } from "react-native-size-matters";
-import { colors } from "src/utils/colors";
+import colors from "src/utils/colors";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 
@@ -19,26 +20,91 @@ interface PromotionsBannerPresenterProps {
   banners: PromotionBannerDto[];
   flatlistRef: RefObject<FlatList | null>;
   currentIndex: number;
+  imageLoadingStates: {[key: string]: boolean};
   onDiscoverPress: () => void;
   onScrollEnd: (event: any) => void;
+  onImageLoad: (bannerId: string) => void;
+  onImageError: (bannerId: string) => void;
 }
 
 const { width: screenWidth } = Dimensions.get("window");
 
 const PromotionBannerItem = ({
   item,
+  isImageLoading,
   onDiscoverPress,
+  onImageLoad,
+  onImageError,
 }: {
   item: PromotionBannerDto;
+  isImageLoading: boolean;
   onDiscoverPress: (promotion: PromotionBannerDto) => void;
+  onImageLoad: (bannerId: string) => void;
+  onImageError: (bannerId: string) => void;
 }) => {
+  // Animation pour le skeleton de l'image
+  const shimmerAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (isImageLoading) {
+      const shimmerAnimation = Animated.loop(
+        Animated.sequence([
+          Animated.timing(shimmerAnim, {
+            toValue: 1,
+            duration: 1500,
+            useNativeDriver: true,
+          }),
+          Animated.timing(shimmerAnim, {
+            toValue: 0,
+            duration: 1500,
+            useNativeDriver: true,
+          }),
+        ])
+      );
+      shimmerAnimation.start();
+
+      return () => shimmerAnimation.stop();
+    }
+  }, [isImageLoading]);
+
+  const shimmerTranslateX = shimmerAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-200, 200],
+  });
+
+  const shimmerOpacity = shimmerAnim.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [0.3, 0.8, 0.3],
+  });
+
   return (
     <View style={styles.bannerContainer}>
-      <Image
-        source={{ uri: item.imageUrl }}
-        style={styles.bannerImage}
-        resizeMode="stretch"
-      />
+      {/* Image avec skeleton de chargement */}
+      <View style={styles.imageContainer}>
+        <Image
+          source={{ uri: item.imageUrl }}
+          style={[styles.bannerImage, isImageLoading && { opacity: 0 }]}
+          resizeMode="stretch"
+          onLoad={() => onImageLoad(item.id.toString())}
+          onError={() => onImageError(item.id.toString())}
+        />
+        
+        {/* Skeleton pendant le chargement de l'image */}
+        {isImageLoading && (
+          <View style={styles.imageSkeleton}>
+            <Animated.View
+              style={[
+                styles.shimmerOverlay,
+                {
+                  opacity: shimmerOpacity,
+                  transform: [{ translateX: shimmerTranslateX }],
+                },
+              ]}
+            />
+          </View>
+        )}
+      </View>
+
       <View style={styles.bannerOverlay} />
 
       {/* Discover Button for this specific promotion */}
@@ -67,8 +133,11 @@ const PromotionsBannerPresenter = ({
   banners,
   flatlistRef,
   currentIndex,
+  imageLoadingStates,
   onDiscoverPress,
   onScrollEnd,
+  onImageLoad,
+  onImageError,
 }: PromotionsBannerPresenterProps) => {
   return (
     <View style={[globalStyles.container, styles.container]}>
@@ -79,7 +148,10 @@ const PromotionsBannerPresenter = ({
           renderItem={({ item }) => (
             <PromotionBannerItem
               item={item}
+              isImageLoading={imageLoadingStates[item.id.toString()] || false}
               onDiscoverPress={onDiscoverPress}
+              onImageLoad={onImageLoad}
+              onImageError={onImageError}
             />
           )}
           keyExtractor={(item) => item.id.toString()}
@@ -123,24 +195,39 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   bannerContainer: {
-    width: screenWidth - ms(40),
+    width: screenWidth - ms(40), // ms(40) pour le padding horizontal
     height: ms(180),
     borderRadius: ms(16),
     overflow: "hidden",
     marginHorizontal: 0,
     position: "relative",
-    shadowColor: colors.secondary[400],
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+  },
+  imageContainer: {
+    width: "100%",
+    height: "100%",
+    position: "relative",
   },
   bannerImage: {
     width: "100%",
     height: "100%",
+  },
+  imageSkeleton: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: colors.primary[200],
+    overflow: 'hidden',
+  },
+  shimmerOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: colors.primary[100],
+    opacity: 0.7,
   },
   bannerOverlay: {
     position: "absolute",

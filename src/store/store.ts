@@ -4,7 +4,6 @@ import userReducer from './features/userState';
 
 const rootReducer = combineReducers({
   user: userReducer,
-  // Add other reducers here
 });
 
 const store = configureStore({

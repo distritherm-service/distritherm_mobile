@@ -7,10 +7,11 @@ import {
   View,
   StatusBar,
   ViewStyle,
+  Text,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { moderateScale as ms } from "react-native-size-matters";
-import { colors } from "../../utils/colors";
+import colors from "src/utils/colors";
 
 interface PageContainerPresenterProps {
   headerComponent?: React.ReactNode;
@@ -18,6 +19,7 @@ interface PageContainerPresenterProps {
   style?: ViewStyle;
   contentStyle?: ViewStyle;
   isScrollable?: boolean;
+  bottomBar?: boolean;
 }
 
 const PageContainerPresenter: React.FC<PageContainerPresenterProps> = ({
@@ -26,6 +28,7 @@ const PageContainerPresenter: React.FC<PageContainerPresenterProps> = ({
   style,
   contentStyle,
   isScrollable = false,
+  bottomBar = true,
 }) => {
   // Ajuster le padding pour éviter que le contenu touche le bas
 
@@ -37,7 +40,7 @@ const PageContainerPresenter: React.FC<PageContainerPresenterProps> = ({
         barStyle="dark-content"
       />
       <SafeAreaView
-        style={[styles.safeContainer, style]}
+        style={[styles.safeContainer, !bottomBar && {paddingBottom: 0}, style]}
         edges={["top", "bottom"]}
       >
         {headerComponent}

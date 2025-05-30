@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
-import { colors } from '../../../utils/colors';
+import colors from "src/utils/colors";
 import { CalculatedBarProps } from './CurvedBottomBar';
 
 const CurvedBottomBarPresenter: React.FC<CalculatedBarProps> = ({

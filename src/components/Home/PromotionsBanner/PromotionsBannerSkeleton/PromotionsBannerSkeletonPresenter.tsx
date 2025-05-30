@@ -3,30 +3,27 @@ import {
   StyleSheet,
   View,
   Animated,
-  ScrollView,
   Dimensions,
 } from 'react-native';
 import { ms } from 'react-native-size-matters';
-import { colors } from 'src/utils/colors';
+import colors from "src/utils/colors";
 import { globalStyles } from 'src/utils/globalStyles';
-
-const { width: screenWidth } = Dimensions.get("window");
 
 interface PromotionsBannerSkeletonPresenterProps {
   fadeAnim: Animated.Value;
   scaleAnim: Animated.Value;
   shimmerTranslateX: Animated.AnimatedInterpolation<string | number>;
   shimmerOpacity: Animated.AnimatedInterpolation<string | number>;
-  pulseDotOpacity: Animated.AnimatedInterpolation<string | number>;
   itemCount: number;
 }
+
+const { width: screenWidth } = Dimensions.get("window");
 
 const PromotionsBannerSkeletonPresenter: React.FC<PromotionsBannerSkeletonPresenterProps> = ({
   fadeAnim,
   scaleAnim,
   shimmerTranslateX,
   shimmerOpacity,
-  pulseDotOpacity,
   itemCount,
 }) => {
   const SkeletonBox = ({ style, children }: { style: any; children?: React.ReactNode }) => (
@@ -55,19 +52,9 @@ const PromotionsBannerSkeletonPresenter: React.FC<PromotionsBannerSkeletonPresen
         },
       ]}
     >
-      {/* Banner Image Skeleton */}
       <SkeletonBox style={styles.bannerImageSkeleton}>
-        {/* Banner Overlay Skeleton */}
-        <View style={styles.bannerOverlaySkeleton} />
-        
-        {/* Discover Button Skeleton */}
         <View style={styles.discoverButtonContainer}>
-          <SkeletonBox style={styles.discoverButtonSkeleton}>
-            {/* Button Text Skeleton */}
-            <SkeletonBox style={styles.discoverTextSkeleton} />
-            {/* Button Icon Skeleton */}
-            <SkeletonBox style={styles.discoverIconSkeleton} />
-          </SkeletonBox>
+          <SkeletonBox style={styles.discoverButtonSkeleton} />
         </View>
       </SkeletonBox>
     </Animated.View>
@@ -76,28 +63,17 @@ const PromotionsBannerSkeletonPresenter: React.FC<PromotionsBannerSkeletonPresen
   return (
     <View style={[globalStyles.container, styles.container]}>
       <View style={styles.bannerWrapper}>
-        {/* Banner Skeleton */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          pagingEnabled
-          scrollEnabled={false}
-          contentContainerStyle={styles.scrollViewContent}
-        >
-          {Array.from({ length: itemCount }, (_, index) => renderSkeletonBanner(index))}
-        </ScrollView>
+        <View style={styles.bannersContainer}>
+          {renderSkeletonBanner(0)}
+        </View>
 
-        {/* Pagination Dots Skeleton */}
         <View style={styles.paginationContainer}>
           {Array.from({ length: itemCount }, (_, index) => (
-            <Animated.View
+            <SkeletonBox
               key={`dot-skeleton-${index}`}
               style={[
                 styles.paginationDotSkeleton,
                 index === 0 && styles.activePaginationDotSkeleton,
-                {
-                  opacity: pulseDotOpacity,
-                },
               ]}
             />
           ))}
@@ -118,9 +94,8 @@ const styles = StyleSheet.create({
     position: "relative",
     height: "100%",
   },
-  scrollViewContent: {
-    paddingHorizontal: ms(20),
-    gap: ms(16),
+  bannersContainer: {
+    height: ms(180),
   },
   bannerContainer: {
     width: screenWidth - ms(40),
@@ -129,27 +104,11 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     marginHorizontal: 0,
     position: "relative",
-    shadowColor: colors.secondary[400],
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 4,
   },
   bannerImageSkeleton: {
     width: "100%",
     height: "100%",
     borderRadius: ms(16),
-  },
-  bannerOverlaySkeleton: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.05)",
   },
   discoverButtonContainer: {
     position: "absolute",
@@ -160,33 +119,9 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   discoverButtonSkeleton: {
-    width: ms(120),
+    width: ms(100),
     height: ms(32),
     borderRadius: ms(20),
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: ms(16),
-    paddingVertical: ms(6),
-    shadowColor: "rgba(0, 0, 0, 0.15)",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  discoverTextSkeleton: {
-    width: ms(70),
-    height: ms(14),
-    borderRadius: ms(4),
-    marginRight: ms(6),
-  },
-  discoverIconSkeleton: {
-    width: ms(12),
-    height: ms(12),
-    borderRadius: ms(6),
   },
   paginationContainer: {
     flexDirection: "row",
@@ -199,15 +134,13 @@ const styles = StyleSheet.create({
     width: ms(8),
     height: ms(8),
     borderRadius: ms(4),
-    backgroundColor: colors.tertiary[200],
     marginHorizontal: ms(4),
   },
   activePaginationDotSkeleton: {
-    backgroundColor: colors.primary[400],
     transform: [{ scale: 1.2 }],
   },
   skeletonBase: {
-    backgroundColor: colors.primary[200],
+    backgroundColor: colors.primary?.[200] || '#E5E7EB',
     overflow: 'hidden',
     position: 'relative',
   },
@@ -217,7 +150,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: colors.primary[100],
+    backgroundColor: colors.primary?.[100] || '#F3F4F6',
     opacity: 0.7,
   },
 }); 

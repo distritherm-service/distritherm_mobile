@@ -3,7 +3,7 @@ import { Pressable, Text, Animated, View, ViewStyle, TextStyle, StyleSheet } fro
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { moderateScale as ms } from 'react-native-size-matters';
-import { colors } from '../../../utils/colors';
+import colors from "src/utils/colors";
 import { ICON_SIZE } from '../constants';
 
 interface TabItemPresenterProps {

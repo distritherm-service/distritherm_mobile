@@ -15,7 +15,7 @@ import {
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CurvedBottomBar from "./CurvedBottomBar/CurvedBottomBar";
-import { colors } from "../../utils/colors";
+import colors from "src/utils/colors";
 import { moderateScale as ms } from "react-native-size-matters";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import TabItem from "./TabItem/TabItem";

@@ -11,7 +11,7 @@ import {
 import React from "react";
 import { ms } from "react-native-size-matters";
 import { Agency } from "src/types/Agency";
-import { colors } from "src/utils/colors";
+import colors from 'src/utils/colors';
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faChevronDown, faChevronUp, faSearch } from "@fortawesome/free-solid-svg-icons";
 import Input from "src/components/Input/Input";

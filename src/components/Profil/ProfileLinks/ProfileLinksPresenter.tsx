@@ -8,7 +8,7 @@ import {
   Platform,
 } from 'react-native';
 import { ms } from 'react-native-size-matters';
-import { colors } from 'src/utils/colors';
+import colors from "src/utils/colors";
 import { FontAwesome5 } from '@expo/vector-icons';
 import { ProfileSection } from './ProfileLinks';
 import { LinearGradient } from 'expo-linear-gradient';

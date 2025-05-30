@@ -12,6 +12,7 @@ interface PageContainerProps {
   style?: ViewStyle;
   contentStyle?: ViewStyle;
   isScrollable?: boolean;
+  bottomBar?: boolean;
 }
 
 const PageContainer: React.FC<PageContainerProps> = ({
@@ -23,11 +24,12 @@ const PageContainer: React.FC<PageContainerProps> = ({
   style,
   contentStyle,
   isScrollable = false,
+  bottomBar = true,
 }) => {
   // Création du composant d'en-tête si nécessaire
   const headerComponent = headerBack ? (
-    <BackHeader 
-      title={headerTitle} 
+    <BackHeader
+      title={headerTitle}
       onCustomBack={onCustomBack}
       hideBackButton={hideBackButton}
     />
@@ -39,6 +41,7 @@ const PageContainer: React.FC<PageContainerProps> = ({
       style={style}
       contentStyle={contentStyle}
       isScrollable={isScrollable}
+      bottomBar={bottomBar}
     >
       {children}
     </PageContainerPresenter>

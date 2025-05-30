@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import React from "react";
 import { ms } from "react-native-size-matters";
-import { colors } from "src/utils/colors";
+import colors from "src/utils/colors";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import { faHeart as faHeartSolid } from "@fortawesome/free-solid-svg-icons";

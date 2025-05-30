@@ -1,37 +1,38 @@
 import React from "react";
+import { TextInputProps } from "react-native";
 import InputPresenter from "./InputPresenter";
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import { InputType } from "src/types/InputType";
 
-interface InputProps {
-  // Basic props
-  placeholder?: string;
+type InputProps = {
   value: string;
-  onChangeText: any;
+  onChangeText: (text: string) => void;
+  type?: InputType;
+  placeholder?: string;
   label?: string;
   secureTextEntry?: boolean;
-  type: InputType;
   leftLogo?: IconDefinition;
-}
+} & TextInputProps;
 
 const Input = ({
-  placeholder,
   value,
   onChangeText,
+  type = InputType.DEFAULT,
+  placeholder,
   label,
   secureTextEntry,
-  type,
   leftLogo,
+  ...props
 }: InputProps) => {
   return (
     <InputPresenter
-      placeholder={placeholder}
       value={value}
       onChangeText={onChangeText}
-      label={label}
-      secureTextEntry={secureTextEntry}
       type={type}
+      placeholder={placeholder}
+      label={label}
       leftLogo={leftLogo}
+      {...props}
     />
   );
 };

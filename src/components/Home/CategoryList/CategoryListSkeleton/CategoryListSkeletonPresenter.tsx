@@ -6,7 +6,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { ms } from 'react-native-size-matters';
-import { colors } from 'src/utils/colors';
+import colors from 'src/utils/colors';
 
 interface CategoryListSkeletonPresenterProps {
   fadeAnim: Animated.Value;

@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { ms } from "react-native-size-matters";
 import { User } from "src/types/User";
-import { colors } from "src/utils/colors";
+import colors from "src/utils/colors";
 import { isTablet } from "src/utils/deviceUtils";
 import { NO_IMAGE_URL } from "src/utils/noImage";
 
