@@ -131,11 +131,13 @@ const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
             {/* Message d'erreur */}
             {error && (
               <View style={styles.errorContainer}>
-                <FontAwesome6
-                  name="circle-exclamation"
-                  size={ms(16)}
-                  color={colors.tertiary[700]}
-                />
+                <View style={styles.errorIconContainer}>
+                  <FontAwesome6
+                    name="circle-info"
+                    size={ms(16)}
+                    color="#EF4444"
+                  />
+                </View>
                 <Text style={styles.errorText}>{error}</Text>
               </View>
             )}
@@ -270,22 +272,41 @@ const styles = StyleSheet.create({
   },
   errorContainer: {
     flexDirection: "row",
-    alignItems: "center",
-    gap: ms(8),
-    backgroundColor: colors.primary[100],
-    paddingHorizontal: ms(16),
-    paddingVertical: ms(12),
-    borderRadius: ms(12),
-    borderLeftWidth: ms(4),
-    borderLeftColor: colors.tertiary[700],
+    alignItems: "flex-start",
+    gap: ms(12),
+    backgroundColor: "#FEFEFE",
+    paddingHorizontal: ms(20),
+    paddingVertical: ms(16),
+    borderRadius: ms(16),
+    borderWidth: ms(1),
+    borderColor: "#FEE2E2",
     marginBottom: ms(24),
     width: "100%",
+    shadowColor: "#000000",
+    shadowOffset: {
+      width: 0,
+      height: ms(1),
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: ms(8),
+    elevation: 1,
+  },
+  errorIconContainer: {
+    width: ms(32),
+    height: ms(32),
+    borderRadius: ms(16),
+    backgroundColor: "#FEF2F2",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: ms(2),
   },
   errorText: {
-    color: colors.tertiary[800],
+    color: "#374151",
     fontSize: ms(14),
     fontWeight: "500",
     flex: 1,
+    lineHeight: ms(20),
+    letterSpacing: ms(0.2),
   },
   formContainer: {
     width: "100%",

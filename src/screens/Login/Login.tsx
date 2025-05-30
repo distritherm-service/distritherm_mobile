@@ -21,8 +21,6 @@ const Login = () => {
   });
 
   // Watch form values for real-time validation feedback
-  const watchedValues = watch();
-
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     setError(undefined);
@@ -40,17 +38,7 @@ const Login = () => {
      console.log(response);
       
     } catch (err: any) {
-      console.error('Login error:', err);
-      
-      // Display error response from server
-      const errorMessage = err?.response?.data?.message || err?.message || 'Login failed. Please try again.';
-      
-      Alert.alert(
-        'Login Error',
-        JSON.stringify(err?.response?.data || { error: errorMessage }, null, 2)
-      );
-      
-      setError(errorMessage);
+      setError(err.response.data.message);
     } finally {
       setIsLoading(false);
     }

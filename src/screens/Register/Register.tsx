@@ -41,11 +41,29 @@ const Register = () => {
     }
   };
 
+  // Function to format French phone numbers to international format
+  const formatPhoneNumber = (phoneNumber: string): string => {
+    // Remove all spaces, dots, dashes, and other non-digit characters except +
+    const cleanedNumber = phoneNumber.replace(/[^\d+]/g, '');
+    
+    // Check if it's a French number starting with 0 (like 0780853613)
+    if (cleanedNumber.startsWith('0') && cleanedNumber.length === 10) {
+      // Convert to international format: remove the leading 0 and add +33
+      return '+33' + cleanedNumber.substring(1);
+    }
+    
+    // If it already has +33 or is in another format, return as is
+    return cleanedNumber;
+  };
+
   const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);
     setError(undefined);
 
     try {
+      // Format phone number to international format if needed
+      const formattedPhoneNumber = formatPhoneNumber(data.phoneNumber);
+
       // Prepare registration data according to authService interface
       const registerDto: RegularRegisterDto = {
         firstName: data.firstName,
@@ -53,7 +71,7 @@ const Register = () => {
         email: data.email,
         password: data.password,
         companyName: data.companyName,
-        phoneNumber: data.phoneNumber,
+        phoneNumber: formattedPhoneNumber, // Use formatted phone number
         siretNumber: data.siretNumber,
       };
 
