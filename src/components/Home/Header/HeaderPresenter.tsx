@@ -7,6 +7,7 @@ import {
   Modal,
   FlatList,
   Animated,
+  TextInput,
 } from "react-native";
 import React from "react";
 import { ms } from "react-native-size-matters";
@@ -179,15 +180,15 @@ const HeaderPresenter: React.FC<HeaderPresenterProps> = ({
           </Modal>
         </View>
       </View>
-
       <View style={styles.bottomContent}>
-        <Input
+        {/* <Input
+          name="search" 
           placeholder="Rechercher un produit"
           value={searchValue}
           onChangeText={onSearchChange}
           type={InputType.DEFAULT}
           leftLogo={faSearch}
-        />
+        /> */}
       </View>
     </View>
   );

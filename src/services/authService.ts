@@ -15,7 +15,7 @@ export interface RegularRegisterDto {
   phoneNumber: string;
   siretNumber: string;
 }
-
+ 
 export interface AdditionalUserInfoDto {
   firstName?: string;
   lastName?: string;

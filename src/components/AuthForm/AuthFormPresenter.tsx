@@ -6,6 +6,8 @@ import {
   View,
   SafeAreaView,
   Platform,
+  ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import React from "react";
 import colors from "src/utils/colors";
@@ -19,6 +21,11 @@ interface AuthFormPresenterProps {
   type: "login" | "register";
   onPressLoginRedirection: () => void;
   onGoBack: () => void;
+  onSubmit?: () => void;
+  isLoading?: boolean;
+  isScrollable: boolean;
+  onContentSizeChange: (width: number, height: number) => void;
+  onScrollContainerLayout: (event: any) => void;
 }
 
 const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
@@ -27,14 +34,33 @@ const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
   type,
   onPressLoginRedirection,
   onGoBack,
+  onSubmit,
+  isLoading = false,
+  isScrollable,
+  onContentSizeChange,
+  onScrollContainerLayout,
 }) => {
+  // Footer component to avoid duplication
+  const FooterButton = () => (
+    <View style={isScrollable ? styles.footerInline : styles.footer}>
+      <Pressable style={styles.homeButton} onPress={onGoBack}>
+        <FontAwesome6
+          name="arrow-left"
+          size={ms(16)}
+          color={colors.secondary[600]}
+        />
+        <Text style={styles.homeButtonText}>Retour en arrière</Text>
+      </Pressable>
+    </View>
+  );
+
   return (
     <View style={styles.safeArea}>
       <LinearGradient
         colors={[colors.primary[50], colors.primary[100], colors.primary[200]]}
         style={styles.container}
       >
-        {/* Header avec bouton de redirection à gauche */}
+        {/* Header avec bouton de redirection */}
         <View
           style={[
             styles.header,
@@ -69,64 +95,89 @@ const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
           </Pressable>
         </View>
 
-        {/* Section principale avec logo et formulaire */}
-        <View style={styles.mainContent}>
-          {/* Indicateur de page actuelle */}
-          <View style={styles.pageIndicator}>
-            <Text style={styles.pageIndicatorText}>
-              {type === "login" ? "CONNEXION" : "INSCRIPTION"}
-            </Text>
-          </View>
-
-          {/* Container du logo avec effet de profondeur */}
-          <View style={styles.logoContainer}>
-            <View style={styles.logoShadow}>
-              <Image
-                source={require("@assets/logo-without-bg.png")}
-                style={styles.logo}
-                resizeMode="contain"
-              />
+        {/* ScrollView global */}
+        <View 
+          style={styles.scrollContainer}
+          onLayout={onScrollContainerLayout}
+        >
+          <ScrollView
+            contentContainerStyle={[
+              styles.scrollContent,
+              // Adjust padding based on footer position: less padding when footer is inline
+              isScrollable && styles.scrollContentWithInlineFooter
+            ]}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            onContentSizeChange={onContentSizeChange}
+          >
+            {/* Container du logo avec effet de profondeur */}
+            <View style={styles.logoContainer}>
+              <View style={styles.logoShadow}>
+                <Image
+                  source={require("@assets/logo-without-bg.png")}
+                  style={styles.logo}
+                  resizeMode="contain"
+                />
+              </View>
             </View>
-          </View>
 
-          {/* Titre de bienvenue */}
-          <View style={styles.welcomeSection}>
-            <Text style={styles.welcomeTitle}>
-              {type === "login" ? "Bon retour !" : "Bienvenue !"}
-            </Text>
-            <Text style={styles.welcomeSubtitle}>
-              {type === "login"
-                ? "Connectez-vous à votre compte"
-                : "Créez votre compte pour commencer"}
-            </Text>
-          </View>
-
-          {/* Message d'erreur avec style amélioré */}
-          {error && (
-            <View style={styles.errorContainer}>
-              <FontAwesome6
-                name="circle-exclamation"
-                size={ms(16)}
-                color={colors.tertiary[700]}
-              />
-              <Text style={styles.errorText}>{error}</Text>
+            {/* Titre simple */}
+            <View style={styles.titleSection}>
+              <Text style={styles.title}>
+                {type === "login" ? "Connexion" : "Inscription"}
+              </Text>
             </View>
-          )}
 
-          {/* Formulaire */}
-          <View style={styles.formContainer}>{children}</View>
-        </View>
+            {/* Message d'erreur */}
+            {error && (
+              <View style={styles.errorContainer}>
+                <FontAwesome6
+                  name="circle-exclamation"
+                  size={ms(16)}
+                  color={colors.tertiary[700]}
+                />
+                <Text style={styles.errorText}>{error}</Text>
+              </View>
+            )}
 
-        {/* Bouton de retour à l'accueil en bas */}
-        <View style={styles.footer}>
-          <Pressable style={styles.homeButton} onPress={onGoBack}>
-            <FontAwesome6
-              name="arrow-left"
-              size={ms(16)}
-              color={colors.secondary[600]}
-            />
-            <Text style={styles.homeButtonText}>Retour en arrière</Text>
-          </Pressable>
+            {/* Formulaire */}
+            <View style={styles.formContainer}>
+              <View style={styles.childrenContainer}>
+                {children}
+              </View>
+
+              {/* Submit Button */}
+              {onSubmit && (
+                <Pressable
+                  style={[
+                    styles.submitButton,
+                    isLoading && styles.submitButtonDisabled,
+                  ]}
+                  onPress={onSubmit}
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <ActivityIndicator
+                      size="small"
+                      color={colors.primary[50]}
+                    />
+                  ) : (
+                    <>
+                      <Text style={styles.submitButtonText}>
+                        {type === "login" ? "Se connecter" : "S'inscrire"}
+                      </Text>
+                    </>
+                  )}
+                </Pressable>
+              )}
+            </View>
+
+            {/* Footer button inside ScrollView when content is scrollable (content > screen height) */}
+            {isScrollable && <FooterButton />}
+          </ScrollView>
+
+          {/* Footer button absolutely positioned when content fits screen (content <= screen height) */}
+          {!isScrollable && <FooterButton />}
         </View>
       </LinearGradient>
     </View>
@@ -171,29 +222,21 @@ const styles = StyleSheet.create({
     color: colors.secondary[600],
     fontWeight: "600",
   },
-  mainContent: {
+  scrollContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingBottom: ms(20),
+    marginTop: ms(15),
+    position: 'relative',
   },
-  pageIndicator: {
-    backgroundColor: colors.primary[100],
-    paddingHorizontal: ms(20),
-    paddingVertical: ms(8),
-    borderRadius: ms(20),
-    marginBottom: ms(24),
-    borderWidth: ms(1),
-    borderColor: colors.primary[500],
+  scrollContent: {
+    paddingBottom: ms(80), // Space for absolute footer
   },
-  pageIndicatorText: {
-    fontSize: ms(12),
-    fontWeight: "700",
-    color: colors.secondary[700],
-    letterSpacing: ms(1),
+  scrollContentWithInlineFooter: {
+    paddingBottom: ms(20), // Reduced padding when footer is inline
   },
   logoContainer: {
     marginBottom: ms(24),
+    alignSelf: "center",
+    width: "auto"
   },
   logoShadow: {
     backgroundColor: colors.primary[50],
@@ -214,22 +257,16 @@ const styles = StyleSheet.create({
     width: ms(120),
     height: ms(120),
   },
-  welcomeSection: {
+  titleSection: {
     alignItems: "center",
     marginBottom: ms(24),
   },
-  welcomeTitle: {
+  title: {
     fontSize: ms(28),
     fontWeight: "700",
     color: colors.secondary[700],
     marginBottom: ms(8),
     textAlign: "center",
-  },
-  welcomeSubtitle: {
-    fontSize: ms(16),
-    color: colors.secondary[500],
-    textAlign: "center",
-    lineHeight: ms(22),
   },
   errorContainer: {
     flexDirection: "row",
@@ -277,15 +314,58 @@ const styles = StyleSheet.create({
     }),
     elevation: 3,
   },
-  footer: {
-    paddingBottom: ms(20),
+  childrenContainer: {
+    gap: ms(16),
+  },
+  submitButton: {
+    backgroundColor: colors.secondary[500],
+    borderRadius: ms(12),
+    paddingVertical: ms(10),
+    paddingHorizontal: ms(24),
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    gap: ms(8),
+    marginTop: ms(24),
+    shadowColor: colors.secondary[800],
+    shadowOffset: {
+      width: 0,
+      height: ms(4),
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: ms(8),
+    elevation: 4,
+  },
+  submitButtonDisabled: {
+    backgroundColor: colors.tertiary[300],
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  submitButtonText: {
+    color: colors.primary[50],
+    fontSize: ms(16),
+    fontWeight: "600",
+  },
+  footer: {
+    // Absolute positioning for when content fits on screen (not scrollable)
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    marginBottom: ms(25),
+  },
+  footerInline: {
+    // Inline positioning for when content is scrollable (included in ScrollView)
+    alignItems: 'center',
+    marginTop: ms(24),
+    marginBottom: ms(20),
   },
   homeButton: {
     flexDirection: "row",
     alignItems: "center",
     gap: ms(8),
-    paddingHorizontal: ms(20),
+    paddingHorizontal: ms(10),
     paddingVertical: ms(12),
     backgroundColor: "transparent",
     borderRadius: ms(25),
