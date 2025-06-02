@@ -30,6 +30,14 @@
           <string>com.anonymous.DS</string>
         </array>
       </dict>
+      <dict>
+        <key>CFBundleTypeRole</key>
+        <string>Editor</string>
+        <key>CFBundleURLSchemes</key>
+        <array>
+          <string>com.googleusercontent.apps.592794634648-ljt0hu46l9i41aovkqq90m9lto4r4ohd</string>
+        </array>
+      </dict>
     </array>
     <key>CFBundleVersion</key>
     <string>1</string>

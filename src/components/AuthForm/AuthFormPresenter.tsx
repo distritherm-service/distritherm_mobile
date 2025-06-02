@@ -27,6 +27,8 @@ interface AuthFormPresenterProps {
   isScrollable: boolean;
   onContentSizeChange: (width: number, height: number) => void;
   onScrollContainerLayout: (event: any) => void;
+  errorGoogleSignIn?: string | null;
+  onGoogleSignInError: (errorText: string) => void;
 }
 
 const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
@@ -40,6 +42,8 @@ const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
   isScrollable,
   onContentSizeChange,
   onScrollContainerLayout,
+  errorGoogleSignIn,
+  onGoogleSignInError,
 }) => {
   // Footer component to avoid duplication
   const FooterButton = () => (
@@ -187,7 +191,11 @@ const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
                 <View style={styles.dividerLine} />
               </View>
 
-              <GoogleSignIn />
+              <GoogleSignIn onSignInError={onGoogleSignInError} />
+
+              {errorGoogleSignIn && (
+                <Text style={styles.googleSignInError}>{errorGoogleSignIn}</Text>
+              )}
             </View>
 
             {/* Footer button inside ScrollView when content is scrollable (content > screen height) */}
@@ -447,5 +455,11 @@ const styles = StyleSheet.create({
     fontSize: ms(14),
     color: colors.secondary[500],
     fontWeight: "500",
+  },
+  googleSignInError: {
+    color: colors.error,
+    fontSize: ms(14),
+    textAlign: 'center',
+    marginTop: ms(20),
   },
 });

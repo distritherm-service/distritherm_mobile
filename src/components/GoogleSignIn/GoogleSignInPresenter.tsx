@@ -1,35 +1,54 @@
-import { Pressable, StyleSheet, Text, View, Platform } from "react-native";
-import React from "react";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  Platform,
+  ActivityIndicator,
+} from "react-native";
+import React, { memo } from "react";
 import { ms } from "react-native-size-matters";
 import colors from "src/utils/colors";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
-const GoogleSignInPresenter = () => {
-  return (
-    <View style={styles.container}>
-      <Pressable style={styles.button}>
-        <LinearGradient
-          colors={[colors.primary[50], colors.primary[100]]}
-          style={styles.gradient}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        >
-          <View style={styles.content}>
-            <View style={styles.iconContainer}>
-              <FontAwesome6
-                name="google"
-                size={ms(18)}
-                color={colors.secondary[400]} // Using our secondary color palette
-              />
+interface GoogleSignInPresenterProps {
+  isLoading: boolean;
+  handleGoogleSignIn: () => Promise<void>;
+}
+const GoogleSignInPresenter = memo<GoogleSignInPresenterProps>(
+  ({ isLoading, handleGoogleSignIn }) => {
+    return (
+      <View style={styles.container}>
+        <Pressable style={styles.button} onPress={handleGoogleSignIn}>
+          <LinearGradient
+            colors={[colors.primary[50], colors.primary[100]]}
+            style={styles.gradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+          >
+            <View style={styles.content}>
+              {isLoading ? (
+                <ActivityIndicator size={ms(25)} />
+              ) : (
+                <>
+                  <View style={styles.iconContainer}>
+                    <FontAwesome6
+                      name="google"
+                      size={ms(18)}
+                      color={colors.secondary[400]}
+                    />
+                  </View>
+                  <Text style={styles.text}>Continuer avec Google</Text>
+                </>
+              )}
             </View>
-            <Text style={styles.text}>Continuer avec Google</Text>
-          </View>
-        </LinearGradient>
-      </Pressable>
-    </View>
-  );
-};
+          </LinearGradient>
+        </Pressable>
+      </View>
+    );
+  }
+);
 
 export default GoogleSignInPresenter;
 

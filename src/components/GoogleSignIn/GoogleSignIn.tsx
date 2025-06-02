@@ -8,41 +8,46 @@ import {
 import { Alert } from "react-native";
 
 interface GoogleSignInProps {
-  onSignInSuccess?: (userInfo: any) => void;
   onSignInError?: (errorText: string) => void;
 }
 
 const GoogleSignIn: React.FC<GoogleSignInProps> = ({
-  onSignInSuccess,
   onSignInError,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     GoogleSignin.configure({
-      webClientId:
-        "592794634648-cq50d6pb3llivmbc6bt5a1jee0ashd86.apps.googleusercontent.com", // From your google-services.json
-      offlineAccess: true, // If you want to access Google API on behalf of the user FROM YOUR SERVER
-      hostedDomain: "", // Restrict to a domain if needed
-      forceCodeForRefreshToken: true, // [Android] related to `serverAuthCode`, read the docs link below *.
-      accountName: "", // [Android] specifies an account name on the device that should be used
-      iosClientId: "592794634648-your-ios-client-id.apps.googleusercontent.com", // [iOS] if you want to specify the client ID of type iOS (otherwise, it is taken from GoogleService-Info.plist)
-      googleServicePlistPath: "", // [iOS] if you renamed your GoogleService-Info.plist, new name here, e.g. GoogleService-Info-Staging.plist
-      profileImageSize: 120, // [iOS] The desired height (and width) of the profile image. Defaults to 120px
+      webClientId: "592794634648-38n0hj2dhk0frc5tm2o7c3gol5d06clc.apps.googleusercontent.com",
+      iosClientId: "592794634648-ljt0hu46l9i41aovkqq90m9lto4r4ohd.apps.googleusercontent.com",
+      offlineAccess: true,
+      hostedDomain: "",
+      forceCodeForRefreshToken: true,
+      accountName: "",
+      profileImageSize: 120,
     });
   }, []);
 
   const handleGoogleSignIn = useCallback(async () => {
     try {
       setIsLoading(true);
-      await GoogleSignin.hasPlayServices();
+      
+      // Check if Google Play Services are available
+      await GoogleSignin.hasPlayServices({
+        showPlayServicesUpdateDialog: true,
+      });
 
+      // Sign in with Google
       const userInfo = await GoogleSignin.signIn();
+      console.log("Google Sign-In Success:", userInfo);
 
+      // Get tokens
       const tokens = await GoogleSignin.getTokens();
       console.log("Google Tokens:", tokens);
-
-      console;
+      
+      // Here you can handle the successful sign-in
+      // For example, send the tokens to your backend
+      
     } catch (error: any) {
       console.error("Google Sign-In Error:", error);
       let errorText = "Une erreur est survenue lors de la connexion avec Google.";
@@ -53,6 +58,13 @@ const GoogleSignIn: React.FC<GoogleSignInProps> = ({
         errorText = "Une connexion est déjà en cours.";
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
         errorText = "Les services Google Play ne sont pas disponibles ou sont obsolètes.";
+      } else if (error.message && error.message.includes("DEVELOPER_ERROR")) {
+        errorText = "Erreur de configuration Google Sign-In. Veuillez vérifier la configuration dans Google Console.";
+        console.error("DEVELOPER_ERROR Details:", {
+          message: error.message,
+          code: error.code,
+          error: error
+        });
       }
 
       if (onSignInError) {
@@ -63,9 +75,9 @@ const GoogleSignIn: React.FC<GoogleSignInProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [onSignInSuccess, onSignInError]);
+  }, [onSignInError]);
 
-  return <GoogleSignInPresenter />;
+  return <GoogleSignInPresenter isLoading={isLoading} handleGoogleSignIn={handleGoogleSignIn} />;
 };
 
 export default GoogleSignIn;
