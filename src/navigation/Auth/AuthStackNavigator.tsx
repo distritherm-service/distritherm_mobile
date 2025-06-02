@@ -10,14 +10,15 @@ export const AuthStackNavigator: React.FC = () => {
       initialRouteName="Login"
       screenOptions={{
         headerShown: false,
-        animation: "slide_from_right",
         gestureEnabled: true,
+        gestureDirection: "horizontal",
       }}
     >
       <AuthStack.Screen
         name="Login"
         component={Login}
         options={{
+          animation: "slide_from_left",
           gestureDirection: "horizontal",
           gestureEnabled: true,
         }}
@@ -26,6 +27,7 @@ export const AuthStackNavigator: React.FC = () => {
         name="Register"
         component={Register}
         options={{
+          animation: "slide_from_right",
           gestureDirection: "horizontal",
           gestureEnabled: true,
         }}

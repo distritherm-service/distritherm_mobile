@@ -12,7 +12,7 @@ interface AuthFormProps {
 }
 
 const AuthForm = ({ error, children, type, onSubmit, isLoading = false }: AuthFormProps) => {
-  const navigate = useNavigation();
+  const navigation = useNavigation<any>(); // Using any to handle both Auth and Main navigation
   const [contentHeight, setContentHeight] = useState(0);
   const [screenHeight, setScreenHeight] = useState(0);
 
@@ -21,14 +21,16 @@ const AuthForm = ({ error, children, type, onSubmit, isLoading = false }: AuthFo
 
   const onPressLoginRedirection = () => {
     if (type === 'login') {
-      navigate.navigate('Auth', { screen: 'Register' });
+      // Going from Login to Register - slide from right
+      navigation.navigate('Register');
     } else {
-      navigate.navigate('Auth', { screen: 'Login' });
+      // Going from Register to Login - slide from left (handled by screen options)
+      navigation.navigate('Login');
     }
   };
 
   const onGoBack = () => {
-    navigate.reset({
+    navigation.reset({
       index: 0,
       routes: [{ 
         name: 'Main',

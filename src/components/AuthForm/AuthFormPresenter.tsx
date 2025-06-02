@@ -14,6 +14,7 @@ import colors from "src/utils/colors";
 import { ms } from "react-native-size-matters";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import GoogleSignIn from "../GoogleSignIn/GoogleSignIn";
 
 interface AuthFormPresenterProps {
   error?: string;
@@ -44,12 +45,23 @@ const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
   const FooterButton = () => (
     <View style={isScrollable ? styles.footerInline : styles.footer}>
       <Pressable style={styles.homeButton} onPress={onGoBack}>
-        <FontAwesome6
-          name="arrow-left"
-          size={ms(16)}
-          color={colors.secondary[600]}
-        />
-        <Text style={styles.homeButtonText}>Retour en arrière</Text>
+        <LinearGradient
+          colors={[colors.secondary[400], colors.secondary[600]]}
+          style={styles.homeButtonGradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <View style={styles.homeButtonContent}>
+            <View style={styles.homeButtonIconContainer}>
+              <FontAwesome6
+                name="arrow-left"
+                size={ms(16)}
+                color={colors.primary[50]}
+              />
+            </View>
+            <Text style={styles.homeButtonText}>Revenir en arrière</Text>
+          </View>
+        </LinearGradient>
       </Pressable>
     </View>
   );
@@ -96,15 +108,12 @@ const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
         </View>
 
         {/* ScrollView global */}
-        <View 
-          style={styles.scrollContainer}
-          onLayout={onScrollContainerLayout}
-        >
+        <View style={styles.scrollContainer} onLayout={onScrollContainerLayout}>
           <ScrollView
             contentContainerStyle={[
               styles.scrollContent,
               // Adjust padding based on footer position: less padding when footer is inline
-              isScrollable && styles.scrollContentWithInlineFooter
+              isScrollable && styles.scrollContentWithInlineFooter,
             ]}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
@@ -135,7 +144,7 @@ const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
                   <FontAwesome6
                     name="circle-info"
                     size={ms(16)}
-                    color="#EF4444"
+                    color={colors.error}
                   />
                 </View>
                 <Text style={styles.errorText}>{error}</Text>
@@ -144,9 +153,7 @@ const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
 
             {/* Formulaire */}
             <View style={styles.formContainer}>
-              <View style={styles.childrenContainer}>
-                {children}
-              </View>
+              <View style={styles.childrenContainer}>{children}</View>
 
               {/* Submit Button */}
               {onSubmit && (
@@ -172,6 +179,15 @@ const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
                   )}
                 </Pressable>
               )}
+
+              {/* Divider with "ou" text */}
+              <View style={styles.dividerContainer}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerText}>ou</Text>
+                <View style={styles.dividerLine} />
+              </View>
+
+              <GoogleSignIn />
             </View>
 
             {/* Footer button inside ScrollView when content is scrollable (content > screen height) */}
@@ -227,7 +243,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flex: 1,
     marginTop: ms(15),
-    position: 'relative',
+    position: "relative",
   },
   scrollContent: {
     paddingBottom: ms(80), // Space for absolute footer
@@ -238,7 +254,7 @@ const styles = StyleSheet.create({
   logoContainer: {
     marginBottom: ms(24),
     alignSelf: "center",
-    width: "auto"
+    width: "auto",
   },
   logoShadow: {
     backgroundColor: colors.primary[50],
@@ -274,15 +290,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     gap: ms(12),
-    backgroundColor: "#FEFEFE",
+    backgroundColor: colors.primary[50],
     paddingHorizontal: ms(20),
     paddingVertical: ms(16),
     borderRadius: ms(16),
     borderWidth: ms(1),
-    borderColor: "#FEE2E2",
+    borderColor: colors.error,
     marginBottom: ms(24),
     width: "100%",
-    shadowColor: "#000000",
+    shadowColor: colors.tertiary[900],
     shadowOffset: {
       width: 0,
       height: ms(1),
@@ -295,13 +311,13 @@ const styles = StyleSheet.create({
     width: ms(32),
     height: ms(32),
     borderRadius: ms(16),
-    backgroundColor: "#FEF2F2",
+    backgroundColor: colors.error,
     alignItems: "center",
     justifyContent: "center",
     marginTop: ms(2),
   },
   errorText: {
-    color: "#374151",
+    color: colors.tertiary[500],
     fontSize: ms(14),
     fontWeight: "500",
     flex: 1,
@@ -369,33 +385,67 @@ const styles = StyleSheet.create({
   },
   footer: {
     // Absolute positioning for when content fits on screen (not scrollable)
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: ms(25),
   },
   footerInline: {
     // Inline positioning for when content is scrollable (included in ScrollView)
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: ms(24),
     marginBottom: ms(20),
   },
   homeButton: {
+    borderRadius: ms(25),
+    shadowColor: colors.secondary[800],
+    shadowOffset: {
+      width: 0,
+      height: ms(4),
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: ms(8),
+    elevation: 6,
+  },
+  homeButtonGradient: {
+    borderRadius: ms(25),
+    paddingHorizontal: ms(16),
+    paddingVertical: ms(10),
+  },
+  homeButtonContent: {
     flexDirection: "row",
     alignItems: "center",
     gap: ms(8),
-    paddingHorizontal: ms(10),
-    paddingVertical: ms(12),
-    backgroundColor: "transparent",
-    borderRadius: ms(25),
-    borderWidth: ms(1),
-    borderColor: colors.secondary[300],
+  },
+  homeButtonIconContainer: {
+    width: ms(28),
+    height: ms(25),
+    borderRadius: ms(14),
+    alignItems: "center",
+    justifyContent: "center",
   },
   homeButtonText: {
     fontSize: ms(14),
-    color: colors.secondary[600],
+    color: colors.primary[50],
+    fontWeight: "600",
+    letterSpacing: ms(0.3),
+  },
+  dividerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: ms(18),
+  },
+  dividerLine: {
+    flex: 1,
+    height: ms(1),
+    backgroundColor: colors.tertiary[300],
+  },
+  dividerText: {
+    marginHorizontal: ms(16),
+    fontSize: ms(14),
+    color: colors.secondary[500],
     fontWeight: "500",
   },
 });

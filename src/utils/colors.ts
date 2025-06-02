@@ -47,6 +47,9 @@ const colors = {
   // Error color
   error: "#E53E3E", // Standard red for errors
 
+  // Success color
+  success: "#38A169", // Standard green for success states
+
   // Border colors
   border: "#E2E8F0", // Light gray border
   borderDark: "#CBD5E0", // Slightly darker border
