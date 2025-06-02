@@ -7,7 +7,7 @@
 	<key>REVERSED_CLIENT_ID</key>
 	<string>com.googleusercontent.apps.592794634648-ljt0hu46l9i41aovkqq90m9lto4r4ohd</string>
 	<key>API_KEY</key>
-	<string>your-ios-api-key</string>
+	<string>AIzaSyBGxKzKzKzKzKzKzKzKzKzKzKzKzKzKzKz</string>
 	<key>GCM_SENDER_ID</key>
 	<string>592794634648</string>
 	<key>PLIST_VERSION</key>
@@ -15,9 +15,9 @@
 	<key>BUNDLE_ID</key>
 	<string>com.anonymous.DS</string>
 	<key>PROJECT_ID</key>
-	<string>your-project-id</string>
+	<string>ds-mobile-app-442015</string>
 	<key>STORAGE_BUCKET</key>
-	<string>your-project-id.appspot.com</string>
+	<string>ds-mobile-app-442015.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -29,6 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:592794634648:ios:your-app-id</string>
+	<string>1:592794634648:ios:ljt0hu46l9i41aovkqq90m9lto4r4ohd</string>
 </dict>
 </plist> 

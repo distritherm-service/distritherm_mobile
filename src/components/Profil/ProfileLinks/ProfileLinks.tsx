@@ -54,20 +54,11 @@ const ProfileLinks: React.FC<ProfileLinksProps> = ({ onNavigate }) => {
       },
     ],
   };
-
   // Section 2: Commandes et Devis
-  const ordersSection: ProfileSection = {
-    id: 'orders',
+  const devisSection: ProfileSection = {
+    id: 'devis',
     title: 'Mes activités',
     links: [
-      {
-        id: 'orders',
-        title: 'Mes commandes',
-        subtitle: 'Suivez vos commandes en cours',
-        icon: 'shopping-bag',
-        onPress: () => handleNavigation('Orders'),
-        showArrow: true,
-      },
       {
         id: 'quotes',
         title: 'Mes devis',
@@ -80,6 +71,8 @@ const ProfileLinks: React.FC<ProfileLinksProps> = ({ onNavigate }) => {
   };
 
   // Section 3: Paramètres personnels
+
+  // Section 2: Paramètres personnels
   const settingsSection: ProfileSection = {
     id: 'settings',
     title: 'Paramètres',
@@ -112,7 +105,7 @@ const ProfileLinks: React.FC<ProfileLinksProps> = ({ onNavigate }) => {
     ],
   };
 
-  const sections: ProfileSection[] = [authSection, ordersSection, settingsSection];
+  const sections: ProfileSection[] = [authSection, devisSection, settingsSection];
 
   return (
     <ProfileLinksPresenter 

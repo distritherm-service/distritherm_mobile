@@ -22,9 +22,6 @@ const Profil = () => {
       case 'Register':
         navigation.navigate('Auth', { screen: 'Register' });
         break;
-      case 'Orders':
-        console.log('Navigate to Orders screen');
-        break;
       case 'Quotes':
         console.log('Navigate to Quotes screen');
         break;

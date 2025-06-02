@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     width: ms(32),
-    height: ms(32),
+    height: ms(25),
     borderRadius: ms(16),
     backgroundColor: colors.primary[50],
     alignItems: "center",
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   text: {
-    fontSize: ms(16),
+    fontSize: ms(14),
     color: colors.secondary[600], // Darker shade for better contrast
     fontWeight: "600",
     letterSpacing: ms(0.3),

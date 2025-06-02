@@ -70,46 +70,54 @@ const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
     </View>
   );
 
+  // Sticky redirection button component
+  const StickyRedirectionButton = () => (
+    <View style={[
+      styles.stickyRedirectionContainer,
+      type === "login" ? styles.stickyRedirectionRight : styles.stickyRedirectionLeft
+    ]}>
+      <Pressable
+        style={styles.stickyRedirectionButton}
+        onPress={onPressLoginRedirection}
+      >
+        <LinearGradient
+          colors={[colors.primary[50], colors.primary[100]]}
+          style={styles.stickyRedirectionGradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          {type === "login" ? (
+            <>
+              <Text style={styles.stickyRedirectionText}>Inscription</Text>
+              <FontAwesome6
+                name="arrow-right-long"
+                size={ms(13)}
+                color={colors.secondary[600]}
+              />
+            </>
+          ) : (
+            <>
+              <FontAwesome6
+                name="arrow-left-long"
+                size={ms(13)}
+                color={colors.secondary[600]}
+              />
+              <Text style={styles.stickyRedirectionText}>Connexion</Text>
+            </>
+          )}
+        </LinearGradient>
+      </Pressable>
+    </View>
+  );
+
   return (
     <View style={styles.safeArea}>
       <LinearGradient
         colors={[colors.primary[50], colors.primary[100], colors.primary[200]]}
         style={styles.container}
       >
-        {/* Header avec bouton de redirection */}
-        <View
-          style={[
-            styles.header,
-            type === "login"
-              ? { alignItems: "flex-end" }
-              : { alignItems: "flex-start" },
-          ]}
-        >
-          <Pressable
-            style={styles.redirectionButton}
-            onPress={onPressLoginRedirection}
-          >
-            {type === "login" ? (
-              <>
-                <Text style={styles.redirectionButtonText}>Inscription</Text>
-                <FontAwesome6
-                  name="arrow-right-long"
-                  size={ms(14)}
-                  color={colors.secondary[600]}
-                />
-              </>
-            ) : (
-              <>
-                <FontAwesome6
-                  name="arrow-left-long"
-                  size={ms(14)}
-                  color={colors.secondary[600]}
-                />
-                <Text style={styles.redirectionButtonText}>Connexion</Text>
-              </>
-            )}
-          </Pressable>
-        </View>
+        {/* Sticky redirection button fixed to screen */}
+        <StickyRedirectionButton />
 
         {/* ScrollView global */}
         <View style={styles.scrollContainer} onLayout={onScrollContainerLayout}>
@@ -220,49 +228,63 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: ms(24),
+    paddingTop: ms(20), // Ajout du padding top qui était dans le header
   },
-  header: {
-    paddingTop: ms(20),
+  // Suppression des styles header et redirectionButton
+  scrollContainer: {
+    flex: 1,
+    position: "relative",
   },
-  redirectionButton: {
+  scrollContent: {
+    paddingBottom: ms(80), // Space for absolute footer
+    paddingTop: ms(20), // Espace pour le bouton sticky
+  },
+  scrollContentWithInlineFooter: {
+    paddingBottom: ms(20), // Reduced padding when footer is inline
+  },
+  // Nouveaux styles pour le bouton sticky
+  stickyRedirectionContainer: {
+    position: 'absolute',
+    top: ms(30),
+    zIndex: 1000,
+  },
+  stickyRedirectionRight: {
+    right: ms(20),
+  },
+  stickyRedirectionLeft: {
+    left: ms(20),
+  },
+  stickyRedirectionButton: {
+    borderRadius: ms(25),
+    shadowColor: colors.secondary[800],
+    shadowOffset: {
+      width: 0,
+      height: ms(4),
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: ms(8),
+    elevation: 8,
+  },
+  stickyRedirectionGradient: {
     flexDirection: "row",
     alignItems: "center",
     gap: ms(8),
     paddingHorizontal: ms(16),
     paddingVertical: ms(8),
-    backgroundColor: colors.primary[50],
-    borderRadius: ms(20),
-    borderWidth: ms(1),
+    borderRadius: ms(25),
+    borderWidth: ms(1.5),
     borderColor: colors.secondary[200],
-    shadowColor: colors.secondary[800],
-    shadowOffset: {
-      width: 0,
-      height: ms(2),
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: ms(4),
-    elevation: 3,
   },
-  redirectionButtonText: {
+  stickyRedirectionText: {
     fontSize: ms(14),
     color: colors.secondary[600],
     fontWeight: "600",
-  },
-  scrollContainer: {
-    flex: 1,
-    marginTop: ms(15),
-    position: "relative",
-  },
-  scrollContent: {
-    paddingBottom: ms(80), // Space for absolute footer
-  },
-  scrollContentWithInlineFooter: {
-    paddingBottom: ms(20), // Reduced padding when footer is inline
   },
   logoContainer: {
     marginBottom: ms(24),
     alignSelf: "center",
     width: "auto",
+    marginTop: ms(20), // Réduit l'espace car le bouton n'est plus dans le ScrollView
   },
   logoShadow: {
     backgroundColor: colors.primary[50],
