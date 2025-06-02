@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Platform } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import GoogleSignInPresenter from "./GoogleSignInPresenter";
 import {
@@ -32,14 +32,15 @@ const GoogleSignIn: React.FC<GoogleSignInProps> = ({
     try {
       setIsLoading(true);
       
-      // Check if Google Play Services are available
-      await GoogleSignin.hasPlayServices({
-        showPlayServicesUpdateDialog: true,
-      });
+      // Check if services are available (Android only)
+      if (Platform.OS === 'android') {
+        await GoogleSignin.hasPlayServices({
+          showPlayServicesUpdateDialog: true,
+        });
+      }
 
       // Sign in with Google
       const userInfo = await GoogleSignin.signIn();
-      console.log("Google Sign-In Success:", userInfo);
 
       // Get tokens
       const tokens = await GoogleSignin.getTokens();
@@ -56,15 +57,23 @@ const GoogleSignIn: React.FC<GoogleSignInProps> = ({
         errorText = "Vous avez annulé la connexion avec Google.";
       } else if (error.code === statusCodes.IN_PROGRESS) {
         errorText = "Une connexion est déjà en cours.";
-      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+      } else if (Platform.OS === 'android' && error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
         errorText = "Les services Google Play ne sont pas disponibles ou sont obsolètes.";
       } else if (error.message && error.message.includes("DEVELOPER_ERROR")) {
         errorText = "Erreur de configuration Google Sign-In. Veuillez vérifier la configuration dans Google Console.";
         console.error("DEVELOPER_ERROR Details:", {
           message: error.message,
           code: error.code,
-          error: error
+          error: error,
+          platform: Platform.OS
         });
+      } else if (Platform.OS === 'ios') {
+        // iOS specific error handling
+        if (error.message && error.message.includes("The operation couldn't be completed")) {
+          errorText = "Erreur de configuration iOS. Vérifiez que le schéma d'URL est correctement configuré.";
+        } else if (error.message && error.message.includes("network")) {
+          errorText = "Problème de connexion réseau. Veuillez réessayer.";
+        }
       }
 
       if (onSignInError) {

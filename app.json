@@ -16,7 +16,17 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.DS"
+      "bundleIdentifier": "com.anonymous.DS",
+      "infoPlist": {
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLName": "GoogleSignIn",
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.592794634648-ljt0hu46l9i41aovkqq90m9lto4r4ohd"
+            ]
+          }
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -28,6 +38,14 @@
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
-    }
+    },
+    "plugins": [
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.592794634648-ljt0hu46l9i41aovkqq90m9lto4r4ohd"
+        }
+      ]
+    ]
   }
 }
