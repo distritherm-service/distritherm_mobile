@@ -7,6 +7,8 @@ import {
   ScrollView,
   Text,
   Pressable,
+  Modal,
+  TouchableOpacity,
 } from "react-native";
 import { ms } from "react-native-size-matters";
 import { User } from "src/types/User";
@@ -23,7 +25,12 @@ interface PageStylePresenterProps {
     width: number;
     height: number;
   };
-  handleImagePress: () => void;
+  onOpenModalImagePicker: () => void;
+  onCloseModaImagePicker: () => void;
+  isModalVisible: boolean;
+  onPhoto: () => void;
+  onGallery: () => void;
+  selectedImage?: string | null;
 }
 
 const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
@@ -31,7 +38,12 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
   user,
   heightPercentage = 0.25,
   logoSize = { width: ms(120), height: ms(120) },
-  handleImagePress,
+  onOpenModalImagePicker,
+  onCloseModaImagePicker,
+  isModalVisible,
+  onPhoto,
+  onGallery,
+  selectedImage,
 }) => {
   // Fonction pour formater le rôle utilisateur
 
@@ -75,7 +87,10 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
             {user && (
               <View style={styles.userInfoSection}>
                 {/* Photo de profil avec bordure élégante */}
-                <View style={styles.profileImageContainer}>
+                <Pressable
+                  style={styles.profileImageContainer}
+                  onPress={onOpenModalImagePicker}
+                >
                   <LinearGradient
                     colors={[colors.primary[50], colors.primary[200]]}
                     style={styles.profileImageBorder}
@@ -83,13 +98,13 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
                     end={{ x: 1, y: 1 }}
                   >
                     <Image
-                      source={{ uri: user.urlPicture || NO_IMAGE_URL }}
+                      source={{ uri: selectedImage || user.urlPicture || NO_IMAGE_URL }}
                       style={styles.profileImage}
                     />
                   </LinearGradient>
 
                   {/* Icône caméra positionnée au-dessus */}
-                  <Pressable style={styles.cameraIconContainer} onPress={() => handleImagePress()}>
+                  <View style={styles.cameraIconContainer}>
                     <LinearGradient
                       colors={[colors.tertiary[400], colors.tertiary[600]]}
                       style={styles.cameraIconGradient}
@@ -102,8 +117,8 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
                         color={colors.primary[50]}
                       />
                     </LinearGradient>
-                  </Pressable>
-                </View>
+                  </View>
+                </Pressable>
 
                 {/* Informations textuelles */}
                 <View style={styles.userTextInfo}>
@@ -134,6 +149,36 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
           </View>
         </View>
       </ScrollView>
+
+      <Modal
+        visible={isModalVisible}
+        transparent={true}
+        onRequestClose={onCloseModaImagePicker}
+      >
+        <Pressable style={styles.modalOverlay} onPress={onCloseModaImagePicker}>
+          <Pressable 
+            style={styles.modalContent} 
+            onPress={(e) => e.stopPropagation()}
+          >
+            <TouchableOpacity style={styles.modalButton} onPress={onGallery}>
+              <FontAwesome6 name="image" size={20} />
+              <Text style={styles.modalButtonText}>Choose from Gallery</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.modalButton} onPress={onPhoto}>
+              <FontAwesome6 name="camera" size={20} />
+              <Text style={styles.modalButtonText}>Take a Photo</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={onCloseModaImagePicker}
+            >
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </TouchableOpacity>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -311,5 +356,50 @@ const styles = StyleSheet.create({
   },
   childrenContainer: {
     flex: 1,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    backgroundColor: colors.primary[50],
+    borderTopLeftRadius: ms(24),
+    borderTopRightRadius: ms(24),
+    padding: ms(20),
+    paddingBottom: ms(30),
+    shadowColor: colors.tertiary[800],
+    shadowOffset: { width: 0, height: -ms(4) },
+    shadowOpacity: 0.1,
+    shadowRadius: ms(8),
+    elevation: 5,
+  },
+  modalButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: ms(12),
+    padding: ms(16),
+    backgroundColor: colors.primary[100],
+    borderRadius: ms(12),
+    marginBottom: ms(12),
+    borderWidth: ms(1),
+    borderColor: colors.primary[300],
+  },
+  modalButtonText: {
+    fontSize: ms(16),
+    color: colors.tertiary[700],
+    fontWeight: '500',
+  },
+  cancelButton: {
+    padding: ms(16),
+    alignItems: 'center',
+    backgroundColor: colors.tertiary[100],
+    borderRadius: ms(12),
+    marginTop: ms(8),
+  },
+  cancelButtonText: {
+    fontSize: ms(16),
+    color: colors.tertiary[700],
+    fontWeight: '600',
   },
 });

@@ -52,18 +52,7 @@ export const loginUser = createAsyncThunk(
 
 // 🚪 Déconnecter un utilisateur
 export const logoutUser = createAsyncThunk("user/logoutUser", async () => {
-  try {
-    const refreshToken = await storageService.getRefreshToken();
-    if (refreshToken) {
-      await authService.logout(refreshToken);
-    }
-  } catch (error) {
-    // Continue with logout even if API call fails
-    console.error("Logout API call failed:", error);
-  } finally {
-    await storageService.clearAll();
-    navigationService.navigate("Home");
-  }
+  await storageService.clearAll();
 });
 
 const userSlice = createSlice({
