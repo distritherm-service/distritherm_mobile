@@ -6,20 +6,100 @@ import {
   statusCodes,
 } from "@react-native-google-signin/google-signin";
 import { Alert } from "react-native";
+import authService, { AdditionalUserInfoDto } from "src/services/authService";
+import { useForm, Control, FieldErrors } from "react-hook-form";
 
 interface GoogleSignInProps {
-  onSignInError?: (errorText: string) => void;
+  onSignInError: (errorText: string) => void;
 }
 
-const GoogleSignIn: React.FC<GoogleSignInProps> = ({
-  onSignInError,
-}) => {
-  const [isLoading, setIsLoading] = useState(false);
+interface FormData {
+  companyName: string;
+  siretNumber: string;
+  phoneNumber: string;
+}
+
+// Custom hook for form management with submit-only validation
+const useFormValidation = () => {
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    clearErrors,
+  } = useForm<FormData>({
+    defaultValues: {
+      companyName: "",
+      siretNumber: "",
+      phoneNumber: "",
+    },
+    mode: "onSubmit",
+    reValidateMode: "onChange",
+  });
+
+  const formRules = {
+    companyName: {
+      required: "Le nom de l'entreprise est requis",
+      minLength: {
+        value: 2,
+        message: "Le nom doit contenir au moins 2 caractères",
+      },
+    },
+    siretNumber: {
+      required: "Le numéro SIRET est requis",
+      pattern: {
+        value: /^\d{14}$/,
+        message: "Le numéro SIRET doit contenir exactement 14 chiffres",
+      },
+    },
+    phoneNumber: {
+      required: "Le numéro de téléphone est requis",
+      pattern: {
+        value: /^(?:\+33|0)[1-9](?:[0-9]{8})$/,
+        message: "Format de téléphone invalide (ex: 06 12 34 56 78)",
+      },
+    },
+  };
+
+  return {
+    control,
+    handleSubmit,
+    errors,
+    reset,
+    clearErrors,
+    formRules,
+  };
+};
+
+const GoogleSignIn: React.FC<GoogleSignInProps> = ({ onSignInError }) => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [completeInformation, setCompleteInformation] =
+    useState<boolean>(false);
+  const [idToken, setIdToken] = useState<string | null>(null);
+
+  // Form management
+  const { control, handleSubmit, errors, reset, clearErrors, formRules } =
+    useFormValidation();
 
   useEffect(() => {
+    // Configuration Google Sign-In avec variables d'environnement
+    const webClientId = process.env.EXPO_PUBLIC_WEB_CLIENT_ID;
+    const iosClientId = process.env.EXPO_PUBLIC_IOS_CLIENT_ID;
+
+    // Validation des variables d'environnement
+    if (
+      !process.env.EXPO_PUBLIC_WEB_CLIENT_ID ||
+      !process.env.EXPO_PUBLIC_IOS_CLIENT_ID
+    ) {
+      console.warn(
+        "⚠️  Variables d'environnement manquantes pour Google Sign-In.\n" +
+          "📝 Vérifiez que EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID et EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID sont dans votre fichier .env"
+      );
+    }
+
     GoogleSignin.configure({
-      webClientId: "592794634648-38n0hj2dhk0frc5tm2o7c3gol5d06clc.apps.googleusercontent.com",
-      iosClientId: "592794634648-ljt0hu46l9i41aovkqq90m9lto4r4ohd.apps.googleusercontent.com",
+      webClientId: webClientId,
+      iosClientId: iosClientId,
       offlineAccess: true,
       hostedDomain: "",
       forceCodeForRefreshToken: true,
@@ -31,46 +111,62 @@ const GoogleSignIn: React.FC<GoogleSignInProps> = ({
   const handleGoogleSignIn = useCallback(async () => {
     try {
       setIsLoading(true);
-      
+
       // Check if services are available (Android only)
-      if (Platform.OS === 'android') {
+      if (Platform.OS === "android") {
         await GoogleSignin.hasPlayServices({
           showPlayServicesUpdateDialog: true,
         });
       }
 
       // Sign in with Google
-      const userInfo = await GoogleSignin.signIn();
+      await GoogleSignin.signIn();
 
       // Get tokens
       const tokens = await GoogleSignin.getTokens();
-      console.log("Google Tokens:", tokens);
-      
-      // Here you can handle the successful sign-in
-      // For example, send the tokens to your backend
-      
+
+      setIdToken(tokens.idToken);
+
+      const response = await authService.providerLogin({
+        providerAuthToken: tokens.idToken,
+        providerName: "GOOGLE",
+      });
+
+      console.log(response);
     } catch (error: any) {
-      console.error("Google Sign-In Error:", error);
-      let errorText = "Une erreur est survenue lors de la connexion avec Google.";
+      if (error.response?.status === 404) {
+        setCompleteInformation(true);
+        setTimeout(() => {
+          reset();
+          clearErrors(); // Clear any previous validation errors
+        }, 200);
+        return;
+      }
+
+      let errorText =
+        "Une erreur est survenue lors de la connexion avec Google.";
 
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         errorText = "Vous avez annulé la connexion avec Google.";
       } else if (error.code === statusCodes.IN_PROGRESS) {
         errorText = "Une connexion est déjà en cours.";
-      } else if (Platform.OS === 'android' && error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        errorText = "Les services Google Play ne sont pas disponibles ou sont obsolètes.";
+      } else if (
+        Platform.OS === "android" &&
+        error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE
+      ) {
+        errorText =
+          "Les services Google Play ne sont pas disponibles ou sont obsolètes.";
       } else if (error.message && error.message.includes("DEVELOPER_ERROR")) {
-        errorText = "Erreur de configuration Google Sign-In. Veuillez vérifier la configuration dans Google Console.";
-        console.error("DEVELOPER_ERROR Details:", {
-          message: error.message,
-          code: error.code,
-          error: error,
-          platform: Platform.OS
-        });
-      } else if (Platform.OS === 'ios') {
+        errorText =
+          "Erreur de configuration Google Sign-In. Veuillez vérifier la configuration dans Google Console.";
+      } else if (Platform.OS === "ios") {
         // iOS specific error handling
-        if (error.message && error.message.includes("The operation couldn't be completed")) {
-          errorText = "Erreur de configuration iOS. Vérifiez que le schéma d'URL est correctement configuré.";
+        if (
+          error.message &&
+          error.message.includes("The operation couldn't be completed")
+        ) {
+          errorText =
+            "Erreur de configuration iOS. Vérifiez que le schéma d'URL est correctement configuré.";
         } else if (error.message && error.message.includes("network")) {
           errorText = "Problème de connexion réseau. Veuillez réessayer.";
         }
@@ -84,9 +180,74 @@ const GoogleSignIn: React.FC<GoogleSignInProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [onSignInError]);
+  }, [onSignInError, reset, clearErrors]);
 
-  return <GoogleSignInPresenter isLoading={isLoading} handleGoogleSignIn={handleGoogleSignIn} />;
+  const handleRegisterAuthGoogle = useCallback(
+    async (formData: FormData) => {
+      try {
+        setIsLoading(true);
+
+        if (!idToken) {
+          throw new Error(
+            "Échec de l'authentification avec Google - jeton d'identification manquant"
+          );
+        }
+
+        const additionalInfo: AdditionalUserInfoDto = {
+          companyName: formData.companyName,
+          siretNumber: formData.siretNumber,
+          phoneNumber: formData.phoneNumber,
+        };
+
+        const response = await authService.providerRegister({
+          providerAuthToken: idToken,
+          providerName: "GOOGLE",
+          additionalInfo,
+        });
+
+        console.log(response);
+
+        // Close modal and reset form on success
+        setCompleteInformation(false);
+        reset();
+        clearErrors();
+      } catch (error: any) {
+        let errorMessage = "Échec de l'authentification avec Google";
+
+        if (error.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+
+        onSignInError(errorMessage);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [idToken, onSignInError, reset, clearErrors]
+  );
+
+  const handleModalClose = useCallback(() => {
+    setCompleteInformation(false);
+    reset();
+    clearErrors(); // Clear validation errors when closing modal
+  }, [reset, clearErrors]);
+
+  return (
+    <GoogleSignInPresenter
+      isLoading={isLoading}
+      handleGoogleSignIn={handleGoogleSignIn}
+      completeInformation={completeInformation}
+      setCompleteInformation={setCompleteInformation}
+      // Form props
+      control={control}
+      errors={errors}
+      formRules={formRules}
+      onSubmit={handleSubmit(handleRegisterAuthGoogle)}
+      onModalClose={handleModalClose}
+    />
+  );
 };
 
 export default GoogleSignIn;
