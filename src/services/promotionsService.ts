@@ -72,7 +72,6 @@ const promotionsService = {
       const response = await api.get(`/promotions/all${params.toString() ? '?' + params.toString() : ''}`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération des promotions:", error);
       throw error;
     }
   },
@@ -83,7 +82,6 @@ const promotionsService = {
       const response = await api.get(`/promotions/${id}`);
       return await response.data;
     } catch (error) {
-      console.error(`Erreur lors de la récupération de la promotion avec l'ID ${id}:`, error);
       throw error;
     }
   },

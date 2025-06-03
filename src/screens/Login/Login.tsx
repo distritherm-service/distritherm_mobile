@@ -2,17 +2,17 @@ import React, { useState } from 'react'
 import LoginPresenter from './LoginPresenter'
 import { useForm } from 'react-hook-form';
 import { LoginFormData, validationRules } from 'src/types/AuthTypes';
-import { useNavigation } from '@react-navigation/native';
 import authService, { RegularLoginDto } from 'src/services/authService';
-import { Alert } from 'react-native';
+import { useAuth } from 'src/hooks/useAuth';
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | undefined>();
-  const navigate = useNavigation();
+  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
+  const { login } = useAuth();
 
   // Form setup with react-hook-form
-  const { control, handleSubmit, formState: { errors }, watch } = useForm<LoginFormData>({
+  const { control, handleSubmit } = useForm<LoginFormData>({
     defaultValues: {
       email: '',
       password: '',
@@ -20,7 +20,6 @@ const Login = () => {
     mode: 'onBlur',
   });
 
-  // Watch form values for real-time validation feedback
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     setError(undefined);
@@ -35,13 +34,21 @@ const Login = () => {
       // Call authService for regular login
       const response = await authService.regularLogin(loginDto);
       
-     console.log(response);
-      
+      // Connexion automatique avec Redux
+      await login(response.user, response.accessToken, response.refreshToken);
     } catch (err: any) {
-      setError(err.response.data.message);
+      setError(err.response?.data?.message || 'Erreur de connexion');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleForgotPassword = () => {
+    setShowForgotPasswordModal(true);
+  };
+
+  const handleCloseForgotPasswordModal = () => {
+    setShowForgotPasswordModal(false);
   };
 
   return (
@@ -51,6 +58,9 @@ const Login = () => {
       isLoading={isLoading}
       error={error}
       validationRules={validationRules}
+      onForgotPassword={handleForgotPassword}
+      showForgotPasswordModal={showForgotPasswordModal}
+      onCloseForgotPasswordModal={handleCloseForgotPasswordModal}
     />
   )
 }

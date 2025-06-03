@@ -23,7 +23,6 @@ const commentsService = {
       const response = await api.post("/comments", createCommentDto);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la création du commentaire:", error);
       throw error;
     }
   },
@@ -42,7 +41,6 @@ const commentsService = {
       const response = await api.get(url);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération des commentaires:", error);
       throw error;
     }
   },
@@ -53,7 +51,6 @@ const commentsService = {
       const response = await api.get("/comments/count-by-status");
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération du comptage par statut:", error);
       throw error;
     }
   },
@@ -71,7 +68,6 @@ const commentsService = {
       const response = await api.get(url);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération des commentaires du produit:", error);
       throw error;
     }
   },
@@ -90,7 +86,6 @@ const commentsService = {
       const response = await api.get(url);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération des commentaires de l'utilisateur:", error);
       throw error;
     }
   },
@@ -101,7 +96,6 @@ const commentsService = {
       const response = await api.get(`/comments/${id}`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération du commentaire:", error);
       throw error;
     }
   },
@@ -112,7 +106,6 @@ const commentsService = {
       const response = await api.put(`/comments/${id}?status=${status}`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la mise à jour du statut du commentaire:", error);
       throw error;
     }
   },
@@ -123,7 +116,6 @@ const commentsService = {
       const response = await api.delete(`/comments/${id}`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la suppression du commentaire:", error);
       throw error;
     }
   },

@@ -7,6 +7,8 @@ export type AuthStackParamList = {
 export type RootStackParamList = {
   Main: { initialTab?: string } | undefined;
   Auth: { screen: keyof AuthStackParamList } | undefined;
+  PersonalInformation: undefined;
+  ForgotPassword: undefined;
 };
 
 declare global {

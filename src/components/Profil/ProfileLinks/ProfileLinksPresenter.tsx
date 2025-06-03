@@ -122,11 +122,7 @@ const ProfileLinksPresenter: React.FC<ProfileLinksPresenterProps> = ({
   };
 
   return (
-    <ScrollView 
-      style={styles.container} 
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={styles.scrollContent}
-    >
+    <View style={styles.container}>
       {sections.map((section, index) => (
         <View key={section.id}>
           {renderSection(section)}
@@ -134,7 +130,7 @@ const ProfileLinksPresenter: React.FC<ProfileLinksPresenterProps> = ({
         </View>
       ))}
       <View style={styles.bottomSpacer} />
-    </ScrollView>
+    </View>
   );
 };
 

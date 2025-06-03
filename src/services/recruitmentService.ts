@@ -49,7 +49,6 @@ const recruitmentService = {
       });
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de l'envoi du formulaire de candidature:", error);
       throw error;
     }
   },

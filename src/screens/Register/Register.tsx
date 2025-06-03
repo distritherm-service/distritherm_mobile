@@ -2,14 +2,13 @@ import React, { useState } from 'react'
 import RegisterPresenter from './RegisterPresenter'
 import { useForm } from 'react-hook-form';
 import { RegisterFormData, validationRules } from 'src/types/AuthTypes';
-import { useNavigation } from '@react-navigation/native';
 import authService, { RegularRegisterDto } from 'src/services/authService';
-import { Alert } from 'react-native';
+import { useAuth } from 'src/hooks/useAuth';
 
 const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | undefined>();
-  const navigate = useNavigation();
+  const { login } = useAuth();
 
   // Form setup with react-hook-form
   const { control, handleSubmit, formState: { errors }, watch, getValues } = useForm<RegisterFormData>({
@@ -78,19 +77,14 @@ const Register = () => {
       // Call authService for regular registration
       const response = await authService.regularRegister(registerDto);
       
-      console.log(response);
+      // Connexion automatique après inscription
+      await login(response.user, response.accessToken, response.refreshToken);
       
     } catch (err: any) {
       console.error('Registration error:', err);
       
       // Display error response from server
       const errorMessage = err?.response?.data?.message || err?.message || 'Registration failed. Please try again.';
-      
-      Alert.alert(
-        'Registration Error',
-        JSON.stringify(err?.response?.data || { error: errorMessage }, null, 2)
-      );
-      
       setError(errorMessage);
     } finally {
       setIsLoading(false);

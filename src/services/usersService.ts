@@ -15,6 +15,8 @@ interface UpdateUserDto {
   lastName?: string;
   email?: string;
   phoneNumber?: string;
+  companyName?: string;
+  siretNumber?: string;
 }
 
 interface UpdatePasswordDto {
@@ -52,7 +54,6 @@ const usersService = {
       const response = await api.get(`/users/verify-email?token=${token}`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la vérification de l'email:", error);
       throw error;
     }
   },
@@ -63,7 +64,6 @@ const usersService = {
       const response = await api.get("/users/me");
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération des informations utilisateur:", error);
       throw error;
     }
   },
@@ -74,7 +74,6 @@ const usersService = {
       const response = await api.get(`/users/${userId}`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération de l'utilisateur:", error);
       throw error;
     }
   },
@@ -85,7 +84,6 @@ const usersService = {
       const response = await api.put(`/users/${userId}`, updateData);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la mise à jour de l'utilisateur:", error);
       throw error;
     }
   },
@@ -96,7 +94,6 @@ const usersService = {
       const response = await api.delete(`/users/${userId}`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la suppression de l'utilisateur:", error);
       throw error;
     }
   },
@@ -107,7 +104,6 @@ const usersService = {
       const response = await api.post("/users/send-update-password-forgot", emailData);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de l'envoi de l'email de réinitialisation:", error);
       throw error;
     }
   },
@@ -118,7 +114,6 @@ const usersService = {
       const response = await api.post(`/users/update-password-forgot?token=${token}`, passwordData);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la confirmation de réinitialisation du mot de passe:", error);
       throw error;
     }
   },
@@ -129,7 +124,6 @@ const usersService = {
       const response = await api.post("/users/update-password", passwordData);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la mise à jour du mot de passe:", error);
       throw error;
     }
   },
@@ -140,7 +134,6 @@ const usersService = {
       const response = await api.post("/users/resend-verification-email", emailData);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors du renvoi de l'email de vérification:", error);
       throw error;
     }
   },
@@ -151,7 +144,6 @@ const usersService = {
       const response = await api.post("/users/remind-me", remindData);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de l'envoi de la demande de rappel:", error);
       throw error;
     }
   },

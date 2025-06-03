@@ -66,10 +66,6 @@ const cartsService = {
       const response = await api.get(`/carts/active/${userId}`);
       return await response.data;
     } catch (error) {
-      console.error(
-        "Erreur lors de la récupération du panier actif de l'utilisateur:",
-        error
-      );
       throw error;
     }
   },
@@ -80,7 +76,6 @@ const cartsService = {
       const response = await api.get(`/carts/${cartId}`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération du panier:", error);
       throw error;
     }
   },
@@ -94,7 +89,6 @@ const cartsService = {
       const response = await api.put(`/carts/${cartId}`, updateCartDto);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la mise à jour du panier:", error);
       throw error;
     }
   },
@@ -111,10 +105,6 @@ const cartsService = {
       );
       return await response.data;
     } catch (error) {
-      console.error(
-        "Erreur lors de la mise à jour du statut du panier:",
-        error
-      );
       throw error;
     }
   },
@@ -125,7 +115,6 @@ const cartsService = {
       const response = await api.delete(`/carts/${cartId}`);
       return (await response.data) as { message: string };
     } catch (error) {
-      console.error("Erreur lors de la suppression du panier:", error);
       throw error;
     }
   },
@@ -138,7 +127,6 @@ const cartsService = {
       const response = await api.post("/carts/add-cart-item", addProductDto);
       return (await response.data);
     } catch (error) {
-      console.error("Erreur lors de l'ajout du produit au panier:", error);
       throw error;
     }
   },
@@ -154,10 +142,6 @@ const cartsService = {
       );
       return (await response.data);
     } catch (error) {
-      console.error(
-        "Erreur lors de la mise à jour de l'élément du panier:",
-        error
-      );
       throw error;
     }
   },
@@ -173,10 +157,6 @@ const cartsService = {
       );
       return (await response.data) as { message: string };
     } catch (error) {
-      console.error(
-        "Erreur lors de la suppression du produit du panier:",
-        error
-      );
       throw error;
     }
   },

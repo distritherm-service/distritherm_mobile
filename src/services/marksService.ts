@@ -54,7 +54,6 @@ const marksService = {
       const response = await api.get("/marks");
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération des marques:", error);
       throw error;
     }
   },
@@ -65,7 +64,6 @@ const marksService = {
       const response = await api.get(`/marks/search?q=${encodeURIComponent(query)}`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la recherche de marques:", error);
       throw error;
     }
   },
@@ -76,7 +74,6 @@ const marksService = {
       const response = await api.get("/marks/count");
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors du comptage des marques:", error);
       throw error;
     }
   },
@@ -87,7 +84,6 @@ const marksService = {
       const response = await api.get(`/marks/${id}`);
       return await response.data;
     } catch (error) {
-      console.error(`Erreur lors de la récupération de la marque avec l'ID ${id}:`, error);
       throw error;
     }
   },

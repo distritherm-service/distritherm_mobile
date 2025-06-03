@@ -8,6 +8,7 @@ import {
 import { Alert } from "react-native";
 import authService, { AdditionalUserInfoDto } from "src/services/authService";
 import { useForm, Control, FieldErrors } from "react-hook-form";
+import { useAuth } from "src/hooks/useAuth";
 
 interface GoogleSignInProps {
   onSignInError: (errorText: string) => void;
@@ -76,6 +77,7 @@ const GoogleSignIn: React.FC<GoogleSignInProps> = ({ onSignInError }) => {
   const [completeInformation, setCompleteInformation] =
     useState<boolean>(false);
   const [idToken, setIdToken] = useState<string | null>(null);
+  const { login } = useAuth();
 
   // Form management
   const { control, handleSubmit, errors, reset, clearErrors, formRules } =
@@ -132,7 +134,7 @@ const GoogleSignIn: React.FC<GoogleSignInProps> = ({ onSignInError }) => {
         providerName: "GOOGLE",
       });
 
-      console.log(response);
+      login(response.user, response.accessToken, response.refreshToken);
     } catch (error: any) {
       if (error.response?.status === 404) {
         setCompleteInformation(true);

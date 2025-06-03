@@ -42,6 +42,7 @@ export interface UserBasicDto {
   phoneNumber?: string;
   type: Type;
   role: Role;
+  urlPicture?: string;
 }
 
 /**

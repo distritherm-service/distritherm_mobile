@@ -37,7 +37,6 @@ const categoriesService = {
       const response = await api.get("/categories");
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération des catégories:", error);
       throw error;
     }
   },
@@ -48,7 +47,6 @@ const categoriesService = {
       const response = await api.get(`/categories/search?q=${encodeURIComponent(query)}`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la recherche de catégories:", error);
       throw error;
     }
   },
@@ -59,7 +57,6 @@ const categoriesService = {
       const response = await api.get("/categories/count");
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération du nombre de catégories:", error);
       throw error;
     }
   },
@@ -70,7 +67,6 @@ const categoriesService = {
       const response = await api.get(`/categories/agency/${agencyId}`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération des catégories par agence:", error);
       throw error;
     }
   },
@@ -81,7 +77,6 @@ const categoriesService = {
       const response = await api.get(`/categories/${id}`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération de la catégorie:", error);
       throw error;
     }
   },
@@ -92,7 +87,6 @@ const categoriesService = {
       const response = await api.get(`/categories/${id}/children`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération de la catégorie avec ses enfants:", error);
       throw error;
     }
   },
@@ -103,7 +97,6 @@ const categoriesService = {
       const response = await api.get(`/categories/${id}/parent`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération de la catégorie avec son parent:", error);
       throw error;
     }
   },
@@ -114,7 +107,6 @@ const categoriesService = {
       const response = await api.get(`/categories/tree/agency/${agencyId}`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération de l'arbre des catégories par agence:", error);
       throw error;
     }
   },
@@ -125,7 +117,6 @@ const categoriesService = {
       const response = await api.get("/categories/tree");
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération de l'arbre des catégories:", error);
       throw error;
     }
   },
@@ -136,7 +127,6 @@ const categoriesService = {
       const response = await api.get(`/categories/level/${level}`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération des catégories par niveau:", error);
       throw error;
     }
   },

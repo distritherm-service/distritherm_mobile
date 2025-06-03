@@ -14,7 +14,6 @@ const searchHistoryService = {
       const response = await api.post("/search-history", searchData);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la création de l'historique de recherche:", error);
       throw error;
     }
   },
@@ -25,7 +24,6 @@ const searchHistoryService = {
       const response = await api.get("/search-history");
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération de tout l'historique de recherche:", error);
       throw error;
     }
   },
@@ -36,7 +34,6 @@ const searchHistoryService = {
       const response = await api.get(`/search-history/users/${userId}`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération de l'historique de recherche:", error);
       throw error;
     }
   },
@@ -47,7 +44,6 @@ const searchHistoryService = {
       const response = await api.get(`/search-history/users/${userId}/last-ten`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération des dernières recherches:", error);
       throw error;
     }
   },
@@ -58,7 +54,6 @@ const searchHistoryService = {
       const response = await api.delete(`/search-history/${searchHistoryId}`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la suppression de l'entrée d'historique:", error);
       throw error;
     }
   },

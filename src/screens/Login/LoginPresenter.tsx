@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, TouchableOpacity, Text } from "react-native";
 import React from "react";
 import PageContainer from "src/components/PageContainer/PageContainer";
 import AuthForm from "src/components/AuthForm/AuthForm";
@@ -7,6 +7,9 @@ import { InputType } from "src/types/InputType";
 import { Control, FieldErrors } from "react-hook-form";
 import { LoginFormData } from "src/types/AuthTypes";
 import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
+import ForgotPasswordModal from "src/components/ForgotPasswordModal/ForgotPasswordModal";
+import { ms } from "react-native-size-matters";
+import colors from "src/utils/colors";
 
 interface LoginPresenterProps {
   control: Control<LoginFormData>;
@@ -14,6 +17,9 @@ interface LoginPresenterProps {
   isLoading: boolean;
   error?: string;
   validationRules: any;
+  onForgotPassword: () => void;
+  showForgotPasswordModal: boolean;
+  onCloseForgotPasswordModal: () => void;
 }
 
 const LoginPresenter = ({
@@ -22,6 +28,9 @@ const LoginPresenter = ({
   isLoading,
   error,
   validationRules,
+  onForgotPassword,
+  showForgotPasswordModal,
+  onCloseForgotPasswordModal,
 }: LoginPresenterProps) => {
   return (
     <PageContainer bottomBar={false}>
@@ -50,11 +59,37 @@ const LoginPresenter = ({
           leftLogo={faLock}
           rules={validationRules.password}
         />
+
+        <TouchableOpacity 
+          style={styles.forgotPasswordButton}
+          onPress={onForgotPassword}
+        >
+          <Text style={styles.forgotPasswordText}>
+            Mot de passe oublié ?
+          </Text>
+        </TouchableOpacity>
       </AuthForm>
+
+      <ForgotPasswordModal
+        visible={showForgotPasswordModal}
+        onClose={onCloseForgotPasswordModal}
+      />
     </PageContainer>
   );
 };
 
 export default LoginPresenter;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  forgotPasswordButton: {
+    alignSelf: 'flex-end',
+    paddingVertical: ms(8),
+    paddingHorizontal: ms(4),
+  },
+  forgotPasswordText: {
+    color: colors.secondary[500],
+    fontSize: ms(14),
+    fontWeight: '600',
+    letterSpacing: ms(0.2),
+  },
+});

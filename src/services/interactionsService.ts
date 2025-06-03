@@ -35,7 +35,6 @@ const interactionsService = {
       const response = await api.post("/interactions", createInteractionDto);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la création de l'interaction:", error);
       throw error;
     }
   },

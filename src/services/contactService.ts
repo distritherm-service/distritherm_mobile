@@ -22,7 +22,6 @@ const contactService = {
       const response = await api.post("/contact", contactData);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de l'envoi du formulaire de contact:", error);
       throw error;
     }
   },

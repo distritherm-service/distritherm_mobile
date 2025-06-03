@@ -50,7 +50,6 @@ const promotionBannersService = {
       const response = await api.get("/promotion-banners");
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération des bannières de promotion:", error);
       throw error;
     }
   },
@@ -61,7 +60,6 @@ const promotionBannersService = {
       const response = await api.get(`/promotion-banners/${id}`);
       return await response.data;
     } catch (error) {
-      console.error(`Erreur lors de la récupération de la bannière de promotion avec l'ID ${id}:`, error);
       throw error;
     }
   },
@@ -72,7 +70,6 @@ const promotionBannersService = {
       const response = await api.get(`/promotion-banners/promotion/${promotionId}`);
       return await response.data;
     } catch (error) {
-      console.error(`Erreur lors de la récupération de la bannière pour la promotion ${promotionId}:`, error);
       throw error;
     }
   },

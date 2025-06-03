@@ -19,9 +19,10 @@ export interface ProfileSection {
 
 interface ProfileLinksProps {
   onNavigate?: (screen: string) => void;
+  isAuthenticated: boolean;
 }
 
-const ProfileLinks: React.FC<ProfileLinksProps> = ({ onNavigate }) => {
+const ProfileLinks: React.FC<ProfileLinksProps> = ({ onNavigate, isAuthenticated }) => {
   
   const handleNavigation = (screen: string) => {
     if (onNavigate) {
@@ -31,7 +32,7 @@ const ProfileLinks: React.FC<ProfileLinksProps> = ({ onNavigate }) => {
     }
   };
 
-  // Section 1: Connexion/Inscription
+  // Section 1: Connexion/Inscription (uniquement si NON connecté)
   const authSection: ProfileSection = {
     id: 'auth',
     title: 'Authentification',
@@ -54,7 +55,8 @@ const ProfileLinks: React.FC<ProfileLinksProps> = ({ onNavigate }) => {
       },
     ],
   };
-  // Section 2: Commandes et Devis
+
+  // Section 2: Commandes et Devis (uniquement si connecté)
   const devisSection: ProfileSection = {
     id: 'devis',
     title: 'Mes activités',
@@ -70,9 +72,7 @@ const ProfileLinks: React.FC<ProfileLinksProps> = ({ onNavigate }) => {
     ],
   };
 
-  // Section 3: Paramètres personnels
-
-  // Section 2: Paramètres personnels
+  // Section 3: Paramètres personnels (uniquement si connecté)
   const settingsSection: ProfileSection = {
     id: 'settings',
     title: 'Paramètres',
@@ -105,7 +105,10 @@ const ProfileLinks: React.FC<ProfileLinksProps> = ({ onNavigate }) => {
     ],
   };
 
-  const sections: ProfileSection[] = [authSection, devisSection, settingsSection];
+  // Affichage conditionnel des sections selon l'état d'authentification
+  const sections: ProfileSection[] = isAuthenticated 
+    ? [devisSection, settingsSection] // Si connecté: devis + paramètres + déconnexion
+    : [authSection]; // Si non connecté: connexion + inscription
 
   return (
     <ProfileLinksPresenter 

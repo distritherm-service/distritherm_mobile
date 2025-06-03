@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
     paddingBottom: ms(6),
   },
   inputWithLeftLogo: {
-    paddingLeft: ms(32),
+    paddingLeft: ms(33),
   },
   inputError: {
     borderColor: colors.error,

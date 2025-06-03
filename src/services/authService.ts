@@ -46,7 +46,6 @@ const authService = {
       const response = await api.post("/auth/regular-login", loginDto);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la connexion:", error);
       throw error;
     }
   },
@@ -57,7 +56,6 @@ const authService = {
       const response = await api.post("/auth/regular-register", registerDto);
       return response.data;
     } catch (error) {
-      console.error("Erreur lors de l'inscription:", error);
       throw error;
     }
   },
@@ -68,7 +66,6 @@ const authService = {
       const response = await api.post(`/auth/refresh-token?refresh_token=${encodeURIComponent(refreshToken)}`, {});
       return response.data as RefreshTokenResponse;
     } catch (error) {
-      console.error("Erreur lors du rafraîchissement du token:", error);
       throw error;
     }
   },
@@ -79,7 +76,6 @@ const authService = {
       const response = await api.post("/auth/provider-login", providerAuthDto);
       return response.data;
     } catch (error) {
-      console.error("Erreur lors de la connexion via fournisseur:", error);
       throw error;
     }
   },
@@ -90,7 +86,6 @@ const authService = {
       const response = await api.post("/auth/provider-register", providerAuthDto);
       return response.data;
     } catch (error) {
-      console.error("Erreur lors de l'inscription via fournisseur:", error);
       throw error;
     }
   },
@@ -101,7 +96,6 @@ const authService = {
       const response = await api.post(`/auth/logout?refresh_token=${encodeURIComponent(refreshToken)}`, {});
       return response.data as LogoutResponse;
     } catch (error) {
-      console.error("Erreur lors de la déconnexion:", error);
       throw error;
     }
   },

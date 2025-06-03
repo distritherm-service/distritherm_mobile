@@ -14,7 +14,6 @@ const providersService = {
       const response = await api.get("/providers");
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération des fournisseurs:", error);
       throw error;
     }
   },
@@ -25,7 +24,6 @@ const providersService = {
       const response = await api.get(`/providers/${id}`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération du fournisseur:", error);
       throw error;
     }
   },

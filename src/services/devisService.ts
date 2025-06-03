@@ -44,10 +44,6 @@ const devisService = {
       const response = await api.get(url);
       return await response.data;
     } catch (error) {
-      console.error(
-        "Erreur lors de la récupération des devis du client:",
-        error
-      );
       throw error;
     }
   },
@@ -58,7 +54,6 @@ const devisService = {
       const response = await api.get(`/devis/download/${id}`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors du téléchargement du devis:", error);
       throw error;
     }
   },
@@ -69,7 +64,6 @@ const devisService = {
       const response = await api.get(`/devis/${id}`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération du devis:", error);
       throw error;
     }
   },

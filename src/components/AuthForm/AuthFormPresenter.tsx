@@ -154,9 +154,9 @@ const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
               <View style={styles.errorContainer}>
                 <View style={styles.errorIconContainer}>
                   <FontAwesome6
-                    name="circle-info"
+                    name="triangle-exclamation"
                     size={ms(16)}
-                    color={colors.error}
+                    color={colors.primary[50]}
                   />
                 </View>
                 <Text style={styles.errorText}>{error}</Text>

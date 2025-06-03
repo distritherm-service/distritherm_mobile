@@ -28,7 +28,6 @@ const notificationsService = {
       const response = await api.get(url);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération des notifications:", error);
       throw error;
     }
   },
@@ -39,7 +38,6 @@ const notificationsService = {
       const response = await api.get(`/notifications/user/${userId}/unread-count`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors du comptage des notifications non lues:", error);
       throw error;
     }
   },
@@ -50,7 +48,6 @@ const notificationsService = {
       const response = await api.patch(`/notifications/${notificationId}/mark-as-read`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors du marquage de la notification comme lue:", error);
       throw error;
     }
   },
@@ -61,7 +58,6 @@ const notificationsService = {
       const response = await api.delete(`/notifications/${notificationId}`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la suppression de la notification:", error);
       throw error;
     }
   },
@@ -72,7 +68,6 @@ const notificationsService = {
       const response = await api.delete(`/notifications/delete-all/${userId}`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la suppression de toutes les notifications:", error);
       throw error;
     }
   },
@@ -83,7 +78,6 @@ const notificationsService = {
       const response = await api.get("/notifications/vapid-public-key");
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération de la clé publique VAPID:", error);
       throw error;
     }
   },
@@ -94,7 +88,6 @@ const notificationsService = {
       const response = await api.post("/notifications/subscribe", subscription);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de l'abonnement aux notifications:", error);
       throw error;
     }
   },
@@ -109,7 +102,6 @@ const notificationsService = {
       });
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors du désabonnement des notifications:", error);
       throw error;
     }
   },
@@ -120,7 +112,6 @@ const notificationsService = {
       const response = await api.get("/notifications/subscriptions");
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération des abonnements:", error);
       throw error;
     }
   },

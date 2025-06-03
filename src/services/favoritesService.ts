@@ -20,7 +20,6 @@ const favoritesService = {
       const response = await api.post("/favorites", createFavoriteDto);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la création du favori:", error);
       throw error;
     }
   },
@@ -45,10 +44,6 @@ const favoritesService = {
       const response = await api.get(url);
       return await response.data;
     } catch (error) {
-      console.error(
-        "Erreur lors de la récupération des favoris de l'utilisateur:",
-        error
-      );
       throw error;
     }
   },
@@ -61,7 +56,6 @@ const favoritesService = {
       );
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la vérification du favori:", error);
       throw error;
     }
   },
@@ -72,7 +66,6 @@ const favoritesService = {
       const response = await api.delete(`/favorites/${id}`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la suppression du favori:", error);
       throw error;
     }
   },
@@ -83,10 +76,6 @@ const favoritesService = {
       const response = await api.delete(`/favorites/by-product/${productId}`);
       return await response.data;
     } catch (error) {
-      console.error(
-        "Erreur lors de la suppression du favori par produit:",
-        error
-      );
       throw error;
     }
   },

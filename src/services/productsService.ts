@@ -83,7 +83,6 @@ const productsService = {
       const response = await api.get(`/products${params.toString() ? '?' + params.toString() : ''}`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération des produits:", error);
       throw error;
     }
   },
@@ -99,7 +98,6 @@ const productsService = {
       const response = await api.get(`/products/search?${params.toString()}`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la recherche de produits:", error);
       throw error;
     }
   },
@@ -110,7 +108,6 @@ const productsService = {
       const response = await api.get("/products/count");
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors du comptage des produits:", error);
       throw error;
     }
   },
@@ -125,7 +122,6 @@ const productsService = {
       const response = await api.get(`/products/category/${categoryId}${params.toString() ? '?' + params.toString() : ''}`);
       return await response.data;
     } catch (error) {
-      console.error(`Erreur lors de la récupération des produits de la catégorie ${categoryId}:`, error);
       throw error;
     }
   },
@@ -140,7 +136,6 @@ const productsService = {
       const response = await api.get(`/products/mark/${markId}${params.toString() ? '?' + params.toString() : ''}`);
       return await response.data;
     } catch (error) {
-      console.error(`Erreur lors de la récupération des produits de la marque ${markId}:`, error);
       throw error;
     }
   },
@@ -155,7 +150,6 @@ const productsService = {
       const response = await api.get(`/products/agency/${agencyId}${params.toString() ? '?' + params.toString() : ''}`);
       return await response.data;
     } catch (error) {
-      console.error(`Erreur lors de la récupération des produits de l'agence ${agencyId}:`, error);
       throw error;
     }
   },
@@ -170,7 +164,6 @@ const productsService = {
       const response = await api.get(`/products/promotions${params.toString() ? '?' + params.toString() : ''}`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération des produits en promotion:", error);
       throw error;
     }
   },
@@ -186,7 +179,6 @@ const productsService = {
       const response = await api.get(`/products/promotions/expiring-soon?${params.toString()}`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération des produits avec promotions expirant bientôt:", error);
       throw error;
     }
   },
@@ -205,7 +197,6 @@ const productsService = {
       const response = await api.get(`/products/recommendations${queryString ? '?' + queryString : ''}`);
       return await response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération des produits recommandés:", error);
       throw error;
     }
   },
@@ -216,7 +207,6 @@ const productsService = {
       const response = await api.get(`/products/${id}`);
       return await response.data;
     } catch (error) {
-      console.error(`Erreur lors de la récupération du produit avec l'ID ${id}:`, error);
       throw error;
     }
   },
@@ -227,7 +217,6 @@ const productsService = {
       const response = await api.get(`/products/verify-purchased/${productId}`);
       return await response.data;
     } catch (error) {
-      console.error(`Erreur lors de la vérification d'achat du produit ${productId}:`, error);
       throw error;
     }
   },
@@ -238,7 +227,6 @@ const productsService = {
       const response = await api.get(`/products/${id}/similar`);
       return await response.data;
     } catch (error) {
-      console.error(`Erreur lors de la récupération des produits similaires au produit ${id}:`, error);
       throw error;
     }
   },
