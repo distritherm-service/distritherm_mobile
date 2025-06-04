@@ -70,6 +70,19 @@ export interface UserWithClientDto extends UserBasicDto {
 }
 
 /**
+ * DTO pour la mise à jour d'un utilisateur
+ * Inclut les informations personnelles et les informations client
+ */
+export interface UpdateUserDto {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phoneNumber?: string;
+  companyName?: string;
+  siretNumber?: string;
+}
+
+/**
  * Interface pour un commercial
  */
 export interface Commercial {

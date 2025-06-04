@@ -27,13 +27,14 @@ export interface PersonalInformationFormData {
  * PersonalInformation Screen Container
  * 
  * This component fetches complete user data including client information (companyName, siretNumber)
- * using usersService.getUserById() and allows users to update their personal and company information.
+ * using usersService.getUserById() which returns UserWithClientDto and allows users to update 
+ * their personal and company information.
  * 
  * Features:
- * - Fetches complete user data with client information on mount
+ * - Fetches complete UserWithClientDto data with client information on mount
  * - Displays loading state while fetching data
  * - Allows editing of personal info (firstName, lastName, email, phoneNumber) 
- * - Allows editing of company info (companyName, siretNumber)
+ * - Allows editing of company info (companyName, siretNumber) from client object
  * - Updates both user and client data via the extended UpdateUserDto
  * - Refreshes data after successful update
  * - Handles form validation and dirty state checking
@@ -42,13 +43,13 @@ const PersonalInformation = () => {
   const navigation = useNavigation<PersonalInformationNavigationProp>();
   const dispatch = useDispatch<AppDispatch>();
   const { user } = useAuth();
-  const [userClient, setUserClient] = useState<UserWithClientDto | null>(null);
+  const [userWithClient, setUserWithClient] = useState<UserWithClientDto | null>(null);
   const [isLoadingUserData, setIsLoadingUserData] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
   
   const { 
     control, 
     handleSubmit, 
-    setValue, 
     formState: { errors, isSubmitting, isDirty },
     reset,
     watch
@@ -67,35 +68,82 @@ const PersonalInformation = () => {
   // Watch all form values for debugging or real-time validation
   const watchedValues = watch();
 
-  // Fetch complete user data with client information
+  /**
+   * Converts UserWithClientDto to form data structure
+   */
+  const convertUserToFormData = (userData: UserWithClientDto): PersonalInformationFormData => {
+    return {
+      firstName: userData.firstName || "",
+      lastName: userData.lastName || "",
+      email: userData.email || "",
+      phoneNumber: userData.phoneNumber || "",
+      companyName: userData.client?.companyName || "",
+      siretNumber: userData.client?.siretNumber || "",
+    };
+  };
+
+  /**
+   * Creates fallback form data from basic user info when UserWithClientDto is not available
+   */
+  const createFallbackFormData = (): PersonalInformationFormData => {
+    return {
+      firstName: user?.firstName || "",
+      lastName: user?.lastName || "",
+      email: user?.email || "",
+      phoneNumber: user?.phoneNumber || "",
+      companyName: "",
+      siretNumber: "",
+    };
+  };
+
+  // Fetch complete user data with client information using UserWithClientDto
   useEffect(() => {
     const fetchUserData = async () => {
-      if (!user?.id) return;
+      if (!user?.id || isInitialized) return;
 
       setIsLoadingUserData(true);
       try {
-        const userData = await usersService.getUserById(user.id);
-        setUserClient(userData);
+        // getUserById should return UserWithClientDto according to the API
+        const userData: UserWithClientDto = await usersService.getUserById(user.id);
+        setUserWithClient(userData);
         
-        // Update form with complete user data including client information
-        const formData = {
-          firstName: userData.firstName || "",
-          lastName: userData.lastName || "",
-          email: userData.email || "",
-          phoneNumber: userData.phoneNumber || "",
-          companyName: userData.client?.companyName || "",
-          siretNumber: userData.client?.siretNumber || "",
-        };
+        // Convert UserWithClientDto to form data structure
+        const formData = convertUserToFormData(userData);
         
-        // Set individual field values
-        Object.entries(formData).forEach(([key, value]) => {
-          setValue(key as keyof PersonalInformationFormData, value);
+        // Reset form with fetched data
+        reset(formData);
+        setIsInitialized(true);
+        
+        console.log("✅ UserWithClientDto loaded successfully:", {
+          user: {
+            id: userData.id,
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            email: userData.email,
+            type: userData.type,
+            role: userData.role,
+          },
+          client: userData.client ? {
+            companyName: userData.client.companyName,
+            siretNumber: userData.client.siretNumber,
+            emailVerified: userData.client.emailVerified,
+          } : null
         });
       } catch (error) {
-        console.error("Error fetching user data:", error);
+        console.error("❌ Error fetching UserWithClientDto:", error);
+        
+        // Fallback to basic user data if API call fails
+        if (user) {
+          const fallbackData = createFallbackFormData();
+          reset(fallbackData);
+          setIsInitialized(true);
+          
+          console.warn("⚠️ Using fallback user data due to API error");
+        }
+        
         Alert.alert(
-          "Erreur",
-          "Impossible de récupérer les données utilisateur"
+          "Avertissement",
+          "Impossible de récupérer toutes les données utilisateur. Certaines informations peuvent être manquantes."
         );
       } finally {
         setIsLoadingUserData(false);
@@ -103,26 +151,7 @@ const PersonalInformation = () => {
     };
 
     fetchUserData();
-  }, [user?.id, setValue]);
-
-  // Initialize form with basic user data as fallback
-  useEffect(() => {
-    if (user && !userClient) {
-      const formData = {
-        firstName: user.firstName || "",
-        lastName: user.lastName || "",
-        email: user.email || "",
-        phoneNumber: user.phoneNumber || "",
-        companyName: (user as any).companyName || "",
-        siretNumber: (user as any).siretNumber || "",
-      };
-      
-      // Set individual field values
-      Object.entries(formData).forEach(([key, value]) => {
-        setValue(key as keyof PersonalInformationFormData, value);
-      });
-    }
-  }, [user, userClient, setValue]);
+  }, [user?.id, reset, isInitialized]);
 
   // Validation rules for react-hook-form
   const validationRules = {
@@ -200,6 +229,7 @@ const PersonalInformation = () => {
     }
 
     try {
+      // Prepare update data according to UpdateUserDto interface
       const updateData = {
         firstName: data.firstName.trim(),
         lastName: data.lastName.trim(),
@@ -209,7 +239,9 @@ const PersonalInformation = () => {
         siretNumber: data.siretNumber.trim(),
       };
 
-      // Update user data via API
+      console.log("🔄 Updating user with data:", updateData);
+
+      // Update user data via API - this should update both user and client information
       const updatedUser = await usersService.updateUser(user.id, updateData);
       
       // Update user data in Redux store with the basic user fields
@@ -220,12 +252,24 @@ const PersonalInformation = () => {
         phoneNumber: updateData.phoneNumber,
       }));
 
-      // Refresh the complete user data with client information
+      // Refresh the complete UserWithClientDto data after successful update
       try {
-        const refreshedUserData = await usersService.getUserById(user.id);
-        setUserClient(refreshedUserData);
+        const refreshedUserData: UserWithClientDto = await usersService.getUserById(user.id);
+        setUserWithClient(refreshedUserData);
+        
+        console.log("✅ UserWithClientDto refreshed after update:", {
+          user: {
+            firstName: refreshedUserData.firstName,
+            lastName: refreshedUserData.lastName,
+            email: refreshedUserData.email,
+          },
+          client: refreshedUserData.client ? {
+            companyName: refreshedUserData.client.companyName,
+            siretNumber: refreshedUserData.client.siretNumber,
+          } : null
+        });
       } catch (refreshError) {
-        console.warn("Could not refresh user data:", refreshError);
+        console.warn("⚠️ Could not refresh UserWithClientDto:", refreshError);
       }
       
       Alert.alert(
@@ -239,7 +283,7 @@ const PersonalInformation = () => {
         ]
       );
     } catch (error: any) {
-      console.error("Error updating user:", error);
+      console.error("❌ Error updating user:", error);
       Alert.alert(
         "Erreur",
         error?.response?.data?.message || "Une erreur est survenue lors de la mise à jour"
@@ -282,17 +326,13 @@ const PersonalInformation = () => {
           text: "Réinitialiser",
           style: "destructive",
           onPress: () => {
-            // Use complete user data with client information if available
-            const userData = userClient || user;
-            if (userData) {
-              reset({
-                firstName: userData.firstName || "",
-                lastName: userData.lastName || "",
-                email: userData.email || "",
-                phoneNumber: userData.phoneNumber || "",
-                companyName: userClient?.client?.companyName || (userData as any).companyName || "",
-                siretNumber: userClient?.client?.siretNumber || (userData as any).siretNumber || "",
-              });
+            // Use UserWithClientDto data if available, otherwise fallback to basic user data
+            if (userWithClient) {
+              const formData = convertUserToFormData(userWithClient);
+              reset(formData);
+            } else if (user) {
+              const fallbackData = createFallbackFormData();
+              reset(fallbackData);
             }
           },
         },

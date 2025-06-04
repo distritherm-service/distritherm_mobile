@@ -1,8 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { User } from "../../types/User";
 import storageService from "../../services/storageService";
-import navigationService from "../../services/navigationService";
-import authService from "src/services/authService";
 
 interface UserState {
   isAuthenticated: boolean;

@@ -207,7 +207,7 @@ const GoogleSignIn: React.FC<GoogleSignInProps> = ({ onSignInError }) => {
           additionalInfo,
         });
 
-        console.log(response);
+        login(response.user, response.accessToken, response.refreshToken);
 
         // Close modal and reset form on success
         setCompleteInformation(false);

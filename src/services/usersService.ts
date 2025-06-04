@@ -1,4 +1,5 @@
 import api from "../interceptors/api";
+import { UserWithClientDto, UpdateUserDto } from "src/types/User";
 
 // DTOs et interfaces pour les utilisateurs
 interface CreateUserDto {
@@ -8,15 +9,6 @@ interface CreateUserDto {
   password: string;
   phoneNumber?: string;
   role: string;
-}
-
-interface UpdateUserDto {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  phoneNumber?: string;
-  companyName?: string;
-  siretNumber?: string;
 }
 
 interface UpdatePasswordDto {
@@ -59,30 +51,30 @@ const usersService = {
   },
 
   // GET /users/me - Récupérer les informations de l'utilisateur connecté
-  getCurrentUser: async (): Promise<any> => {
+  getCurrentUser: async (): Promise<UserWithClientDto> => {
     try {
       const response = await api.get("/users/me");
-      return await response.data;
+      return response.data as UserWithClientDto;
     } catch (error) {
       throw error;
     }
   },
 
-  // GET /users/:id - Récupérer un utilisateur par son ID
-  getUserById: async (userId: number): Promise<any> => {
+  // GET /users/:id - Récupérer un utilisateur par son ID avec ses informations client
+  getUserById: async (userId: number): Promise<UserWithClientDto> => {
     try {
       const response = await api.get(`/users/${userId}`);
-      return await response.data;
+      return response.data as UserWithClientDto;
     } catch (error) {
       throw error;
     }
   },
 
   // PUT /users/:id - Mettre à jour un utilisateur
-  updateUser: async (userId: number, updateData: UpdateUserDto): Promise<any> => {
+  updateUser: async (userId: number, updateData: UpdateUserDto): Promise<UserWithClientDto> => {
     try {
       const response = await api.put(`/users/${userId}`, updateData);
-      return await response.data;
+      return response.data as UserWithClientDto;
     } catch (error) {
       throw error;
     }
