@@ -1,11 +1,9 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from 'expo-secure-store';
-import { User } from "src/types/User";
+import { UserWithClientDto } from "src/types/User";
 
 const STORAGE_KEYS = {
   ACCESS_TOKEN: "access_token",
-  REFRESH_TOKEN: "refresh_token",
-  USER_DATA: "user_data",
   IS_AUTHENTICATED: "is_authenticated",
 } as const;
 
@@ -14,18 +12,6 @@ const SECURE_KEYS = {
 } as const;
 
 class StorageService {
-  // User Data
-  async setUserData(userData: User) {
-    await AsyncStorage.setItem(
-      STORAGE_KEYS.USER_DATA,
-      JSON.stringify(userData)
-    );
-  }
-
-  async getUserData(): Promise<User | null> {
-    const data = await AsyncStorage.getItem(STORAGE_KEYS.USER_DATA);
-    return data ? JSON.parse(data) : null;
-  }
 
   // Tokens
   async setAccessToken(token: string) {
@@ -82,7 +68,6 @@ class StorageService {
       // Nettoyer AsyncStorage (sans refresh token)
       await AsyncStorage.multiRemove([
         STORAGE_KEYS.ACCESS_TOKEN,
-        STORAGE_KEYS.USER_DATA,
         STORAGE_KEYS.IS_AUTHENTICATED,
       ]);
     } catch (error) {

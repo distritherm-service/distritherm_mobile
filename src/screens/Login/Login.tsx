@@ -37,6 +37,7 @@ const Login = () => {
       // Connexion automatique avec Redux
       await login(response.user, response.accessToken, response.refreshToken);
     } catch (err: any) {
+      console.log(err.response?.data?.message);
       setError(err.response?.data?.message || 'Erreur de connexion');
     } finally {
       setIsLoading(false);

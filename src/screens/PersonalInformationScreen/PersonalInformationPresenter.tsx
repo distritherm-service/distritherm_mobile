@@ -12,42 +12,111 @@ import {
 import { ms } from "react-native-size-matters";
 import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesome6 } from "@expo/vector-icons";
-import { Control, FieldErrors } from "react-hook-form";
-import { faUser, faEnvelope, faPhone, faBuilding, faIdCard } from "@fortawesome/free-solid-svg-icons";
+import { Control } from "react-hook-form";
+import {
+  faUser,
+  faEnvelope,
+  faPhone,
+  faBuilding,
+  faIdCard,
+} from "@fortawesome/free-solid-svg-icons";
 import PageContainer from "src/components/PageContainer/PageContainer";
 import Input from "src/components/Input/Input";
 import { InputType } from "src/types/InputType";
 import colors from "src/utils/colors";
 import { PersonalInformationFormData } from "./PersonalInformation";
+import { Line } from "react-native-svg";
 
 interface PersonalInformationPresenterProps {
   control: Control<PersonalInformationFormData>;
   onSubmit: () => void;
-  isLoading: boolean;
-  errors: FieldErrors<PersonalInformationFormData>;
-  validationRules: any;
-  watchedValues: PersonalInformationFormData;
+  isLoadingUserData: boolean;
+  isSubmitting: boolean;
+  validationRules: {
+    firstName: any;
+    lastName: any;
+    email: any;
+    phoneNumber: any;
+    companyName: any;
+    siretNumber: any;
+  };
   onBack: () => void;
   onReset: () => void;
   isDirty: boolean;
 }
 
-const PersonalInformationPresenter: React.FC<PersonalInformationPresenterProps> = ({
+const PersonalInformationPresenter: React.FC<
+  PersonalInformationPresenterProps
+> = ({
   control,
   onSubmit,
-  isLoading,
-  errors,
+  isLoadingUserData,
+  isSubmitting,
   validationRules,
-  watchedValues,
   onBack,
   onReset,
   isDirty,
 }) => {
+  if (isLoadingUserData) {
+    return (
+      <View style={styles.loadingContainer}>
+        <LinearGradient
+          colors={[colors.primary[50], colors.secondary[200]]}
+          style={styles.loadingGradient}
+        >
+          <View style={styles.loadingContent}>
+            <View style={styles.loadingIcon}>
+              <FontAwesome6
+                name="user"
+                size={ms(40)}
+                color={colors.secondary[500]}
+              />
+            </View>
+            <ActivityIndicator size="large" color={colors.secondary[500]} />
+            <Text style={styles.loadingText}>
+              Chargement de vos informations...
+            </Text>
+          </View>
+        </LinearGradient>
+      </View>
+    );
+  }
+
+  if (isSubmitting) {
+    return (
+      <View style={styles.isSubmittingContainer}>
+        <LinearGradient
+          style={styles.isSubmittingContent}
+          colors={[colors.primary[50], colors.secondary[200]]}
+        >
+          <View style={styles.isSubmittingContent}>
+            <FontAwesome6
+              name="user-pen"
+              size={ms(40)}
+              color={colors.secondary[500]}
+            />
+
+            <ActivityIndicator
+              size={"large"}
+              color={colors.secondary[400]}
+              style={{ marginTop: ms(20) }}
+            />
+
+            <Text style={styles.isSubmittingText}>
+              Modification des informations en cours...
+            </Text>
+          </View>
+        </LinearGradient>
+      </View>
+    );
+  }
+
   return (
     <PageContainer
       headerBack={true}
       headerTitle="Informations personnelles"
       onCustomBack={onBack}
+      bottomBar={false}
     >
       <KeyboardAvoidingView
         style={styles.container}
@@ -102,8 +171,8 @@ const PersonalInformationPresenter: React.FC<PersonalInformationPresenterProps> 
               end={{ x: 0, y: 1 }}
             >
               <View style={styles.formSection}>
-                <Text style={styles.sectionTitle}>Informations générales</Text>
-                
+                <Text style={[styles.sectionTitle, {marginTop: ms(0)}]}>Informations générales</Text>
+
                 <Input<PersonalInformationFormData>
                   name="firstName"
                   control={control}
@@ -113,7 +182,7 @@ const PersonalInformationPresenter: React.FC<PersonalInformationPresenterProps> 
                   leftLogo={faUser}
                   rules={validationRules.firstName}
                 />
-                
+
                 <Input<PersonalInformationFormData>
                   name="lastName"
                   control={control}
@@ -123,9 +192,9 @@ const PersonalInformationPresenter: React.FC<PersonalInformationPresenterProps> 
                   leftLogo={faUser}
                   rules={validationRules.lastName}
                 />
-                
+
                 <Text style={styles.sectionTitle}>Contact</Text>
-                
+
                 <Input<PersonalInformationFormData>
                   name="email"
                   control={control}
@@ -135,20 +204,20 @@ const PersonalInformationPresenter: React.FC<PersonalInformationPresenterProps> 
                   leftLogo={faEnvelope}
                   rules={validationRules.email}
                 />
-                
+
                 <Input<PersonalInformationFormData>
                   name="phoneNumber"
                   control={control}
                   type={InputType.DEFAULT}
                   placeholder="+33 6 12 34 56 78"
-                  label="Téléphone"
+                  label="Téléphone *"
                   leftLogo={faPhone}
                   rules={validationRules.phoneNumber}
                   keyboardType="phone-pad"
                 />
 
                 <Text style={styles.sectionTitle}>Informations entreprise</Text>
-                
+
                 <Input<PersonalInformationFormData>
                   name="companyName"
                   control={control}
@@ -158,7 +227,7 @@ const PersonalInformationPresenter: React.FC<PersonalInformationPresenterProps> 
                   leftLogo={faBuilding}
                   rules={validationRules.companyName}
                 />
-                
+
                 <Input<PersonalInformationFormData>
                   name="siretNumber"
                   control={control}
@@ -177,33 +246,25 @@ const PersonalInformationPresenter: React.FC<PersonalInformationPresenterProps> 
           <View style={styles.buttonSection}>
             {/* Save Button */}
             <TouchableOpacity
-              style={[styles.saveButton, isLoading && styles.saveButtonDisabled]}
+              style={styles.saveButton}
               onPress={onSubmit}
-              disabled={isLoading}
+              disabled={isSubmitting}
               activeOpacity={0.8}
             >
               <LinearGradient
-                colors={
-                  isLoading
-                    ? [colors.tertiary[200], colors.tertiary[300]]
-                    : [colors.secondary[400], colors.secondary[600]]
-                }
+                colors={[colors.secondary[400], colors.secondary[600]]}
                 style={styles.saveButtonGradient}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
               >
-                {isLoading ? (
-                  <ActivityIndicator size="small" color={colors.primary[50]} />
-                ) : (
-                  <>
-                    <FontAwesome6
-                      name="floppy-disk"
-                      size={ms(18)}
-                      color={colors.primary[50]}
-                    />
-                    <Text style={styles.saveButtonText}>Sauvegarder les modifications</Text>
-                  </>
-                )}
+                <FontAwesome6
+                  name="floppy-disk"
+                  size={ms(18)}
+                  color={colors.primary[50]}
+                />
+                <Text style={styles.saveButtonText}>
+                  Sauvegarder les modifications
+                </Text>
               </LinearGradient>
             </TouchableOpacity>
 
@@ -212,7 +273,7 @@ const PersonalInformationPresenter: React.FC<PersonalInformationPresenterProps> 
               <TouchableOpacity
                 style={styles.resetButton}
                 onPress={onReset}
-                disabled={isLoading}
+                disabled={isSubmitting}
                 activeOpacity={0.7}
               >
                 <LinearGradient
@@ -225,13 +286,14 @@ const PersonalInformationPresenter: React.FC<PersonalInformationPresenterProps> 
                     name="rotate-left"
                     size={ms(16)}
                     color={colors.tertiary[600]}
-                    style={styles.resetButtonIcon}
                   />
-                  <Text style={styles.resetButtonText}>Annuler les modifications</Text>
+                  <Text style={styles.resetButtonText}>
+                    Annuler les modifications
+                  </Text>
                 </LinearGradient>
               </TouchableOpacity>
             )}
-            
+
             {/* Info text */}
             <View style={styles.infoContainer}>
               <FontAwesome6
@@ -241,7 +303,8 @@ const PersonalInformationPresenter: React.FC<PersonalInformationPresenterProps> 
                 style={styles.infoIcon}
               />
               <Text style={styles.infoText}>
-                Vos informations sont protégées et ne seront pas partagées. Les champs marqués d'un * sont obligatoires.
+                Vos informations sont protégées et ne seront pas partagées. Les
+                champs marqués d'un * sont obligatoires.
               </Text>
             </View>
           </View>
@@ -333,9 +396,10 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: ms(18),
+    marginTop: ms(10),
+    textDecorationLine: "underline",
     fontWeight: "700",
     color: colors.tertiary[700],
-    marginBottom: ms(8),
     paddingLeft: ms(4),
   },
   buttonSection: {
@@ -358,11 +422,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: ms(18),
-    paddingHorizontal: ms(32),
+    paddingVertical: ms(16),
     borderRadius: ms(20),
     gap: ms(12),
-    minHeight: ms(56),
   },
   saveButtonText: {
     fontSize: ms(16),
@@ -388,9 +450,6 @@ const styles = StyleSheet.create({
     gap: ms(8),
     borderWidth: ms(1),
     borderColor: colors.primary[300],
-  },
-  resetButtonIcon: {
-    // Using react-native-size-matters for responsive icon sizing
   },
   resetButtonText: {
     fontSize: ms(14),
@@ -420,4 +479,58 @@ const styles = StyleSheet.create({
     flex: 1,
     fontWeight: "500",
   },
-}); 
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "red",
+  },
+  loadingGradient: {
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingContent: {
+    alignItems: "center",
+    padding: ms(20),
+  },
+  loadingIcon: {
+    marginBottom: ms(20),
+  },
+  loadingText: {
+    marginTop: ms(20),
+    fontSize: ms(16),
+    color: colors.tertiary[700],
+    fontWeight: "500",
+  },
+  retryButton: {
+    backgroundColor: colors.secondary[500],
+    paddingHorizontal: ms(24),
+    paddingVertical: ms(12),
+    borderRadius: ms(8),
+  },
+  retryButtonText: {
+    color: colors.primary[50],
+    fontSize: ms(16),
+    fontWeight: "600",
+  },
+  isSubmittingContainer: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    left: 0,
+    bottom: 0,
+  },
+  isSubmittingContent: {
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+  },
+  isSubmittingText: {
+    marginTop: ms(25),
+    fontSize: ms(15),
+    fontWeight: "500",
+    color: colors.tertiary[600],
+  },
+});

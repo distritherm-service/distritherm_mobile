@@ -1,15 +1,18 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { User } from "../../types/User";
+import { UserWithClientDto } from "../../types/User";
 import storageService from "../../services/storageService";
+import usersService from "../../services/usersService";
 
 interface UserState {
   isAuthenticated: boolean;
-  user: User | null;
+  user: UserWithClientDto | null;
+  deconnectionLoading: boolean;
 }
 
 const initialState: UserState = {
   isAuthenticated: false,
   user: null,
+  deconnectionLoading: false,
 };
 
 // 🔄 Initialiser l'authentification au démarrage
@@ -17,12 +20,28 @@ export const initializeAuth = createAsyncThunk(
   "user/initializeAuth",
   async () => {
     const isAuthenticated = await storageService.getIsAuthenticated();
-    const userData = await storageService.getUserData();
     const hasTokens = await storageService.hasValidTokens();
 
+    if (isAuthenticated && hasTokens) {
+      try {
+        // Récupérer l'utilisateur depuis l'API
+        const response: any = await usersService.getCurrentUser();
+        return {
+          isAuthenticated: true,
+          user: response.user,
+        };
+      } catch (error) {
+        await storageService.clearAll();
+        return {
+          isAuthenticated: false,
+          user: null,
+        };
+      }
+    }
+
     return {
-      isAuthenticated: isAuthenticated && hasTokens,
-      user: userData,
+      isAuthenticated: false,
+      user: null,
     };
   }
 );
@@ -35,13 +54,12 @@ export const loginUser = createAsyncThunk(
     accessToken,
     refreshToken,
   }: {
-    user: User;
+    user: UserWithClientDto;
     accessToken: string;
     refreshToken: string;
   }) => {
     await storageService.setAccessToken(accessToken);
     await storageService.setRefreshToken(refreshToken);
-    await storageService.setUserData(user);
     await storageService.setIsAuthenticated(true);
 
     return user;
@@ -57,11 +75,13 @@ const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    updateUser: (state, action: PayloadAction<Partial<User>>) => {
+    updateUser: (state, action: PayloadAction<Partial<UserWithClientDto>>) => {
       if (state.user) {
         state.user = { ...state.user, ...action.payload };
-        storageService.setUserData(state.user);
       }
+    },
+    setDeconnectionLoading: (state, action: PayloadAction<boolean>) => {
+      state.deconnectionLoading = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -77,9 +97,10 @@ const userSlice = createSlice({
       .addCase(logoutUser.fulfilled, (state) => {
         state.isAuthenticated = false;
         state.user = null;
+        state.deconnectionLoading = false;
       });
   },
 });
 
-export const { updateUser } = userSlice.actions;
+export const { updateUser, setDeconnectionLoading } = userSlice.actions;
 export default userSlice.reducer;

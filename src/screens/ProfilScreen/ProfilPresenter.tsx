@@ -6,23 +6,26 @@ import { ms } from "react-native-size-matters";
 import { colors } from "src/utils/colors";
 import ProfileLinks from "src/components/Profil/ProfileLinks/ProfileLinks";
 import { isTablet } from "src/utils/deviceUtils";
-import { User } from "src/types/User";
+import { User, UserWithClientDto } from "src/types/User";
 
 interface ProfilPresenterProps {
   onNavigate?: (screen: string) => void;
   isAuthenticated: boolean;
-  user: User | null;
+  user: UserWithClientDto | null;
+  deconnectionLoading?: boolean;
 }
 
 const ProfilPresenter: React.FC<ProfilPresenterProps> = ({ 
   onNavigate, 
   isAuthenticated, 
   user,
+  deconnectionLoading = false,
 }) => {
   return (
     <PageStyle 
       user={user}
       isAuthenticated={isAuthenticated}
+      deconnectionLoading={deconnectionLoading}
     >
         <ProfileLinks 
           onNavigate={onNavigate} 

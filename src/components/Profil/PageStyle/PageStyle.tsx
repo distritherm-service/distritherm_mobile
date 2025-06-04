@@ -1,24 +1,31 @@
 import React, { useState } from "react";
 import PageStylePresenter from "./PageStylePresenter";
 import { ms } from "react-native-size-matters";
-import { User } from "src/types/User";
+import { User, UserWithClientDto } from "src/types/User";
 import { Alert, Platform, Linking } from "react-native";
 import * as ImagePicker from 'expo-image-picker';
+import usersService from "src/services/usersService";
 
 interface PageStyleProps {
   children?: React.ReactNode;
-  user?: User | null;
+  user?: UserWithClientDto | null;
   isAuthenticated?: boolean;
+  deconnectionLoading?: boolean;
 }
 
 const PageStyle: React.FC<PageStyleProps> = ({
   children,
   user,
   isAuthenticated,
+  deconnectionLoading = false,
 }) => {
 
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isResendingEmail, setIsResendingEmail] = useState<boolean>(false);
+
+  // Check if user is authenticated and email is not verified
+  const isEmailUnverified = !!(isAuthenticated && user && user.client && !user.client.emailVerified);
 
   const heightPercentage = isAuthenticated
     ? Platform.OS == "ios"
@@ -153,6 +160,32 @@ const PageStyle: React.FC<PageStyleProps> = ({
     }
   }
 
+  // Function to resend verification email
+  const handleResendVerificationEmail = async () => {
+    if (!user?.email) {
+      Alert.alert("Erreur", "Adresse email non trouvée");
+      return;
+    }
+
+    try {
+      setIsResendingEmail(true);
+      await usersService.resendVerificationEmail({ email: user.email });
+      
+      Alert.alert(
+        "Email envoyé",
+        "Un nouvel email de vérification a été envoyé à votre adresse email.",
+        [{ text: "OK" }]
+      );
+    } catch (error: any) {
+      Alert.alert(
+        "Erreur",
+        error.response?.data?.message || "Impossible d'envoyer l'email de vérification"
+      );
+    } finally {
+      setIsResendingEmail(false);
+    }
+  };
+
   return (
     <PageStylePresenter
       user={isAuthenticated && user ? user : undefined}
@@ -164,6 +197,10 @@ const PageStyle: React.FC<PageStyleProps> = ({
       onPhoto={onPhoto}
       onGallery={onGallery}
       selectedImage={selectedImage}
+      deconnectionLoading={deconnectionLoading}
+      isEmailUnverified={isEmailUnverified}
+      onResendVerificationEmail={handleResendVerificationEmail}
+      isResendingEmail={isResendingEmail}
     >
       {children}
     </PageStylePresenter>

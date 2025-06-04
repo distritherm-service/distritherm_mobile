@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, Text, Animated, View, ViewStyle, TextStyle, StyleSheet } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import { faExclamation } from '@fortawesome/free-solid-svg-icons';
 import { moderateScale as ms } from 'react-native-size-matters';
 import colors from "src/utils/colors";
 import { ICON_SIZE } from '../constants';
@@ -21,6 +22,7 @@ interface TabItemPresenterProps {
   customLabelStyle?: ViewStyle;
   customTextStyle?: TextStyle;
   badgeCount?: number;
+  hasEmailWarning?: boolean;
 }
 
 const TabItemPresenter: React.FC<TabItemPresenterProps> = ({
@@ -35,7 +37,8 @@ const TabItemPresenter: React.FC<TabItemPresenterProps> = ({
   customIconStyle,
   customLabelStyle,
   customTextStyle,
-  badgeCount = 0
+  badgeCount = 0,
+  hasEmailWarning = false
 }) => {
   if (isCartTab) {
     return (
@@ -124,6 +127,17 @@ const TabItemPresenter: React.FC<TabItemPresenterProps> = ({
           size={ms(ICON_SIZE * (isActive ? 0.9 : 0.8))}
           color={isActive ? colors.primary[50] : colors.primary[200]} 
         />
+        
+        {/* Indicateur d'email non vérifié - point d'exclamation jaune */}
+        {hasEmailWarning && (
+          <View style={styles.emailWarningIndicator}>
+            <FontAwesomeIcon 
+              icon={faExclamation} 
+              size={ms(8)}
+              color="#FFA500" 
+            />
+          </View>
+        )}
       </Animated.View>
 
       {/* Conteneur de label */}
@@ -207,7 +221,25 @@ const styles = StyleSheet.create({
     color: colors.primary[50],
     fontSize: ms(8),
     fontWeight: 'bold',
-  }
+  },
+  emailWarningIndicator: {
+    position: 'absolute',
+    top: ms(-2),
+    right: ms(-2),
+    width: ms(14),
+    height: ms(14),
+    borderRadius: ms(7),
+    backgroundColor: '#FFA500',
+    borderWidth: ms(1),
+    borderColor: colors.primary[50],
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: colors.tertiary[800],
+    shadowOffset: { width: 0, height: ms(2) },
+    shadowOpacity: 0.3,
+    shadowRadius: ms(4),
+    elevation: 5,
+  },
 });
 
 export default TabItemPresenter; 

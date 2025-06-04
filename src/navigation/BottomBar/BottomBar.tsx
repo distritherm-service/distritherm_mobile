@@ -7,6 +7,7 @@ import Cart from '../../screens/CartScreen/Cart';
 import Favorite from '../../screens/FavoriteScreen/Favorite';
 import Profil from '../../screens/ProfilScreen/Profil';
 import Search from '../../screens/SearchScreen/Search';
+import { useAuth } from '../../hooks/useAuth';
 
 
 /**
@@ -16,8 +17,12 @@ import Search from '../../screens/SearchScreen/Search';
 const BottomBar = () => {
   const route = useRoute();
   const params = route.params as { initialTab?: string } | undefined;
+  const { isAuthenticated, user } = useAuth();
   
   const [activeTab, setActiveTab] = useState(params?.initialTab || 'Home');
+
+  // Check if user is authenticated and email is not verified
+  const isEmailUnverified = !!(isAuthenticated && user && user.client && !user.client.emailVerified);
 
   // Mettre à jour l'onglet actif si les paramètres changent
   useEffect(() => {
@@ -75,6 +80,7 @@ const BottomBar = () => {
       activeTab={activeTab} 
       onTabPress={handleTabPress}
       renderScreen={renderScreen}
+      isEmailUnverified={isEmailUnverified}
     />
   );
 };

@@ -13,7 +13,7 @@ type ProfilNavigationProp = StackNavigationProp<RootStackParamList>;
 
 const Profil = () => {
   const navigation = useNavigation<ProfilNavigationProp>();
-  const { logout, isAuthenticated, user } = useAuth();
+  const { logout, isAuthenticated, user, deconnectionLoading } = useAuth();
 
   const handleNavigation = (screen: string) => {
     switch (screen) {
@@ -54,13 +54,13 @@ const Profil = () => {
     }
   };
 
-
   return (
     <PageContainer>
       <ProfilPresenter
         onNavigate={handleNavigation}
         isAuthenticated={isAuthenticated}
         user={user}
+        deconnectionLoading={deconnectionLoading}
       />
     </PageContainer>
   );

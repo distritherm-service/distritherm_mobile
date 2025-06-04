@@ -13,6 +13,7 @@ interface TabItemProps {
   customLabelStyle?: ViewStyle;
   customTextStyle?: TextStyle;
   badgeCount?: number;
+  hasEmailWarning?: boolean;
 }
 
 const TabItem: React.FC<TabItemProps> = ({ 
@@ -24,7 +25,8 @@ const TabItem: React.FC<TabItemProps> = ({
   customIconStyle,
   customLabelStyle,
   customTextStyle,
-  badgeCount = 0
+  badgeCount = 0,
+  hasEmailWarning = false
 }) => {
   // Animation references
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -93,6 +95,7 @@ const TabItem: React.FC<TabItemProps> = ({
       customLabelStyle={customLabelStyle}
       customTextStyle={customTextStyle}
       badgeCount={badgeCount}
+      hasEmailWarning={hasEmailWarning}
     />
   );
 };

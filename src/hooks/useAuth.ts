@@ -1,38 +1,44 @@
 import { useSelector, useDispatch } from "react-redux";
-import { useEffect } from "react";
 import { RootState, AppDispatch } from "../store/store";
 import {
   initializeAuth,
   loginUser,
   logoutUser,
+  setDeconnectionLoading,
 } from "../store/features/userState";
-import { User } from "../types/User";
+import { UserWithClientDto } from "../types/User";
 import api from "../interceptors/api";
 import storageService from "src/services/storageService";
 
 export const useAuth = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { isAuthenticated, user } = useSelector(
+  const { isAuthenticated, user, deconnectionLoading } = useSelector(
     (state: RootState) => state.user
   );
 
-  // 🚀 Initialiser une seule fois
-  useEffect(() => {
-    dispatch(initializeAuth());
-  }, [dispatch]);
+  // 🚀 Initialiser l'authentification au montage de l'app
+  const initialize = async () => {
+    await dispatch(initializeAuth());
+  };
 
-  const login = (userData: User, accessToken: string, refreshToken: string) => {
+  const login = (userData: UserWithClientDto, accessToken: string, refreshToken: string) => {
     return dispatch(loginUser({ user: userData, accessToken, refreshToken }));
   };
 
   const logout = async () => {
     try {
+      // Activer le loading de déconnexion
+      dispatch(setDeconnectionLoading(true));
+      
       const refreshToken = await storageService.getRefreshToken();
       if (refreshToken) {
         await api.post("/auth/logout", { refreshToken });
       }
     } catch (error) {
+      // Ignorer les erreurs de logout API
+      console.warn("Erreur lors de l'appel API de déconnexion:", error);
     } finally {
+      // Effectuer la déconnexion locale (qui désactivera automatiquement le loading)
       return dispatch(logoutUser());
     }
   };
@@ -40,6 +46,8 @@ export const useAuth = () => {
   return {
     isAuthenticated,
     user,
+    deconnectionLoading,
+    initialize,
     login,
     logout,
   };

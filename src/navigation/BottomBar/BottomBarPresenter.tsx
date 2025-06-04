@@ -31,6 +31,7 @@ interface BottomBarPresenterProps {
   activeTab: string;
   onTabPress: (tabName: string) => void;
   renderScreen: (tabName: string) => React.ReactNode;
+  isEmailUnverified?: boolean;
 }
 
 const CART_ELEVATION = Platform.OS === "ios" ? ms(22) : ms(30);
@@ -39,6 +40,7 @@ const BottomBarPresenter: React.FC<BottomBarPresenterProps> = ({
   activeTab,
   onTabPress,
   renderScreen,
+  isEmailUnverified = false,
 }) => {
   const insets = useSafeAreaInsets();
   const bottomInset =
@@ -87,6 +89,7 @@ const BottomBarPresenter: React.FC<BottomBarPresenterProps> = ({
       name: "Profil",
       label: "Profil",
       icon: activeTab === "Profil" ? faUser : faUserRegular,
+      hasEmailWarning: isEmailUnverified,
     },
   ];
 
@@ -146,6 +149,7 @@ const BottomBarPresenter: React.FC<BottomBarPresenterProps> = ({
                 label={tab.label}
                 isActive={activeTab === tab.name}
                 onPress={() => onTabPress(tab.name)}
+                hasEmailWarning={tab.hasEmailWarning}
               />
             ))}
           </View>

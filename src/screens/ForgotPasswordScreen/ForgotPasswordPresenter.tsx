@@ -28,7 +28,6 @@ interface ForgotPasswordPresenterProps {
   validationRules: any;
   validatePasswordMatch: (value: string) => string | true;
   validateNewPasswordDifferent: (value: string) => string | true;
-  isDirty: boolean;
 }
 
 const ForgotPasswordPresenter: React.FC<ForgotPasswordPresenterProps> = ({
@@ -39,13 +38,13 @@ const ForgotPasswordPresenter: React.FC<ForgotPasswordPresenterProps> = ({
   validationRules,
   validatePasswordMatch,
   validateNewPasswordDifferent,
-  isDirty,
 }) => {
   return (
     <PageContainer
       headerBack={true}
       headerTitle="Changer le mot de passe"
       onCustomBack={onBack}
+      bottomBar={false}
     >
       <KeyboardAvoidingView
         style={styles.container}
@@ -284,13 +283,12 @@ const styles = StyleSheet.create({
   },
   formSection: {
     padding: ms(24),
+    gap: ms(20),
   },
   sectionTitle: {
     fontSize: ms(18),
     fontWeight: "700",
     color: colors.tertiary[700],
-    marginBottom: ms(16),
-    paddingLeft: ms(4),
   },
   inputContainer: {
     marginBottom: ms(16),

@@ -27,7 +27,7 @@ interface AuthFormPresenterProps {
   isScrollable: boolean;
   onContentSizeChange: (width: number, height: number) => void;
   onScrollContainerLayout: (event: any) => void;
-  errorGoogleSignIn?: string | null;
+  errorGoogleSignIn?: string;
   onGoogleSignInError: (errorText: string) => void;
 }
 
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
   },
   errorContainer: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center",
     gap: ms(12),
     backgroundColor: colors.primary[50],
     paddingHorizontal: ms(20),

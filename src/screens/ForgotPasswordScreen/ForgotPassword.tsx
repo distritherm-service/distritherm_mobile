@@ -123,7 +123,6 @@ const ForgotPassword = () => {
       validationRules={changePasswordValidationRules}
       validatePasswordMatch={validatePasswordMatch}
       validateNewPasswordDifferent={validateNewPasswordDifferent}
-      isDirty={passwordForm.formState.isDirty}
     />
   );
 };

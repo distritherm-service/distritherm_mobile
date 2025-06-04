@@ -145,6 +145,7 @@ const GoogleSignIn: React.FC<GoogleSignInProps> = ({ onSignInError }) => {
         return;
       }
 
+        console.log("lfsqd");
       let errorText =
         "Une erreur est survenue lors de la connexion avec Google.";
 

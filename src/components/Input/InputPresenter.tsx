@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   input: {
-    paddingVertical: ms(11),
+    paddingVertical: ms(13),
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: ms(6),
