@@ -15,6 +15,7 @@ interface RecommandationPresenterProps {
   handleContainerLayout: () => void;
   initialSkeletons: React.ReactElement[];
   loadMoreSkeletons: React.ReactElement[];
+  onProductPress: (productId: number) => void;
 }
 
 function RecommandationPresenter({
@@ -26,6 +27,7 @@ function RecommandationPresenter({
   handleContainerLayout,
   initialSkeletons,
   loadMoreSkeletons,
+  onProductPress,
 }: RecommandationPresenterProps) {
   return (
     <View style={[globalStyles.container, { paddingTop: ms(0) }]}>
@@ -51,7 +53,7 @@ function RecommandationPresenter({
           >
             {products.map((product, index) => (
               <View key={product.id || index} style={styles.productWrapper}>
-                <ProductItem product={product} />
+                <ProductItem product={product} onProductPress={onProductPress} />
               </View>
             ))}
             {isLoadingMore && loadMoreSkeletons}

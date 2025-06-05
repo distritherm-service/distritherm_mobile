@@ -4,6 +4,7 @@ import RecommandationPresenter from "./RecommandationPresenter";
 import ProductItemSkeleton from "src/components/ProductItem/ProductItemSkeleton/ProductItemSkeleton";
 import productsService from "src/services/productsService";
 import { ProductBasicDto } from "src/types/Product";
+import { useNavigation } from "@react-navigation/native";
 
 const Recommandation = () => {
   const [recommendedProducts, setRecommendedProducts] = useState<
@@ -22,6 +23,8 @@ const Recommandation = () => {
 
   const ITEMS_PER_PAGE = 10;
   const MAX_CONSECUTIVE_EMPTY_RESPONSES = 3;
+
+  const navigation = useNavigation();
 
   // Logique de génération des skeletons
   const generateInitialSkeletons = useCallback(() => {
@@ -171,6 +174,10 @@ const Recommandation = () => {
     ]
   );
 
+  const onProductPress = (productId: number) => {
+    navigation.navigate('Product', { productId: productId });
+  }
+
   const loadMoreProducts = useCallback(() => {
     const allLoaded = areAllProductsLoaded();
 
@@ -308,6 +315,7 @@ const Recommandation = () => {
       handleContainerLayout={handleContainerLayout}
       initialSkeletons={generateInitialSkeletons()}
       loadMoreSkeletons={generateLoadMoreSkeletons()}
+      onProductPress={onProductPress}
     />
   );
 };

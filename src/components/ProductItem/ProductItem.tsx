@@ -1,41 +1,40 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React, { useState } from 'react'
-import ProductItemPresenter from './ProductItemPresenter'
-import { ProductBasicDto } from 'src/types/Product'
-import { isTablet } from 'src/utils/deviceUtils'
-import { NO_IMAGE_URL } from 'src/utils/noImage'
+import { StyleSheet, Text, View } from "react-native";
+import React, { useState } from "react";
+import ProductItemPresenter from "./ProductItemPresenter";
+import { ProductBasicDto } from "src/types/Product";
+import { isTablet } from "src/utils/deviceUtils";
+import { NO_IMAGE_URL } from "src/utils/noImage";
 
 interface ProductItemProps {
   product?: ProductBasicDto;
-  onProductPress?: (product: ProductBasicDto) => void;
+  onProductPress?: (productId: number) => void;
   onFavoritePress?: (product: ProductBasicDto) => void;
 }
 
-
-const ProductItem: React.FC<ProductItemProps> = ({ 
-  product, 
+const ProductItem: React.FC<ProductItemProps> = ({
+  product,
   onProductPress,
-  onFavoritePress
+  onFavoritePress,
 }) => {
   // États pour la gestion de l'image
   const [imageError, setImageError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // Logique métier
   const isTabletDevice = isTablet();
   // Données d'exemple pour un produit de construction
   const defaultProduct: ProductBasicDto = {
     id: 1,
-    name: 'Plaque de plâtre BA13 standard',
-    priceTtc: 8.50,
+    name: "Plaque de plâtre BA13 standard",
+    priceTtc: 8.5,
     quantity: 10,
     imagesUrl: [],
-    description: 'Plaque de plâtre standard pour cloisons',
+    description: "Plaque de plâtre standard pour cloisons",
     categoryId: 1,
     markId: 1,
     category: {
       id: 1,
-      name: 'Plâtrerie'
+      name: "Plâtrerie",
     },
     isInPromotion: false,
     promotionPrice: undefined,
@@ -60,17 +59,17 @@ const ProductItem: React.FC<ProductItemProps> = ({
     // if (imageError || !currentProduct.imagesUrl?.[0]) {
     //   return { uri: DEFAULT_IMAGE_URL };
     // }
-      return { uri: NO_IMAGE_URL };
-      // return { uri: currentProduct.imagesUrl[0] };
+    return { uri: NO_IMAGE_URL };
+    // return { uri: currentProduct.imagesUrl[0] };
   };
 
   // Handlers pour les actions
   const handlePress = () => {
     if (onProductPress) {
-      onProductPress(currentProduct);
+      onProductPress(currentProduct.id);
     } else {
       // Action par défaut
-      console.log('Produit sélectionné:', currentProduct.name);
+      console.log("Produit sélectionné:", currentProduct.name);
     }
   };
 
@@ -79,14 +78,14 @@ const ProductItem: React.FC<ProductItemProps> = ({
       onFavoritePress(currentProduct);
     } else {
       // Action par défaut pour les favoris
-      console.log('Favori togglé:', currentProduct.name);
+      console.log("Favori togglé:", currentProduct.name);
     }
   };
 
   return (
     <ProductItemPresenter
       name={currentProduct.name}
-      category={currentProduct.category?.name || 'Construction'}
+      category={currentProduct.category?.name || "Construction"}
       price={currentProduct.promotionPrice || currentProduct.priceTtc}
       unit="unité"
       imageSource={getImageSource()}
@@ -104,6 +103,6 @@ const ProductItem: React.FC<ProductItemProps> = ({
   );
 };
 
-export default ProductItem
+export default ProductItem;
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({});

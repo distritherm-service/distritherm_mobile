@@ -9,6 +9,7 @@ export type RootStackParamList = {
   Auth: { screen: keyof AuthStackParamList } | undefined;
   PersonalInformation: undefined;
   ForgotPassword: undefined;
+  Product: { productId: number }; // ← Ajouter cette ligne
 };
 
 declare global {

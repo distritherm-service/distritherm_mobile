@@ -4,8 +4,10 @@ import BottomBarContainer from "./BottomBar/BottomBar";
 import { AuthStackNavigator } from "./Auth/AuthStackNavigator";
 import PersonalInformation from "../screens/PersonalInformationScreen/PersonalInformation";
 import ForgotPassword from "../screens/ForgotPasswordScreen/ForgotPassword";
+import Product from "src/screens/ProductScreen/Product";
+import { RootStackParamList } from "./types";
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const StackNavigator = () => {
   const { isAuthenticated } = useAuth();
@@ -18,6 +20,11 @@ const StackNavigator = () => {
       )}
       <Stack.Screen name="PersonalInformation" component={PersonalInformation} />
       <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+      <Stack.Screen 
+        name="Product" 
+        component={Product}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 };
