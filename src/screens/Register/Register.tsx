@@ -4,11 +4,17 @@ import { useForm } from 'react-hook-form';
 import { RegisterFormData, validationRules } from 'src/types/AuthTypes';
 import authService, { RegularRegisterDto } from 'src/services/authService';
 import { useAuth } from 'src/hooks/useAuth';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from 'src/navigation/types';
+
+type RegisterNavigationProp = StackNavigationProp<RootStackParamList>;
 
 const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | undefined>();
   const { login } = useAuth();
+  const navigation = useNavigation<RegisterNavigationProp>();
 
   // Form setup with react-hook-form
   const { control, handleSubmit, formState: { errors }, watch, getValues } = useForm<RegisterFormData>({
@@ -79,6 +85,20 @@ const Register = () => {
       
       // Connexion automatique après inscription
       await login(response.user, response.accessToken, response.refreshToken);
+      
+      // Petit délai pour s'assurer que l'état est bien synchronisé
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Redirection vers la page Profil après inscription réussie
+      navigation.reset({
+        index: 0,
+        routes: [
+          {
+            name: "Main",
+            params: { initialTab: "Profil" },
+          },
+        ],
+      });
       
     } catch (err: any) {
       console.error('Registration error:', err);

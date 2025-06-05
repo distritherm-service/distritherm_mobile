@@ -9,6 +9,11 @@ import { Alert } from "react-native";
 import authService, { AdditionalUserInfoDto } from "src/services/authService";
 import { useForm, Control, FieldErrors } from "react-hook-form";
 import { useAuth } from "src/hooks/useAuth";
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from 'src/navigation/types';
+
+type GoogleSignInNavigationProp = StackNavigationProp<RootStackParamList>;
 
 interface GoogleSignInProps {
   onSignInError: (errorText: string) => void;
@@ -78,6 +83,7 @@ const GoogleSignIn: React.FC<GoogleSignInProps> = ({ onSignInError }) => {
     useState<boolean>(false);
   const [idToken, setIdToken] = useState<string | null>(null);
   const { login } = useAuth();
+  const navigation = useNavigation<GoogleSignInNavigationProp>();
 
   // Form management
   const { control, handleSubmit, errors, reset, clearErrors, formRules } =
@@ -134,7 +140,21 @@ const GoogleSignIn: React.FC<GoogleSignInProps> = ({ onSignInError }) => {
         providerName: "GOOGLE",
       });
 
-      login(response.user, response.accessToken, response.refreshToken);
+      await login(response.user, response.accessToken, response.refreshToken);
+
+      // Petit délai pour s'assurer que l'état est bien synchronisé
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Redirection vers la page Profil après connexion Google réussie
+      navigation.reset({
+        index: 0,
+        routes: [
+          {
+            name: "Main",
+            params: { initialTab: "Profil" },
+          },
+        ],
+      });
     } catch (error: any) {
       if (error.response?.status === 404) {
         setCompleteInformation(true);
@@ -145,7 +165,6 @@ const GoogleSignIn: React.FC<GoogleSignInProps> = ({ onSignInError }) => {
         return;
       }
 
-        console.log("lfsqd");
       let errorText =
         "Une erreur est survenue lors de la connexion avec Google.";
 
@@ -183,7 +202,7 @@ const GoogleSignIn: React.FC<GoogleSignInProps> = ({ onSignInError }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [onSignInError, reset, clearErrors]);
+  }, [onSignInError, reset, clearErrors, navigation]);
 
   const handleRegisterAuthGoogle = useCallback(
     async (formData: FormData) => {
@@ -208,12 +227,26 @@ const GoogleSignIn: React.FC<GoogleSignInProps> = ({ onSignInError }) => {
           additionalInfo,
         });
 
-        login(response.user, response.accessToken, response.refreshToken);
+        await login(response.user, response.accessToken, response.refreshToken);
+
+        // Petit délai pour s'assurer que l'état est bien synchronisé
+        await new Promise(resolve => setTimeout(resolve, 100));
 
         // Close modal and reset form on success
         setCompleteInformation(false);
         reset();
         clearErrors();
+
+        // Redirection vers la page Profil après inscription Google réussie
+        navigation.reset({
+          index: 0,
+          routes: [
+            {
+              name: "Main",
+              params: { initialTab: "Profil" },
+            },
+          ],
+        });
       } catch (error: any) {
         let errorMessage = "Échec de l'authentification avec Google";
 
@@ -228,7 +261,7 @@ const GoogleSignIn: React.FC<GoogleSignInProps> = ({ onSignInError }) => {
         setIsLoading(false);
       }
     },
-    [idToken, onSignInError, reset, clearErrors]
+    [idToken, onSignInError, reset, clearErrors, navigation]
   );
 
   const handleModalClose = useCallback(() => {

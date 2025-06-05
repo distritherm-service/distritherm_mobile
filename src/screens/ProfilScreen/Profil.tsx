@@ -49,13 +49,11 @@ const Profil = () => {
           ]
         );
         break;
-      default:
-        console.log(`Navigate to: ${screen}`);
     }
   };
 
   return (
-    <PageContainer>
+    <PageContainer isScrollable={false}>
       <ProfilPresenter
         onNavigate={handleNavigation}
         isAuthenticated={isAuthenticated}

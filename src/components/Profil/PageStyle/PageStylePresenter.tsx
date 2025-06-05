@@ -17,8 +17,11 @@ import colors from "src/utils/colors";
 import { NO_IMAGE_URL } from "src/utils/noImage";
 import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesome6 } from "@expo/vector-icons";
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faExclamationTriangle, faEnvelope } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import {
+  faExclamationTriangle,
+  faEnvelope,
+} from "@fortawesome/free-solid-svg-icons";
 
 interface PageStylePresenterProps {
   children?: React.ReactNode;
@@ -64,6 +67,9 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
         style={styles.scrollContainer}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        nestedScrollEnabled={false}
+        scrollEventThrottle={16}
       >
         {/* Header simplifié avec seulement le logo */}
         <LinearGradient
@@ -109,7 +115,9 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
                     end={{ x: 1, y: 1 }}
                   >
                     <Image
-                      source={{ uri: selectedImage || user.urlPicture || NO_IMAGE_URL }}
+                      source={{
+                        uri: selectedImage || user.urlPicture || NO_IMAGE_URL,
+                      }}
                       style={styles.profileImage}
                     />
                   </LinearGradient>
@@ -137,43 +145,35 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
                     {`${user.firstName || ""} ${user.lastName || ""}`.trim() ||
                       "Utilisateur"}
                   </Text>
-                  
-                  {/* Indicateur d'email non vérifié - élégant et discret */}
+
+                  {/* Email non vérifié - minimaliste et explicite */}
                   {isEmailUnverified && (
-                    <TouchableOpacity 
+                    <TouchableOpacity
                       style={styles.emailVerificationNotice}
                       onPress={onResendVerificationEmail}
                       disabled={isResendingEmail}
-                      activeOpacity={0.8}
+                      activeOpacity={0.7}
                     >
-                      <LinearGradient
-                        colors={['#FFF8DC', '#FFFACD']}
-                        style={styles.emailNoticeGradient}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
-                      >
-                        <FontAwesomeIcon 
-                          icon={faExclamationTriangle} 
-                          size={ms(16)}
-                          color="#B8860B" 
-                        />
-                        <View style={styles.emailNoticeTextContainer}>
+                      <View style={styles.emailNoticeContainer}>
+                        <View style={styles.emailNoticeHeader}>
+                          <FontAwesomeIcon
+                            icon={faExclamationTriangle}
+                            size={ms(14)}
+                            color="#FF6B35"
+                          />
                           <Text style={styles.emailNoticeTitle}>
                             Email non vérifié
                           </Text>
-                          <Text style={styles.emailNoticeSubtitle}>
-                            {isResendingEmail 
-                              ? "Envoi en cours..." 
-                              : "Appuyez pour renvoyer l'email de vérification"
-                            }
+                        </View>
+
+                        <View style={styles.emailNoticeButton}>
+                          <Text style={styles.emailNoticeButtonText}>
+                            {isResendingEmail
+                              ? "Envoi en cours..."
+                              : "Renvoyer l'email"}
                           </Text>
                         </View>
-                        <FontAwesomeIcon 
-                          icon={faEnvelope} 
-                          size={ms(14)}
-                          color="#B8860B" 
-                        />
-                      </LinearGradient>
+                      </View>
                     </TouchableOpacity>
                   )}
                 </View>
@@ -207,8 +207,8 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
         onRequestClose={onCloseModaImagePicker}
       >
         <Pressable style={styles.modalOverlay} onPress={onCloseModaImagePicker}>
-          <Pressable 
-            style={styles.modalContent} 
+          <Pressable
+            style={styles.modalContent}
             onPress={(e) => e.stopPropagation()}
           >
             <TouchableOpacity style={styles.modalButton} onPress={onGallery}>
@@ -262,17 +262,16 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
               </View>
 
               {/* Texte de déconnexion */}
-              <Text style={styles.disconnectionTitle}>Déconnexion en cours</Text>
+              <Text style={styles.disconnectionTitle}>
+                Déconnexion en cours
+              </Text>
               <Text style={styles.disconnectionSubtitle}>
                 Veuillez patienter...
               </Text>
 
               {/* Indicateur de chargement personnalisé */}
               <View>
-                <ActivityIndicator 
-                  size="large" 
-                  color={colors.tertiary[600]} 
-                />
+                <ActivityIndicator size="large" color={colors.tertiary[600]} />
               </View>
             </LinearGradient>
           </View>
@@ -293,10 +292,11 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
+    minHeight: "100%",
   },
   headerGradient: {
     paddingTop: ms(30),
-    paddingBottom: ms(50), // Réduit car plus d'infos utilisateur
+    paddingBottom: ms(50), // Réduit car bottom en bas
     paddingHorizontal: ms(24),
     shadowColor: colors.tertiary[800],
     shadowOffset: { width: 0, height: ms(6) },
@@ -331,6 +331,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: ms(32),
     borderTopRightRadius: ms(32),
     padding: ms(20),
+    paddingBottom: ms(0),
     shadowColor: colors.tertiary[800],
     shadowOffset: { width: 0, height: ms(-8) },
     shadowOpacity: 0.12,
@@ -372,8 +373,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: ms(4) },
     shadowOpacity: 0.25,
     shadowRadius: ms(8),
-    elevation: 10, // Plus élevé que l'image pour iOS
-    zIndex: 10, // Z-index élevé pour iOS
+    elevation: 10,
+    zIndex: 10,
   },
   cameraIconGradient: {
     width: ms(32),
@@ -435,7 +436,6 @@ const styles = StyleSheet.create({
   },
   emailIcon: {
     opacity: 0.8,
-    // Utilise react-native-size-matters pour la responsivité
   },
   userEmail: {
     fontSize: ms(14), // Légèrement plus grand
@@ -458,8 +458,8 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: "flex-end",
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalContent: {
     backgroundColor: colors.primary[50],
@@ -474,8 +474,8 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   modalButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: ms(12),
     padding: ms(16),
     backgroundColor: colors.primary[100],
@@ -487,11 +487,11 @@ const styles = StyleSheet.create({
   modalButtonText: {
     fontSize: ms(16),
     color: colors.tertiary[700],
-    fontWeight: '500',
+    fontWeight: "500",
   },
   cancelButton: {
     padding: ms(16),
-    alignItems: 'center',
+    alignItems: "center",
     backgroundColor: colors.tertiary[100],
     borderRadius: ms(12),
     marginTop: ms(8),
@@ -499,13 +499,13 @@ const styles = StyleSheet.create({
   cancelButtonText: {
     fontSize: ms(16),
     color: colors.tertiary[700],
-    fontWeight: '600',
+    fontWeight: "600",
   },
   disconnectionModalOverlay: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.6)",
   },
   disconnectionModalContent: {
     width: ms(280),
@@ -516,12 +516,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: ms(16),
     elevation: 10,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   disconnectionModalGradient: {
     paddingVertical: ms(32),
     paddingHorizontal: ms(24),
-    alignItems: 'center',
+    alignItems: "center",
   },
   disconnectionIconContainer: {
     marginBottom: ms(20),
@@ -535,61 +535,66 @@ const styles = StyleSheet.create({
     width: ms(64),
     height: ms(64),
     borderRadius: ms(32),
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     borderWidth: ms(3),
     borderColor: colors.primary[200],
   },
   disconnectionTitle: {
     fontSize: ms(20),
-    fontWeight: '700',
+    fontWeight: "700",
     color: colors.tertiary[800],
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: ms(8),
     letterSpacing: ms(0.5),
   },
   disconnectionSubtitle: {
     fontSize: ms(15),
     color: colors.tertiary[600],
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: ms(24),
-    fontWeight: '500',
+    fontWeight: "500",
   },
   emailVerificationNotice: {
-    width: '100%',
-    marginTop: ms(16),
-    borderRadius: ms(16),
-    overflow: 'hidden',
-    shadowColor: '#B8860B',
-    shadowOffset: { width: 0, height: ms(3) },
-    shadowOpacity: 0.15,
-    shadowRadius: ms(6),
-    elevation: 4,
+    minWidth: "100%",
   },
-  emailNoticeGradient: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: ms(20),
-    paddingVertical: ms(16),
-    gap: ms(16),
-    borderWidth: ms(2),
-    borderColor: '#DAA520',
-    borderRadius: ms(20),
+  emailNoticeContainer: {
+    flexDirection: "column",
+    minWidth: "100%",
+    alignItems: "center",
+    paddingVertical: ms(12),
+    paddingHorizontal: ms(16),
+    backgroundColor: "#FFF8F0",
+    borderRadius: ms(10),
+    borderLeftWidth: ms(4),
+    borderLeftColor: "#FF6B35",
+    gap: ms(10),
   },
-  emailNoticeTextContainer: {
-    flex: 1,
-    gap: ms(4),
+  emailNoticeHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: ms(6),
   },
   emailNoticeTitle: {
-    fontSize: ms(15),
-    fontWeight: '700',
-    color: '#8B4513',
-    letterSpacing: ms(0.3),
+    fontSize: ms(13),
+    color: "#D2691E",
+    fontWeight: "600",
   },
-  emailNoticeSubtitle: {
-    fontSize: ms(12),
-    color: '#A0522D',
-    fontWeight: '500',
-    lineHeight: ms(16),
+  emailNoticeButton: {
+    backgroundColor: "#FF6B35",
+    paddingVertical: ms(10),
+    paddingHorizontal: ms(12),
+    borderRadius: ms(6),
+    shadowColor: "#FF6B35",
+    shadowOffset: { width: 0, height: ms(2) },
+    shadowOpacity: 0.2,
+    shadowRadius: ms(3),
+    elevation: 2,
+  },
+  emailNoticeButtonText: {
+    fontSize: ms(14),
+    color: "#FFFFFF",
+    fontWeight: "600",
+    textAlign: "center",
   },
 });

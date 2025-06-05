@@ -26,7 +26,7 @@ const AuthForm = ({
   // Calculate if content is scrollable (content height > available screen height)
   const isScrollable = contentHeight > screenHeight;
 
-  const onPressLoginRedirection = () => {
+  const onPressRedirection = () => {
     if (type === "login") {
       // Going from Login to Register - slide from right
       navigation.navigate("Register");
@@ -65,7 +65,7 @@ const AuthForm = ({
     <AuthFormPresenter
       error={error}
       type={type}
-      onPressLoginRedirection={onPressLoginRedirection}
+      onPressRedirection={onPressRedirection}
       onGoBack={onGoBack}
       onSubmit={onSubmit}
       isLoading={isLoading}

@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
     borderColor: colors.primary[200],
   },
   formSection: {
-    padding: ms(24),
+    padding: ms(15),
     gap: ms(20),
   },
   sectionTitle: {
@@ -399,11 +399,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: ms(18),
+    paddingVertical: ms(15),
     paddingHorizontal: ms(32),
     borderRadius: ms(20),
     gap: ms(12),
-    minHeight: ms(56),
   },
   primaryButtonText: {
     fontSize: ms(16),

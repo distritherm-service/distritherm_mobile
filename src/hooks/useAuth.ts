@@ -21,8 +21,8 @@ export const useAuth = () => {
     await dispatch(initializeAuth());
   };
 
-  const login = (userData: UserWithClientDto, accessToken: string, refreshToken: string) => {
-    return dispatch(loginUser({ user: userData, accessToken, refreshToken }));
+  const login = async (userData: UserWithClientDto, accessToken: string, refreshToken: string) => {
+    return await dispatch(loginUser({ user: userData, accessToken, refreshToken }));
   };
 
   const logout = async () => {

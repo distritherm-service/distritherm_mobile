@@ -31,7 +31,7 @@ api.interceptors.response.use(
   (response: any) => response,
   async (error: any) => {
     const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest._retry && error.response?.data?.message === 'Token invalide ou expiré') {
       originalRequest._retry = true;
 
       try {

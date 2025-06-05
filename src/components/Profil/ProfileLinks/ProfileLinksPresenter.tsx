@@ -139,6 +139,7 @@ export default ProfileLinksPresenter;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingBottom: ms(20), // Utilise react-native-size-matters pour la responsivité
   },
   scrollContent: {
     paddingHorizontal: ms(2),

@@ -20,7 +20,7 @@ interface AuthFormPresenterProps {
   error?: string;
   children: React.ReactNode;
   type: "login" | "register";
-  onPressLoginRedirection: () => void;
+  onPressRedirection: () => void;
   onGoBack: () => void;
   onSubmit?: () => void;
   isLoading?: boolean;
@@ -35,7 +35,7 @@ const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
   error,
   children,
   type,
-  onPressLoginRedirection,
+  onPressRedirection,
   onGoBack,
   onSubmit,
   isLoading = false,
@@ -78,7 +78,7 @@ const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
     ]}>
       <Pressable
         style={styles.stickyRedirectionButton}
-        onPress={onPressLoginRedirection}
+        onPress={onPressRedirection}
       >
         <LinearGradient
           colors={[colors.primary[50], colors.primary[100]]}

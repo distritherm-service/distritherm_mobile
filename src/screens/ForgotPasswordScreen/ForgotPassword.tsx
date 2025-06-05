@@ -39,7 +39,7 @@ const ForgotPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // Form for password change
-  const passwordForm = useForm<ChangePasswordFormData>({
+  const { control, handleSubmit, watch, formState } = useForm<ChangePasswordFormData>({
     defaultValues: {
       currentPassword: "",
       newPassword: "",
@@ -50,13 +50,13 @@ const ForgotPassword = () => {
 
   // Custom validation for password confirmation
   const validatePasswordMatch = (value: string) => {
-    const newPassword = passwordForm.watch("newPassword");
+    const newPassword = watch("newPassword");
     return value === newPassword || "Les mots de passe ne correspondent pas";
   };
 
   // Custom validation to ensure new password is different from current
   const validateNewPasswordDifferent = (value: string) => {
-    const currentPassword = passwordForm.watch("currentPassword");
+    const currentPassword = watch("currentPassword");
     if (currentPassword && value === currentPassword) {
       return "Le nouveau mot de passe doit être différent du mot de passe actuel";
     }
@@ -93,7 +93,7 @@ const ForgotPassword = () => {
   };
 
   const handleBack = () => {
-    if (passwordForm.formState.isDirty) {
+    if (formState.isDirty) {
       Alert.alert(
         "Modifications non sauvegardées",
         "Vous avez des modifications non sauvegardées. Voulez-vous vraiment quitter ?",
@@ -116,9 +116,9 @@ const ForgotPassword = () => {
 
   return (
     <ForgotPasswordPresenter
-      control={passwordForm.control}
+      control={control}
       isLoading={isLoading}
-      onChangePassword={passwordForm.handleSubmit(handleChangePassword)}
+      onChangePassword={handleSubmit(handleChangePassword)}
       onBack={handleBack}
       validationRules={changePasswordValidationRules}
       validatePasswordMatch={validatePasswordMatch}
