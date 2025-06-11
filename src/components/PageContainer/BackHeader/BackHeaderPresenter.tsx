@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import { EdgeInsets } from "react-native-safe-area-context";
 import { moderateScale as ms } from "react-native-size-matters";
-import colors from "src/utils/colors";
+import { useColors } from "src/hooks/useColors";
 
 interface BackHeaderPresenterProps {
   title?: string;
@@ -19,19 +19,98 @@ const BackHeaderPresenter: React.FC<BackHeaderPresenterProps> = ({
   hideBackButton = false,
   titleLeft = false,
 }) => {
+  const colors = useColors();
+
+  const dynamicStyles = StyleSheet.create({
+    container: {
+      width: "100%",
+      zIndex: 10,
+      justifyContent: "center",
+      backgroundColor: colors.background,
+    },
+    headerContent: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingHorizontal: ms(16),
+      height: ms(50),
+    },
+    leftSection: {
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "flex-start",
+    },
+    leftSectionExpanded: {
+      flex: 3,
+    },
+    backButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingHorizontal: ms(8),
+      paddingVertical: 0,
+      borderRadius: ms(8),
+      height: "100%",
+      justifyContent: "center",
+      minHeight: ms(50),
+    },
+    buttonPressed: {
+      backgroundColor: `${colors.secondary[400]}15`,
+    },
+    backText: {
+      fontSize: ms(14),
+      fontWeight: "500",
+      color: colors.secondary[500],
+      marginLeft: ms(4),
+    },
+    titleSection: {
+      flex: 2,
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    titleCenteringContainer: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    titleExtensionSpace: {
+      flex: 1,
+    },
+    title: {
+      fontSize: ms(16),
+      fontWeight: "600",
+      color: colors.text,
+    },
+    titleCentered: {
+      textAlign: "center",
+      width: "100%",
+    },
+    titleLeftContainer: {
+      flex: 1,
+      marginLeft: ms(10),
+    },
+    titleLeft: {
+      textAlign: "left",
+    },
+    separator: {
+      height: ms(1),
+      backgroundColor: colors.border,
+      width: "100%",
+    },
+  });
+
   return (
-    <View style={[styles.container]}>
-      <View style={styles.headerContent}>
+    <View style={dynamicStyles.container}>
+      <View style={dynamicStyles.headerContent}>
         {/* Section gauche - Bouton retour */}
         <View
-          style={[styles.leftSection, titleLeft && styles.leftSectionExpanded]}
+          style={[dynamicStyles.leftSection, titleLeft && dynamicStyles.leftSectionExpanded]}
         >
           {!hideBackButton && (
             <Pressable
               onPress={onBackPress}
               style={({ pressed }) => [
-                styles.backButton,
-                pressed && styles.buttonPressed,
+                dynamicStyles.backButton,
+                pressed && dynamicStyles.buttonPressed,
               ]}
               android_ripple={{
                 color: `${colors.secondary[400]}30`,
@@ -44,14 +123,14 @@ const BackHeaderPresenter: React.FC<BackHeaderPresenterProps> = ({
                 size={ms(16)}
                 color={colors.secondary[500]}
               />
-              <Text style={styles.backText}>Retour</Text>
+              <Text style={dynamicStyles.backText}>Retour</Text>
             </Pressable>
           )}
 
           {title && titleLeft && (
-            <View style={styles.titleLeftContainer}>
+            <View style={dynamicStyles.titleLeftContainer}>
               <Text
-                style={[styles.title, styles.titleLeft]}
+                style={[dynamicStyles.title, dynamicStyles.titleLeft]}
                 numberOfLines={1}
                 ellipsizeMode="tail"
               >
@@ -63,11 +142,11 @@ const BackHeaderPresenter: React.FC<BackHeaderPresenterProps> = ({
 
         {/* Section droite - Titre centré (seulement si titleLeft est false) */}
         {!titleLeft && (
-          <View style={styles.titleSection}>
-            <View style={styles.titleCenteringContainer}>
+          <View style={dynamicStyles.titleSection}>
+            <View style={dynamicStyles.titleCenteringContainer}>
               {title && (
                 <Text
-                  style={[styles.title, styles.titleCentered]}
+                  style={[dynamicStyles.title, dynamicStyles.titleCentered]}
                   numberOfLines={1}
                   ellipsizeMode="tail"
                 >
@@ -75,7 +154,7 @@ const BackHeaderPresenter: React.FC<BackHeaderPresenterProps> = ({
                 </Text>
               )}
             </View>
-            <View style={styles.titleExtensionSpace} />
+            <View style={dynamicStyles.titleExtensionSpace} />
           </View>
         )}
       </View>
@@ -84,80 +163,3 @@ const BackHeaderPresenter: React.FC<BackHeaderPresenterProps> = ({
 };
 
 export default BackHeaderPresenter;
-
-const styles = StyleSheet.create({
-  container: {
-    width: "100%",
-    zIndex: 10,
-    justifyContent: "center",
-    backgroundColor: colors.primary[50],
-  },
-  headerContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: ms(16),
-    height: ms(50),
-  },
-  leftSection: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "flex-start",
-  },
-  leftSectionExpanded: {
-    flex: 3,
-  },
-  backButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: ms(8),
-    paddingVertical: 0,
-    borderRadius: ms(8),
-    height: "100%",
-    justifyContent: "center",
-    minHeight: ms(50),
-  },
-  buttonPressed: {
-    backgroundColor: `${colors.secondary[400]}15`,
-  },
-  backText: {
-    fontSize: ms(14),
-    fontWeight: "500",
-    color: colors.secondary[500],
-    marginLeft: ms(4),
-  },
-  titleSection: {
-    flex: 2,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  titleCenteringContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  titleExtensionSpace: {
-    flex: 1,
-  },
-  title: {
-    fontSize: ms(16),
-    fontWeight: "600",
-    color: colors.tertiary[500],
-  },
-  titleCentered: {
-    textAlign: "center",
-    width: "100%",
-  },
-  titleLeftContainer: {
-    flex: 1,
-    marginLeft: ms(10),
-  },
-  titleLeft: {
-    textAlign: "left",
-  },
-  separator: {
-    height: ms(1),
-    backgroundColor: colors.primary[200],
-    width: "100%",
-  },
-});

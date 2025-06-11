@@ -5,6 +5,7 @@ import PageContainer from "src/components/PageContainer/PageContainer";
 import ProductImages from "src/components/Product/ProductImages/ProductImages";
 import ProductMainInfo from "src/components/Product/ProductMainInfo/ProductMainInfo";
 import ProductDescription from "src/components/Product/ProductDescription/ProductDescription";
+import ProductSimilar from "src/components/Product/ProductSimilar/ProductSimilar";
 import { useColors } from "src/hooks/useColors";
 import { ProductDetailDto } from "src/types/Product";
 
@@ -12,6 +13,7 @@ interface ProductPresenterProps {
   product: ProductDetailDto | null;
   loading: boolean;
   onBack: () => void;
+  onSimilarProductSelect: (productId: number) => Promise<void>;
 }
 
 const fakeImages = [
@@ -25,6 +27,7 @@ const ProductPresenter: React.FC<ProductPresenterProps> = ({
   product,
   loading,
   onBack,
+  onSimilarProductSelect,
 }) => {
   const colors = useColors();
 
@@ -95,6 +98,14 @@ const ProductPresenter: React.FC<ProductPresenterProps> = ({
           <ProductImages images={fakeImages} />
           {product && <ProductMainInfo product={product} />}
           {product && <ProductDescription product={product} />}
+          {product && (
+            <ProductSimilar
+              currentProductId={product.id}
+              categoryId={product.categoryId}
+              markId={product.markId}
+              onProductSelect={onSimilarProductSelect}
+            />
+          )}
         </View>
 
         {/* Enhanced bottom spacing with subtle gradient effect */}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, TextInput, View, Text, Pressable, Modal, FlatList, NativeSyntheticEvent, TextInputFocusEventData } from 'react-native';
-import colors from "src/utils/colors";
+import { useColors } from "src/hooks/useColors";
 import { ms } from 'react-native-size-matters';
 import { InputType } from "src/types/InputType";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
@@ -39,6 +39,148 @@ const InputPresenter = ({
 }: InputPresenterProps) => {
   const [isSelectOpen, setIsSelectOpen] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const colors = useColors(); // Using react-native-size-matters for responsive design
+
+  // Dynamic styles using colors from useColors hook
+  const dynamicStyles = StyleSheet.create({
+    label: {
+      fontSize: ms(14), // Using react-native-size-matters for responsive font size
+      fontWeight: "600",
+      color: colors.tertiary[500],
+      marginBottom: ms(3), // Using react-native-size-matters for responsive margin
+      letterSpacing: 0.3,
+    },
+    inputContainer: {
+      position: "relative",
+    },
+    input: {
+      paddingVertical: ms(13), // Using react-native-size-matters for responsive padding
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: ms(6), // Using react-native-size-matters for responsive border radius
+      paddingHorizontal: ms(10), // Using react-native-size-matters for responsive padding
+      fontSize: ms(14), // Using react-native-size-matters for responsive font size
+      color: colors.tertiary[500],
+      backgroundColor: colors.primary[50],
+      shadowColor: colors.tertiary[500],
+      shadowOffset: {
+        width: 0,
+        height: 1,
+      },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 1,
+      overflow: "hidden",
+    },
+    textareaInput: {
+      height: ms(60), // Using react-native-size-matters for responsive height
+      paddingTop: ms(6), // Using react-native-size-matters for responsive padding
+      paddingBottom: ms(6), // Using react-native-size-matters for responsive padding
+    },
+    inputWithLeftLogo: {
+      paddingLeft: ms(33), // Using react-native-size-matters for responsive padding
+    },
+    inputError: {
+      borderColor: colors.error,
+      borderWidth: 1.5,
+    },
+    leftLogoContainer: {
+      position: "absolute",
+      left: ms(12), // Using react-native-size-matters for responsive positioning
+      top: 0,
+      bottom: 0,
+      display: "flex",
+      flexDirection: "row",
+      alignItems: "center",
+      zIndex: 1,
+    },
+    errorText: {
+      color: colors.error,
+      fontSize: ms(12), // Using react-native-size-matters for responsive font size
+      marginTop: ms(4), // Using react-native-size-matters for responsive margin
+      fontWeight: "500",
+    },
+    selectContainer: {
+      height: ms(40), // Using react-native-size-matters for responsive height
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: ms(8), // Using react-native-size-matters for responsive border radius
+      paddingHorizontal: ms(12), // Using react-native-size-matters for responsive padding
+      backgroundColor: colors.primary[50],
+      flexDirection: 'row',
+      alignItems: 'center',
+      shadowColor: colors.tertiary[500],
+      shadowOffset: {
+        width: 0,
+        height: 1,
+      },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    selectText: {
+      fontSize: ms(14), // Using react-native-size-matters for responsive font size
+      color: colors.tertiary[500],
+      flex: 1,
+      textAlign: 'left',
+    },
+    placeholderText: {
+      color: colors.tertiary[400],
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalContent: {
+      backgroundColor: colors.primary[50],
+      borderRadius: ms(12), // Using react-native-size-matters for responsive border radius
+      maxHeight: ms(300), // Using react-native-size-matters for responsive height
+      width: '80%',
+      shadowColor: colors.tertiary[500],
+      shadowOffset: {
+        width: 0,
+        height: 4,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 8,
+      elevation: 8,
+    },
+    optionItem: {
+      paddingVertical: ms(16), // Using react-native-size-matters for responsive padding
+      paddingHorizontal: ms(20), // Using react-native-size-matters for responsive padding
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    selectedOption: {
+      backgroundColor: colors.secondary[50],
+    },
+    optionText: {
+      fontSize: ms(16), // Using react-native-size-matters for responsive font size
+      color: colors.tertiary[500],
+    },
+    selectedOptionText: {
+      color: colors.secondary[500],
+      fontWeight: '600',
+    },
+    chevronContainer: {
+      marginLeft: ms(8), // Using react-native-size-matters for responsive margin
+    },
+    passwordToggle: {
+      position: "absolute",
+      right: ms(12), // Using react-native-size-matters for responsive positioning
+      top: 0,
+      bottom: 0,
+      display: "flex",
+      flexDirection: "row",
+      alignItems: "center",
+      zIndex: 1,
+    },
+    inputWithRightIcon: {
+      paddingRight: ms(32), // Using react-native-size-matters for responsive padding
+    },
+  });
 
   // Determine if we should show the password toggle
   const isPasswordField = type === InputType.PASSWORD;
@@ -67,23 +209,23 @@ const InputPresenter = ({
   const renderSelectModal = () => (
     <Modal
       visible={isSelectOpen}
-      transparent
+      transparent={true}
       animationType="fade"
       onRequestClose={() => setIsSelectOpen(false)}
     >
       <Pressable 
-        style={styles.modalOverlay}
+        style={dynamicStyles.modalOverlay}
         onPress={() => setIsSelectOpen(false)}
       >
-        <View style={styles.modalContent}>
+        <View style={dynamicStyles.modalContent}>
           <FlatList
-            data={options}
+            data={options || []}
             keyExtractor={(item) => item.value}
             renderItem={({ item }) => (
               <Pressable
                 style={[
-                  styles.optionItem,
-                  item.value === value && styles.selectedOption
+                  dynamicStyles.optionItem,
+                  item.value === value && dynamicStyles.selectedOption
                 ]}
                 onPress={() => {
                   onChangeText(item.value);
@@ -91,8 +233,8 @@ const InputPresenter = ({
                 }}
               >
                 <Text style={[
-                  styles.optionText,
-                  item.value === value && styles.selectedOptionText
+                  dynamicStyles.optionText,
+                  item.value === value && dynamicStyles.selectedOptionText
                 ]}>
                   {item.label}
                 </Text>
@@ -107,40 +249,40 @@ const InputPresenter = ({
   if (type === InputType.SELECT) {
     return (
       <View>
-        {label && <Text style={styles.label}>{label}</Text>}
+        {label && <Text style={dynamicStyles.label}>{label}</Text>}
         <Pressable
           style={({ pressed }) => [
-            styles.selectContainer,
-            error && styles.inputError,
-            leftLogo && styles.inputWithLeftLogo,
+            dynamicStyles.selectContainer,
+            error && dynamicStyles.inputError,
+            leftLogo && dynamicStyles.inputWithLeftLogo,
             pressed && { opacity: 0.8 }
           ]}
           onPress={() => setIsSelectOpen(true)}
         >
           {leftLogo && (
-            <View style={styles.leftLogoContainer}>
+            <View style={dynamicStyles.leftLogoContainer}>
               <FontAwesomeIcon 
                 icon={leftLogo} 
-                size={ms(16)} 
+                size={ms(16)} // Using react-native-size-matters for responsive icon size
                 color={colors.tertiary[500]} 
               />
             </View>
           )}
           <Text style={[
-            styles.selectText,
-            !value && styles.placeholderText,
+            dynamicStyles.selectText,
+            !value && dynamicStyles.placeholderText,
           ]}>
             {getSelectedLabel()}
           </Text>
-          <View style={styles.chevronContainer}>
+          <View style={dynamicStyles.chevronContainer}>
             <FontAwesomeIcon 
               icon={isSelectOpen ? faChevronUp : faChevronDown} 
-              size={ms(14)} 
+              size={ms(14)} // Using react-native-size-matters for responsive icon size
               color={colors.tertiary[500]} 
             />
           </View>
         </Pressable>
-        {error && <Text style={styles.errorText}>{error}</Text>}
+        {error && <Text style={dynamicStyles.errorText}>{error}</Text>}
         {renderSelectModal()}
       </View>
     );
@@ -148,24 +290,24 @@ const InputPresenter = ({
 
   return (
     <View>
-      {label && <Text style={styles.label}>{label}</Text>}
-      <View style={styles.inputContainer}>
+      {label && <Text style={dynamicStyles.label}>{label}</Text>}
+      <View style={dynamicStyles.inputContainer}>
         {leftLogo && (
-          <View style={styles.leftLogoContainer}>
+          <View style={dynamicStyles.leftLogoContainer}>
             <FontAwesomeIcon 
               icon={leftLogo} 
-              size={ms(16)} 
+              size={ms(16)} // Using react-native-size-matters for responsive icon size
               color={colors.tertiary[500]} 
             />
           </View>
         )}
         <TextInput
           style={[
-            styles.input,
-            leftLogo && styles.inputWithLeftLogo,
-            isPasswordField && styles.inputWithRightIcon,
-            error && styles.inputError,
-            type === InputType.TEXTAREA && styles.textareaInput,
+            dynamicStyles.input,
+            leftLogo && dynamicStyles.inputWithLeftLogo,
+            isPasswordField && dynamicStyles.inputWithRightIcon,
+            error && dynamicStyles.inputError,
+            type === InputType.TEXTAREA && dynamicStyles.textareaInput,
           ]}
           value={value}
           onChangeText={onChangeText}
@@ -181,160 +323,20 @@ const InputPresenter = ({
         />
         {isPasswordField && (
           <Pressable
-            style={styles.passwordToggle}
+            style={dynamicStyles.passwordToggle}
             onPress={() => setIsPasswordVisible(!isPasswordVisible)}
           >
             <FontAwesomeIcon 
               icon={shouldShowPassword ? faEye : faEyeSlash} 
-              size={ms(16)} 
+              size={ms(16)} // Using react-native-size-matters for responsive icon size
               color={colors.tertiary[500]} 
             />
           </Pressable>
         )}
       </View>
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      {error && <Text style={dynamicStyles.errorText}>{error}</Text>}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  label: {
-    fontSize: ms(14),
-    fontWeight: "600",
-    color: colors.tertiary[500],
-    marginBottom: ms(3),
-    letterSpacing: 0.3,
-  },
-  inputContainer: {
-    position: "relative",
-  },
-  input: {
-    paddingVertical: ms(13),
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: ms(6),
-    paddingHorizontal: ms(10),
-    fontSize: ms(14),
-    color: colors.tertiary[500],
-    backgroundColor: colors.primary[50],
-    shadowColor: colors.tertiary[500],
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-    overflow: "hidden",
-  },
-  textareaInput: {
-    height: ms(60),
-    paddingTop: ms(6),
-    paddingBottom: ms(6),
-  },
-  inputWithLeftLogo: {
-    paddingLeft: ms(33),
-  },
-  inputError: {
-    borderColor: colors.error,
-    borderWidth: 1.5,
-  },
-  leftLogoContainer: {
-    position: "absolute",
-    left: ms(12),
-    top: 0,
-    bottom: 0,
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    zIndex: 1,
-  },
-  errorText: {
-    color: colors.error,
-    fontSize: ms(12),
-    marginTop: ms(4),
-    fontWeight: "500",
-  },
-  selectContainer: {
-    height: ms(40),
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: ms(8),
-    paddingHorizontal: ms(12),
-    backgroundColor: colors.primary[50],
-    flexDirection: 'row',
-    alignItems: 'center',
-    shadowColor: colors.tertiary[500],
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  selectText: {
-    fontSize: ms(14),
-    color: colors.tertiary[500],
-    flex: 1,
-    textAlign: 'left',
-  },
-  placeholderText: {
-    color: colors.tertiary[400],
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: colors.primary[50],
-    borderRadius: ms(12),
-    maxHeight: ms(300),
-    width: '80%',
-    shadowColor: colors.tertiary[500],
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  optionItem: {
-    paddingVertical: ms(16),
-    paddingHorizontal: ms(20),
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  selectedOption: {
-    backgroundColor: colors.secondary[50],
-  },
-  optionText: {
-    fontSize: ms(16),
-    color: colors.tertiary[500],
-  },
-  selectedOptionText: {
-    color: colors.secondary[500],
-    fontWeight: '600',
-  },
-  chevronContainer: {
-    marginLeft: ms(8),
-  },
-  passwordToggle: {
-    position: "absolute",
-    right: ms(12),
-    top: 0,
-    bottom: 0,
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    zIndex: 1,
-  },
-  inputWithRightIcon: {
-    paddingRight: ms(32),
-  },
-});
 
 export default InputPresenter;

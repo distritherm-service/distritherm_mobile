@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ProductDetailDto } from 'src/types/Product';
 import ProductDescriptionPresenter from './ProductDescriptionPresenter';
 
@@ -7,7 +7,14 @@ interface ProductDescriptionProps {
 }
 
 const ProductDescription: React.FC<ProductDescriptionProps> = ({ product }) => {
-  const [activeTab, setActiveTab] = useState<'description' | 'details'>('description');
+  // Check if description exists and has content
+  const hasDescription = Boolean(product.description && product.description.trim().length > 0);
+  // const hasDescription = Boolean(product.description && product.description.trim().length > 0);
+  
+  // Set default tab: if no description, start with details; otherwise start with description
+  const [activeTab, setActiveTab] = useState<'description' | 'details'>(
+    hasDescription ? 'description' : 'details'
+  );
 
   const handleTabChange = (tab: 'description' | 'details') => {
     setActiveTab(tab);
@@ -69,7 +76,9 @@ const ProductDescription: React.FC<ProductDescriptionProps> = ({ product }) => {
     }
 
     // Add basic product info
-    details.push({ label: 'Prix HT', value: `${product.priceHt?.toFixed(2)} €` });
+    if (product.priceHt) {
+      details.push({ label: 'Prix HT', value: `${product.priceHt.toFixed(2)} €` });
+    }
     details.push({ label: 'Prix TTC', value: `${product.priceTtc.toFixed(2)} €` });
     
     if (product.category) {
@@ -84,8 +93,14 @@ const ProductDescription: React.FC<ProductDescriptionProps> = ({ product }) => {
   };
 
   const productDetails = getProductDetails();
-  const hasDescription = Boolean(product.description && product.description.trim().length > 0);
   const hasDetails = productDetails.length > 0;
+
+  // Effect to switch to details tab if description becomes unavailable
+  useEffect(() => {
+    if (!hasDescription && hasDetails && activeTab === 'description') {
+      setActiveTab('details');
+    }
+  }, [hasDescription, hasDetails, activeTab]);
 
   return (
     <ProductDescriptionPresenter

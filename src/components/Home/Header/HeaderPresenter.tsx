@@ -12,7 +12,7 @@ import {
 import React from "react";
 import { ms } from "react-native-size-matters";
 import { Agency } from "src/types/Agency";
-import colors from 'src/utils/colors';
+import { useColors } from "src/hooks/useColors";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faChevronDown, faChevronUp, faSearch } from "@fortawesome/free-solid-svg-icons";
 import Input from "src/components/Input/Input";
@@ -43,9 +43,89 @@ const HeaderPresenter: React.FC<HeaderPresenterProps> = ({
   searchValue,
   onSearchChange,
 }) => {
+  const colors = useColors();
+
+  const dynamicStyles = StyleSheet.create({
+    container: {
+      padding: ms(5),
+    },
+    topContent: {
+      width: "100%",
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingVertical: ms(6),
+    },
+    bottomContent: {
+      width: "90%",
+      alignSelf: "center",
+      marginTop: ms(10)
+    },
+    dropdownContainer: {
+      position: "relative",
+      paddingRight: ms(15)
+    },
+    dropdownButton: {
+      width: ms(170),
+      height: ms(36),
+      borderRadius: ms(18),
+      backgroundColor: colors.primary[50],
+      position: "relative",
+      overflow: "hidden",
+      shadowColor: colors.secondary[400],
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 6,
+      elevation: 4,
+    },
+    buttonContent: {
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+      paddingHorizontal: ms(12),
+      zIndex: 2,
+    },
+    buttonGlow: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      borderRadius: ms(18),
+      backgroundColor: `${colors.secondary[400]}10`,
+      borderWidth: 1,
+      borderColor: `${colors.secondary[400]}20`,
+    },
+    iconContainer: {
+      width: ms(16),
+      height: ms(16),
+      borderRadius: ms(8),
+      backgroundColor: `${colors.secondary[400]}20`,
+      alignItems: "center",
+      justifyContent: "center",
+      marginRight: ms(8),
+    },
+    iconDot: {
+      width: ms(6),
+      height: ms(6),
+      borderRadius: ms(3),
+      backgroundColor: colors.secondary[400],
+    },
+    dropdownButtonText: {
+      flex: 1,
+      fontSize: ms(12),
+      color: colors.tertiary[500],
+      fontWeight: "600",
+    },
+  });
+
   return (
-    <View style={styles.container}>
-      <View style={styles.topContent}>
+    <View style={dynamicStyles.container}>
+      <View style={dynamicStyles.topContent}>
         <View>
           <Image
             source={require("@assets/logo-with-bg.jpg")}
@@ -54,13 +134,13 @@ const HeaderPresenter: React.FC<HeaderPresenterProps> = ({
           />
         </View>
 
-        <View style={styles.dropdownContainer}>
-          <Pressable style={styles.dropdownButton} onPress={onOpenBottomSheet}>
-            <View style={styles.buttonContent}>
-              <View style={styles.iconContainer}>
-                <View style={styles.iconDot} />
+        <View style={dynamicStyles.dropdownContainer}>
+          <Pressable style={dynamicStyles.dropdownButton} onPress={onOpenBottomSheet}>
+            <View style={dynamicStyles.buttonContent}>
+              <View style={dynamicStyles.iconContainer}>
+                <View style={dynamicStyles.iconDot} />
               </View>
-              <Text style={styles.dropdownButtonText} numberOfLines={1}>
+              <Text style={dynamicStyles.dropdownButtonText} numberOfLines={1}>
                 {selectedAgency?.name}
               </Text>
               <FontAwesomeIcon
@@ -69,7 +149,7 @@ const HeaderPresenter: React.FC<HeaderPresenterProps> = ({
                 color={colors.secondary[400]}
               />
             </View>
-            <View style={styles.buttonGlow} />
+            <View style={dynamicStyles.buttonGlow} />
           </Pressable>
 
           <Modal
@@ -99,27 +179,21 @@ const HeaderPresenter: React.FC<HeaderPresenterProps> = ({
                   styles.bottomSheet,
                   {
                     transform: [{ translateY: slideAnim }],
+                    backgroundColor: colors.background,
                   },
                 ]}
               >
-                <View style={styles.bottomSheetHandle} />
-
-                <View style={styles.bottomSheetHeader}>
-                  <Text style={styles.bottomSheetTitle}>
-                    Choisir une agence
+                <View style={[styles.bottomSheetHeader, { backgroundColor: colors.surface }]}>
+                  <View style={[styles.bottomSheetHandle, { backgroundColor: colors.border }]} />
+                  <Text style={[styles.bottomSheetTitle, { color: colors.text }]}>
+                    Sélectionner une agence
                   </Text>
-                  <Pressable
-                    onPress={onCloseBottomSheet}
-                    style={styles.closeButton}
-                  >
-                    <Text style={styles.closeButtonText}>✕</Text>
-                  </Pressable>
                 </View>
 
-                {/* Debug: Afficher le nombre d'agences */}
-                <Text style={styles.debugText}>
-                  Agences disponibles: {agencies?.length || 0}
-                </Text>
+                                 {/* Debug: Afficher le nombre d'agences */}
+                 <Text style={[styles.debugText, { color: colors.secondary[400] }]}>
+                   Agences disponibles: {agencies?.length || 0}
+                 </Text>
 
                 {agencies && agencies.length > 0 ? (
                   <FlatList
@@ -129,8 +203,10 @@ const HeaderPresenter: React.FC<HeaderPresenterProps> = ({
                       <Pressable
                         style={[
                           styles.agencyItem,
-                          selectedAgency?.id === item.id &&
-                            styles.selectedAgencyItem,
+                          { backgroundColor: colors.surface },
+                          selectedAgency?.id === item.id && {
+                            backgroundColor: colors.secondary[50],
+                          },
                         ]}
                         onPress={() => onAgencySelect(item)}
                       >
@@ -139,23 +215,28 @@ const HeaderPresenter: React.FC<HeaderPresenterProps> = ({
                             <View
                               style={[
                                 styles.agencyIndicator,
-                                selectedAgency?.id === item.id &&
-                                  styles.selectedAgencyIndicator,
+                                { backgroundColor: colors.primary[400] },
+                                selectedAgency?.id === item.id && {
+                                  backgroundColor: colors.secondary[400],
+                                },
                               ]}
                             />
                             <Text
                               style={[
                                 styles.agencyItemText,
-                                selectedAgency?.id === item.id &&
-                                  styles.selectedAgencyItemText,
+                                { color: colors.text },
+                                selectedAgency?.id === item.id && {
+                                  color: colors.secondary[400],
+                                  fontWeight: "600",
+                                },
                               ]}
                             >
                               {item.name}
                             </Text>
                           </View>
                           {selectedAgency?.id === item.id && (
-                            <View style={styles.checkmarkContainer}>
-                              <Text style={styles.checkmark}>✓</Text>
+                            <View style={[styles.checkmarkContainer, { backgroundColor: colors.secondary[400] }]}>
+                              <Text style={[styles.checkmark, { color: colors.primary[50] }]}>✓</Text>
                             </View>
                           )}
                         </View>
@@ -168,7 +249,7 @@ const HeaderPresenter: React.FC<HeaderPresenterProps> = ({
                   />
                 ) : (
                   <View style={styles.noAgenciesContainer}>
-                    <Text style={styles.noAgenciesText}>
+                    <Text style={[styles.noAgenciesText, { color: colors.textSecondary }]}>
                       {agencies === null
                         ? "Chargement des agences..."
                         : "Aucune agence disponible"}
@@ -180,7 +261,7 @@ const HeaderPresenter: React.FC<HeaderPresenterProps> = ({
           </Modal>
         </View>
       </View>
-      <View style={styles.bottomContent}>
+      <View style={dynamicStyles.bottomContent}>
         {/* <Input
           name="search" 
           placeholder="Rechercher un produit"
@@ -197,81 +278,6 @@ const HeaderPresenter: React.FC<HeaderPresenterProps> = ({
 export default HeaderPresenter;
 
 const styles = StyleSheet.create({
-  container: {
-    padding: ms(5),
-  },
-  topContent: {
-    width: "100%",
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: ms(6),
-  },
-  bottomContent: {
-    width: "90%",
-    alignSelf: "center",
-    marginTop: ms(10)
-  },
-  dropdownContainer: {
-    position: "relative",
-    paddingRight: ms(15)
-  },
-  dropdownButton: {
-    width: ms(170),
-    height: ms(36),
-    borderRadius: ms(18),
-    backgroundColor: colors.primary[50],
-    position: "relative",
-    overflow: "hidden",
-    shadowColor: colors.secondary[400],
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 4,
-  },
-  buttonContent: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: ms(12),
-    zIndex: 2,
-  },
-  buttonGlow: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    borderRadius: ms(18),
-    backgroundColor: `${colors.secondary[400]}10`,
-    borderWidth: 1,
-    borderColor: `${colors.secondary[400]}20`,
-  },
-  iconContainer: {
-    width: ms(16),
-    height: ms(16),
-    borderRadius: ms(8),
-    backgroundColor: `${colors.secondary[400]}20`,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: ms(8),
-  },
-  iconDot: {
-    width: ms(6),
-    height: ms(6),
-    borderRadius: ms(3),
-    backgroundColor: colors.secondary[400],
-  },
-  dropdownButtonText: {
-    flex: 1,
-    fontSize: ms(12),
-    color: colors.tertiary[500],
-    fontWeight: "600",
-  },
   modalContainer: {
     flex: 1,
     justifyContent: "flex-end",
@@ -282,92 +288,51 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: colors.tertiary[500],
   },
   backdropPressable: {
     flex: 1,
   },
   bottomSheet: {
-    backgroundColor: colors.primary[50],
-    borderTopLeftRadius: ms(20),
-    borderTopRightRadius: ms(20),
+    borderTopLeftRadius: ms(24),
+    borderTopRightRadius: ms(24),
+    paddingBottom: ms(40),
+    maxHeight: "60%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: ms(-4) },
+    shadowOpacity: 0.25,
+    shadowRadius: ms(12),
+    elevation: 12,
+  },
+  bottomSheetHeader: {
+    paddingTop: ms(16),
     paddingBottom: ms(20),
-    minHeight: ms(300),
-    maxHeight: ms(500),
-    shadowColor: colors.tertiary[500],
-    shadowOffset: {
-      width: 0,
-      height: -4,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 15,
+    paddingHorizontal: ms(24),
+    alignItems: "center",
+    borderTopLeftRadius: ms(24),
+    borderTopRightRadius: ms(24),
   },
   bottomSheetHandle: {
     width: ms(40),
     height: ms(4),
-    backgroundColor: colors.primary[400],
     borderRadius: ms(2),
-    alignSelf: "center",
-    marginTop: ms(8),
     marginBottom: ms(16),
-  },
-  bottomSheetHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: ms(20),
-    paddingBottom: ms(16),
-    borderBottomWidth: 1,
-    borderBottomColor: colors.primary[200],
   },
   bottomSheetTitle: {
     fontSize: ms(18),
     fontWeight: "700",
-    color: colors.tertiary[500],
-  },
-  closeButton: {
-    width: ms(28),
-    height: ms(28),
-    borderRadius: ms(14),
-    backgroundColor: colors.primary[200],
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  closeButtonText: {
-    fontSize: ms(14),
-    color: colors.secondary[400],
-    fontWeight: "bold",
-  },
-  debugText: {
-    fontSize: ms(12),
-    color: colors.secondary[400],
     textAlign: "center",
-    marginBottom: ms(8),
-    fontStyle: "italic",
   },
   agencyList: {
-    flexGrow: 1,
-    minHeight: ms(150),
+    flex: 1,
   },
   agencyListContent: {
-    paddingHorizontal: ms(20),
-    paddingTop: ms(8),
-    paddingBottom: ms(20),
+    paddingHorizontal: ms(24),
   },
   agencyItem: {
     paddingVertical: ms(16),
-    paddingHorizontal: ms(16),
-    marginVertical: ms(4),
+    paddingHorizontal: ms(20),
+    marginVertical: ms(2),
     borderRadius: ms(12),
-    backgroundColor: colors.primary[100],
-    borderWidth: 1,
-    borderColor: colors.primary[200],
-  },
-  selectedAgencyItem: {
-    backgroundColor: `${colors.secondary[400]}15`,
-    borderColor: colors.secondary[400],
-    borderWidth: 2,
   },
   agencyItemContent: {
     flexDirection: "row",
@@ -383,33 +348,22 @@ const styles = StyleSheet.create({
     width: ms(10),
     height: ms(10),
     borderRadius: ms(5),
-    backgroundColor: colors.primary[400],
     marginRight: ms(12),
-  },
-  selectedAgencyIndicator: {
-    backgroundColor: colors.secondary[400],
   },
   agencyItemText: {
     fontSize: ms(16),
-    color: colors.tertiary[500],
     fontWeight: "500",
     flex: 1,
-  },
-  selectedAgencyItemText: {
-    color: colors.secondary[400],
-    fontWeight: "600",
   },
   checkmarkContainer: {
     width: ms(24),
     height: ms(24),
     borderRadius: ms(12),
-    backgroundColor: colors.secondary[400],
     alignItems: "center",
     justifyContent: "center",
   },
   checkmark: {
     fontSize: ms(14),
-    color: colors.primary[50],
     fontWeight: "bold",
   },
   noAgenciesContainer: {
@@ -420,7 +374,12 @@ const styles = StyleSheet.create({
   },
   noAgenciesText: {
     fontSize: ms(16),
-    color: colors.tertiary[400],
     textAlign: "center",
   },
+     debugText: {
+     fontSize: ms(12),
+     textAlign: "center",
+     marginBottom: ms(8),
+     fontStyle: "italic",
+   },
 });

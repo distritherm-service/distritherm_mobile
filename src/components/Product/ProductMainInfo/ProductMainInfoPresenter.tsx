@@ -9,6 +9,7 @@ import {
 import { ms } from 'react-native-size-matters'; // Using react-native-size-matters for responsive design
 import { ProductDetailDto } from 'src/types/Product';
 import { useColors } from 'src/hooks/useColors';
+import { FontAwesome6 } from '@expo/vector-icons';
 
 interface ProductMainInfoPresenterProps {
   product: ProductDetailDto;
@@ -183,7 +184,7 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
                   { color: quantity <= 1 ? colors.textSecondary : colors.secondary[500] }
                 ]}
               >
-                −
+                -
               </Text>
             </TouchableOpacity>
             
@@ -252,9 +253,12 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
           </View>
         ) : (
           <View style={styles.addToCartContent}>
-            <Text style={[styles.cartIcon, { color: '#FFFFFF' }]}>
-              {isOutOfStock ? '⚠️' : '🛒'}
-            </Text>
+            <FontAwesome6
+              name={isOutOfStock ? 'triangle-exclamation' : 'cart-shopping'}
+              size={ms(16)}
+              color='#FFFFFF'
+              style={styles.cartIcon}
+            />
             <Text style={[styles.addToCartText, { color: colors.primary[50] }]}>
               {isOutOfStock ? 'Produit indisponible' : 'Ajouter au panier'}
             </Text>

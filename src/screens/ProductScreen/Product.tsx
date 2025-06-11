@@ -23,7 +23,6 @@ const Product = ({ route }: ProductProps) => {
       try {
         setLoading(true);
         const response = await productsService.findOne(productId);
-        console.log(response.product);
         setProduct(response.product);
       } catch (error) {
         console.log("Error fetching product:", error);
@@ -39,11 +38,27 @@ const Product = ({ route }: ProductProps) => {
     navigation.goBack();
   };
 
+  const handleSimilarProductSelect = async (newProductId: number) => {
+    try {
+      setLoading(true);
+      const response = await productsService.findOne(newProductId);
+      setProduct(response.product);
+      
+      // Update the route params to reflect the new product
+      navigation.setParams({ productId: newProductId });
+    } catch (error) {
+      console.log("Error fetching new product:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <ProductPresenter 
       product={product} 
       loading={loading}
       onBack={handleBack}
+      onSimilarProductSelect={handleSimilarProductSelect}
     />
   );
 };

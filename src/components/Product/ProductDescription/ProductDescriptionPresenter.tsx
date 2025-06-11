@@ -1,14 +1,16 @@
-import React from 'react';
+import React from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-} from 'react-native';
-import { ms } from 'react-native-size-matters'; // Using react-native-size-matters for responsive design
-import { ProductDetailDto } from 'src/types/Product';
-import { useColors } from 'src/hooks/useColors';
+} from "react-native";
+import { ms } from "react-native-size-matters"; // Using react-native-size-matters for responsive design
+import { ProductDetailDto } from "src/types/Product";
+import { useColors } from "src/hooks/useColors";
+import { LinearGradient } from "expo-linear-gradient";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 
 interface ProductDetail {
   label: string;
@@ -17,14 +19,16 @@ interface ProductDetail {
 
 interface ProductDescriptionPresenterProps {
   product: ProductDetailDto;
-  activeTab: 'description' | 'details';
+  activeTab: "description" | "details";
   hasDescription: boolean;
   hasDetails: boolean;
   productDetails: ProductDetail[];
-  onTabChange: (tab: 'description' | 'details') => void;
+  onTabChange: (tab: "description" | "details") => void;
 }
 
-const ProductDescriptionPresenter: React.FC<ProductDescriptionPresenterProps> = ({
+const ProductDescriptionPresenter: React.FC<
+  ProductDescriptionPresenterProps
+> = ({
   product,
   activeTab,
   hasDescription,
@@ -34,33 +38,43 @@ const ProductDescriptionPresenter: React.FC<ProductDescriptionPresenterProps> = 
 }) => {
   const colors = useColors();
 
-  const renderTabSection = (tab: 'description' | 'details', label: string, icon: string) => {
+  const renderTabSection = (
+    tab: "description" | "details",
+    label: string,
+    iconName: string
+  ) => {
     const isActive = activeTab === tab;
-    
+
     return (
       <TouchableOpacity
         style={[
           styles.tabSection,
-          isActive && [styles.activeTabSection, { borderBottomColor: colors.secondary[500] }],
+          isActive && [
+            styles.activeTabSection,
+            { borderBottomColor: colors.secondary[500] },
+          ],
         ]}
         onPress={() => onTabChange(tab)}
         activeOpacity={0.7}
       >
         <View style={styles.tabSectionContent}>
-          <Text style={[styles.tabSectionIcon, { color: isActive ? colors.secondary[500] : colors.textSecondary }]}>
-            {icon}
-          </Text>
+          <FontAwesome6
+            name={iconName}
+            size={ms(12)}
+            color={isActive ? colors.secondary[500] : colors.textSecondary}
+          />
           <Text
             style={[
               styles.tabSectionText,
-              { color: isActive ? colors.secondary[500] : colors.textSecondary },
+              {
+                color: isActive ? colors.secondary[500] : colors.textSecondary,
+              },
               isActive && styles.activeTabSectionText,
             ]}
           >
             {label}
           </Text>
         </View>
-
       </TouchableOpacity>
     );
   };
@@ -69,22 +83,49 @@ const ProductDescriptionPresenter: React.FC<ProductDescriptionPresenterProps> = 
     if (!hasDescription) {
       return (
         <View style={styles.emptyState}>
-          <View style={[styles.emptyIconContainer, { backgroundColor: colors.secondary[50] }]}>
-            <Text style={styles.emptyIcon}>📝</Text>
+          <View
+            style={[
+              styles.emptyIconContainer,
+              { backgroundColor: colors.secondary[50] },
+            ]}
+          >
+            <FontAwesome6
+              name="file-lines"
+              size={ms(28)}
+              color={colors.secondary[400]}
+            />
           </View>
           <Text style={[styles.emptyStateTitle, { color: colors.text }]}>
             Aucune description
           </Text>
-          <Text style={[styles.emptyStateText, { color: colors.textSecondary }]}>
+          <Text
+            style={[styles.emptyStateText, { color: colors.textSecondary }]}
+          >
             La description de ce produit n'est pas encore disponible.
           </Text>
+          {hasDetails && (
+            <TouchableOpacity
+              style={[
+                styles.redirectButton,
+                { backgroundColor: colors.secondary[500] }
+              ]}
+              onPress={() => onTabChange('details')}
+              activeOpacity={0.8}
+            >
+              <Text style={[styles.redirectButtonText, { color: colors.primary[50] }]}>
+                Voir les spécifications
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       );
     }
 
     return (
       <View style={styles.descriptionContainer}>
-        <View style={[styles.contentCard, { backgroundColor: colors.background }]}>
+        <View
+          style={[styles.contentCard, { backgroundColor: colors.background }]}
+        >
           <Text style={[styles.descriptionText, { color: colors.text }]}>
             {product.description}
           </Text>
@@ -97,13 +138,24 @@ const ProductDescriptionPresenter: React.FC<ProductDescriptionPresenterProps> = 
     if (!hasDetails) {
       return (
         <View style={styles.emptyState}>
-          <View style={[styles.emptyIconContainer, { backgroundColor: colors.secondary[50] }]}>
-            <Text style={styles.emptyIcon}>📋</Text>
+          <View
+            style={[
+              styles.emptyIconContainer,
+              { backgroundColor: colors.secondary[50] },
+            ]}
+          >
+            <FontAwesome6
+              name="clipboard-list"
+              size={ms(28)}
+              color={colors.secondary[400]}
+            />
           </View>
           <Text style={[styles.emptyStateTitle, { color: colors.text }]}>
             Aucun détail technique
           </Text>
-          <Text style={[styles.emptyStateText, { color: colors.textSecondary }]}>
+          <Text
+            style={[styles.emptyStateText, { color: colors.textSecondary }]}
+          >
             Les spécifications techniques ne sont pas encore disponibles.
           </Text>
         </View>
@@ -111,12 +163,17 @@ const ProductDescriptionPresenter: React.FC<ProductDescriptionPresenterProps> = 
     }
 
     return (
-      <ScrollView style={styles.detailsScrollView} showsVerticalScrollIndicator={false}>
-        <View style={[styles.contentCard, { backgroundColor: colors.background }]}>
+      <ScrollView
+        style={styles.detailsScrollView}
+        showsVerticalScrollIndicator={false}
+      >
+        <View
+          style={[styles.contentCard, { backgroundColor: colors.background }]}
+        >
           <View style={styles.detailsList}>
             {productDetails.map((detail, index) => (
-              <View 
-                key={index} 
+              <View
+                key={index}
                 style={[
                   styles.detailItem,
                   { borderBottomColor: colors.border },
@@ -124,12 +181,20 @@ const ProductDescriptionPresenter: React.FC<ProductDescriptionPresenterProps> = 
                 ]}
               >
                 <View style={styles.detailLabelContainer}>
-                  <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>
+                  <Text
+                    style={[
+                      styles.detailLabel,
+                      { color: colors.textSecondary },
+                    ]}
+                  >
                     {detail.label}
                   </Text>
                 </View>
                 <View style={styles.detailValueContainer}>
-                  <Text style={[styles.detailValue, { color: colors.text }]} numberOfLines={2}>
+                  <Text
+                    style={[styles.detailValue, { color: colors.text }]}
+                    numberOfLines={2}
+                  >
                     {detail.value}
                   </Text>
                 </View>
@@ -143,9 +208,9 @@ const ProductDescriptionPresenter: React.FC<ProductDescriptionPresenterProps> = 
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'description':
+      case "description":
         return renderDescription();
-      case 'details':
+      case "details":
         return renderDetails();
       default:
         return renderDescription();
@@ -157,14 +222,26 @@ const ProductDescriptionPresenter: React.FC<ProductDescriptionPresenterProps> = 
     return (
       <View style={[styles.container, { backgroundColor: colors.surface }]}>
         <View style={styles.emptyState}>
-          <View style={[styles.emptyIconContainer, { backgroundColor: colors.secondary[50] }]}>
-            <Text style={styles.emptyIcon}>📄</Text>
+          <View
+            style={[
+              styles.emptyIconContainer,
+              { backgroundColor: colors.secondary[50] },
+            ]}
+          >
+            <FontAwesome6
+              name="file-circle-question"
+              size={ms(28)}
+              color={colors.secondary[400]}
+            />
           </View>
           <Text style={[styles.emptyStateTitle, { color: colors.text }]}>
             Aucune information disponible
           </Text>
-          <Text style={[styles.emptyStateText, { color: colors.textSecondary }]}>
-            Les informations détaillées de ce produit ne sont pas encore disponibles.
+          <Text
+            style={[styles.emptyStateText, { color: colors.textSecondary }]}
+          >
+            Les informations détaillées de ce produit ne sont pas encore
+            disponibles.
           </Text>
         </View>
       </View>
@@ -176,24 +253,31 @@ const ProductDescriptionPresenter: React.FC<ProductDescriptionPresenterProps> = 
       {/* Enhanced Section Title */}
       <View style={styles.headerSection}>
         <View style={styles.titleContainer}>
-          <Text style={styles.titleIcon}>📋</Text>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          <FontAwesome6
+            name="clipboard-list"
+            size={ms(20)}
+            color={colors.secondary[800]}
+          />
+          <Text style={[styles.sectionTitle, { color: colors.secondary[800] }]}>
             Informations produit
           </Text>
         </View>
-        <View style={[styles.titleUnderline, { backgroundColor: colors.secondary[200] }]} />
+        <LinearGradient
+          colors={[colors.secondary[700], colors.secondary[100]]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={[styles.titleUnderline, { opacity: 0.6 }]}
+        />
       </View>
 
       {/* Enhanced Tab Navigation */}
       <View style={styles.tabContainer}>
-        {hasDescription && renderTabSection('description', 'Description', '📝')}
-        {hasDetails && renderTabSection('details', 'Spécifications', '⚙️')}
+        {hasDescription && renderTabSection("description", "Description", "file-lines")}
+        {hasDetails && renderTabSection("details", "Spécifications", "list")}
       </View>
 
       {/* Enhanced Content */}
-      <View style={styles.contentContainer}>
-        {renderContent()}
-      </View>
+      <View style={styles.contentContainer}>{renderContent()}</View>
     </View>
   );
 };
@@ -204,7 +288,7 @@ const styles = StyleSheet.create({
     marginVertical: ms(10), // Using react-native-size-matters for responsive design - reduced from 12
     borderRadius: ms(16), // Using react-native-size-matters for responsive design - reduced from 20
     elevation: 6,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 3,
@@ -218,8 +302,8 @@ const styles = StyleSheet.create({
     paddingBottom: ms(16), // Using react-native-size-matters for responsive design - reduced from 20
   },
   titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: ms(10), // Using react-native-size-matters for responsive design - reduced from 12
     marginBottom: ms(10), // Using react-native-size-matters for responsive design - reduced from 12
   },
@@ -228,35 +312,35 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: ms(22), // Using react-native-size-matters for responsive design - keeping unchanged as requested
-    fontWeight: '800',
+    fontWeight: "800",
     letterSpacing: -0.5,
   },
   titleUnderline: {
     height: ms(3), // Using react-native-size-matters for responsive design
-    width: ms(50), // Using react-native-size-matters for responsive design - reduced from 60
+    width: "50%", // Using react-native-size-matters for responsive design - reduced from 60
     borderRadius: ms(2), // Using react-native-size-matters for responsive design
   },
   tabContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingHorizontal: ms(20), // Using react-native-size-matters for responsive design - reduced from 24
     marginBottom: ms(16), // Using react-native-size-matters for responsive design - reduced from 20
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+    borderBottomColor: "rgba(0, 0, 0, 0.1)",
   },
-     tabSection: {
-     flex: 1,
-     paddingVertical: ms(10), // Using react-native-size-matters for responsive design - reduced from 12
-     borderBottomWidth: 2,
-     borderBottomColor: 'transparent',
-     alignItems: 'center',
-     justifyContent: 'center',
-   },
+  tabSection: {
+    flex: 1,
+    paddingVertical: ms(10), // Using react-native-size-matters for responsive design - reduced from 12
+    borderBottomWidth: 2,
+    borderBottomColor: "transparent",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   activeTabSection: {
     borderBottomWidth: 4,
   },
   tabSectionContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: ms(6), // Using react-native-size-matters for responsive design
   },
   tabSectionIcon: {
@@ -264,12 +348,12 @@ const styles = StyleSheet.create({
   },
   tabSectionText: {
     fontSize: ms(14), // Using react-native-size-matters for responsive design - keeping unchanged as requested
-    fontWeight: '600',
+    fontWeight: "600",
   },
   activeTabSectionText: {
-    fontWeight: '700',
+    fontWeight: "700",
   },
-  
+
   contentContainer: {
     paddingHorizontal: ms(20), // Using react-native-size-matters for responsive design - reduced from 24
     paddingBottom: ms(20), // Using react-native-size-matters for responsive design - reduced from 24
@@ -279,7 +363,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: ms(16), // Using react-native-size-matters for responsive design - reduced from 20
     paddingVertical: ms(16), // Using react-native-size-matters for responsive design - reduced from 20
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -293,8 +377,8 @@ const styles = StyleSheet.create({
   descriptionText: {
     fontSize: ms(14), // Using react-native-size-matters for responsive design - reduced from 16
     lineHeight: ms(22), // Using react-native-size-matters for responsive design - reduced from 26
-    fontWeight: '400',
-    textAlign: 'justify',
+    fontWeight: "400",
+    textAlign: "justify",
   },
   detailsScrollView: {
     maxHeight: ms(350), // Reduced height for more compact appearance - reduced from 400
@@ -305,8 +389,8 @@ const styles = StyleSheet.create({
   detailItem: {
     paddingVertical: ms(12), // Using react-native-size-matters for responsive design - reduced from 16
     borderBottomWidth: 1,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    alignItems: "flex-start",
   },
   lastDetailItem: {
     borderBottomWidth: 0,
@@ -317,7 +401,7 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     fontSize: ms(12), // Using react-native-size-matters for responsive design - reduced from 14
-    fontWeight: '600',
+    fontWeight: "600",
     lineHeight: ms(18), // Using react-native-size-matters for responsive design - reduced from 20
   },
   detailValueContainer: {
@@ -325,21 +409,21 @@ const styles = StyleSheet.create({
   },
   detailValue: {
     fontSize: ms(13), // Using react-native-size-matters for responsive design - reduced from 15
-    fontWeight: '500',
+    fontWeight: "500",
     lineHeight: ms(19), // Using react-native-size-matters for responsive design - reduced from 22
-    textAlign: 'right',
+    textAlign: "right",
   },
   emptyState: {
     paddingVertical: ms(36), // Using react-native-size-matters for responsive design - reduced from 48
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   emptyIconContainer: {
     padding: ms(16), // Using react-native-size-matters for responsive design - reduced from 20
     borderRadius: ms(40), // Using react-native-size-matters for responsive design - reduced from 50
     marginBottom: ms(16), // Using react-native-size-matters for responsive design - reduced from 20
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -352,17 +436,36 @@ const styles = StyleSheet.create({
   },
   emptyStateTitle: {
     fontSize: ms(16), // Using react-native-size-matters for responsive design - reduced from 18
-    fontWeight: '700',
-    textAlign: 'center',
+    fontWeight: "700",
+    textAlign: "center",
     marginBottom: ms(6), // Using react-native-size-matters for responsive design - reduced from 8
   },
   emptyStateText: {
     fontSize: ms(13), // Using react-native-size-matters for responsive design - reduced from 15
-    fontWeight: '400',
-    textAlign: 'center',
+    fontWeight: "400",
+    textAlign: "center",
     lineHeight: ms(19), // Using react-native-size-matters for responsive design - reduced from 22
     paddingHorizontal: ms(16), // Using react-native-size-matters for responsive design - reduced from 20
   },
+  redirectButton: {
+    marginTop: ms(16),
+    padding: ms(12),
+    borderRadius: ms(8),
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  redirectButtonText: {
+    fontSize: ms(14),
+    fontWeight: "600",
+  },
 });
 
-export default ProductDescriptionPresenter; 
+export default ProductDescriptionPresenter;

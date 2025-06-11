@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import React, { memo } from "react";
 import { ms } from "react-native-size-matters";
-import colors from "src/utils/colors";
+import { useColors } from "src/hooks/useColors";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { Control, FieldErrors } from "react-hook-form";
@@ -57,28 +57,196 @@ const GoogleSignInPresenter = memo<GoogleSignInPresenterProps>(
     onSubmit,
     onModalClose,
   }) => {
+    const colors = useColors(); // Using react-native-size-matters for responsive design
+
+    // Dynamic styles using colors from useColors hook
+    const dynamicStyles = StyleSheet.create({
+      container: {
+        width: "100%",
+      },
+      button: {
+        width: "100%",
+        borderRadius: ms(12), // Using react-native-size-matters for responsive border radius
+        overflow: "hidden",
+        shadowColor: colors.tertiary[800],
+        shadowOffset: {
+          width: 0,
+          height: ms(4), // Using react-native-size-matters for responsive shadow
+        },
+        shadowOpacity: 0.15,
+        shadowRadius: ms(8), // Using react-native-size-matters for responsive shadow
+        elevation: 6,
+      },
+      gradient: {
+        paddingVertical: ms(16), // Using react-native-size-matters for responsive padding
+        paddingHorizontal: ms(24), // Using react-native-size-matters for responsive padding
+        borderWidth: ms(1), // Using react-native-size-matters for responsive border
+        borderColor: colors.secondary[200],
+        borderRadius: ms(12), // Using react-native-size-matters for responsive border radius
+      },
+      content: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: ms(12), // Using react-native-size-matters for responsive gap
+      },
+      iconContainer: {
+        width: ms(24), // Using react-native-size-matters for responsive width
+        height: ms(24), // Using react-native-size-matters for responsive height
+        borderRadius: ms(12), // Using react-native-size-matters for responsive border radius
+        backgroundColor: colors.primary[50],
+        alignItems: "center",
+        justifyContent: "center",
+        shadowColor: colors.secondary[400],
+        shadowOffset: {
+          width: 0,
+          height: ms(2), // Using react-native-size-matters for responsive shadow
+        },
+        shadowOpacity: 0.2,
+        shadowRadius: ms(4), // Using react-native-size-matters for responsive shadow
+        elevation: 3,
+      },
+      text: {
+        fontSize: ms(15), // Using react-native-size-matters for responsive font size
+        fontWeight: "600",
+        color: colors.secondary[600],
+        letterSpacing: ms(0.3), // Using react-native-size-matters for responsive letter spacing
+      },
+      modalBackdrop: {
+        flex: 1,
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        justifyContent: "center",
+        alignItems: "center",
+        padding: ms(20), // Using react-native-size-matters for responsive padding
+      },
+      modalContainer: {
+        backgroundColor: colors.primary[50],
+        borderRadius: ms(16), // Using react-native-size-matters for responsive border radius
+        maxWidth: ms(400), // Using react-native-size-matters for responsive max width
+        width: "100%",
+        shadowColor: colors.tertiary[900],
+        shadowOffset: {
+          width: 0,
+          height: ms(8), // Using react-native-size-matters for responsive shadow
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: ms(16), // Using react-native-size-matters for responsive shadow
+        elevation: 10,
+      },
+      modalHeader: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: ms(24), // Using react-native-size-matters for responsive padding
+        borderBottomWidth: 1,
+        borderBottomColor: colors.border,
+      },
+      modalTitle: {
+        fontSize: ms(18), // Using react-native-size-matters for responsive font size
+        fontWeight: "700",
+        color: colors.tertiary[500],
+      },
+      closeButton: {
+        width: ms(32), // Using react-native-size-matters for responsive width
+        height: ms(32), // Using react-native-size-matters for responsive height
+        borderRadius: ms(16), // Using react-native-size-matters for responsive border radius
+        backgroundColor: colors.surface,
+        alignItems: "center",
+        justifyContent: "center",
+        borderWidth: 1,
+        borderColor: colors.border,
+      },
+      modalBody: {
+        padding: ms(24), // Using react-native-size-matters for responsive padding
+      },
+      iconWrapper: {
+        alignSelf: "center",
+        width: ms(64), // Using react-native-size-matters for responsive width
+        height: ms(64), // Using react-native-size-matters for responsive height
+        borderRadius: ms(32), // Using react-native-size-matters for responsive border radius
+        backgroundColor: colors.secondary[50],
+        alignItems: "center",
+        justifyContent: "center",
+        marginBottom: ms(16), // Using react-native-size-matters for responsive margin
+        borderWidth: ms(2), // Using react-native-size-matters for responsive border
+        borderColor: colors.secondary[200],
+      },
+      modalDescription: {
+        fontSize: ms(14), // Using react-native-size-matters for responsive font size
+        color: colors.textSecondary,
+        textAlign: "center",
+        lineHeight: ms(20), // Using react-native-size-matters for responsive line height
+        marginBottom: ms(24), // Using react-native-size-matters for responsive margin
+      },
+      formContainer: {
+        gap: ms(16), // Using react-native-size-matters for responsive gap
+      },
+      modalFooter: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        gap: ms(12), // Using react-native-size-matters for responsive gap
+        padding: ms(24), // Using react-native-size-matters for responsive padding
+        borderTopWidth: 1,
+        borderTopColor: colors.border,
+      },
+      modalButton: {
+        flex: 1,
+        paddingVertical: ms(12), // Using react-native-size-matters for responsive padding
+        borderRadius: ms(8), // Using react-native-size-matters for responsive border radius
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: ms(44), // Using react-native-size-matters for responsive height
+      },
+      cancelButton: {
+        backgroundColor: colors.surface,
+        borderWidth: 1,
+        borderColor: colors.border,
+      },
+      cancelButtonText: {
+        fontSize: ms(16), // Using react-native-size-matters for responsive font size
+        fontWeight: "600",
+        color: colors.textSecondary,
+      },
+      confirmButton: {
+        backgroundColor: colors.secondary[400],
+        shadowColor: colors.secondary[600],
+        shadowOffset: {
+          width: 0,
+          height: ms(4), // Using react-native-size-matters for responsive shadow
+        },
+        shadowOpacity: 0.3,
+        shadowRadius: ms(8), // Using react-native-size-matters for responsive shadow
+        elevation: 6,
+      },
+      confirmButtonText: {
+        fontSize: ms(16), // Using react-native-size-matters for responsive font size
+        fontWeight: "700",
+        color: colors.primary[50],
+      },
+    });
+
     return (
-      <View style={styles.container}>
-        <Pressable style={styles.button} onPress={handleGoogleSignIn}>
+      <View style={dynamicStyles.container}>
+        <Pressable style={dynamicStyles.button} onPress={handleGoogleSignIn}>
           <LinearGradient
             colors={[colors.primary[50], colors.primary[100]]}
-            style={styles.gradient}
+            style={dynamicStyles.gradient}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
           >
-            <View style={styles.content}>
+            <View style={dynamicStyles.content}>
               {isLoading ? (
-                <ActivityIndicator size={ms(25)} />
+                <ActivityIndicator size={ms(25)} color={colors.secondary[400]} />
               ) : (
                 <>
-                  <View style={styles.iconContainer}>
+                  <View style={dynamicStyles.iconContainer}>
                     <FontAwesome6
                       name="google"
-                      size={ms(18)}
+                      size={ms(18)} // Using react-native-size-matters for responsive icon size
                       color={colors.secondary[400]}
                     />
                   </View>
-                  <Text style={styles.text}>Continuer avec Google</Text>
+                  <Text style={dynamicStyles.text}>Continuer avec Google</Text>
                 </>
               )}
             </View>
@@ -91,42 +259,42 @@ const GoogleSignInPresenter = memo<GoogleSignInPresenterProps>(
           transparent={true}
         >
           <TouchableWithoutFeedback onPress={onModalClose}>
-            <View style={styles.modalBackdrop}>
+            <View style={dynamicStyles.modalBackdrop}>
               <TouchableWithoutFeedback onPress={() => {}}>
-                <View style={styles.modalContainer}>
+                <View style={dynamicStyles.modalContainer}>
                   {/* Modal Header */}
-                  <View style={styles.modalHeader}>
-                    <Text style={styles.modalTitle}>
+                  <View style={dynamicStyles.modalHeader}>
+                    <Text style={dynamicStyles.modalTitle}>
                       Compléter votre profil
                     </Text>
                     <Pressable
-                      style={styles.closeButton}
+                      style={dynamicStyles.closeButton}
                       onPress={onModalClose}
                     >
                       <FontAwesome6
                         name="xmark"
-                        size={ms(16)}
+                        size={ms(16)} // Using react-native-size-matters for responsive icon size
                         color={colors.secondary[600]}
                       />
                     </Pressable>
                   </View>
 
                   {/* Modal Body */}
-                  <View style={styles.modalBody}>
-                    <View style={styles.iconWrapper}>
+                  <View style={dynamicStyles.modalBody}>
+                    <View style={dynamicStyles.iconWrapper}>
                       <FontAwesome6
                         name="building"
-                        size={ms(32)}
+                        size={ms(32)} // Using react-native-size-matters for responsive icon size
                         color={colors.primary[500]}
                       />
                     </View>
-                    <Text style={styles.modalDescription}>
+                    <Text style={dynamicStyles.modalDescription}>
                       Veuillez compléter les informations de votre entreprise
                       pour finaliser votre inscription.
                     </Text>
 
                     {/* Form Fields using Input component with validation rules (errors shown only on submit) */}
-                    <View style={styles.formContainer}>
+                    <View style={dynamicStyles.formContainer}>
                       <Input<FormData>
                         name="companyName"
                         control={control}
@@ -162,22 +330,22 @@ const GoogleSignInPresenter = memo<GoogleSignInPresenterProps>(
                   </View>
 
                   {/* Modal Footer */}
-                  <View style={styles.modalFooter}>
+                  <View style={dynamicStyles.modalFooter}>
                     <Pressable
-                      style={[styles.modalButton, styles.cancelButton]}
+                      style={[dynamicStyles.modalButton, dynamicStyles.cancelButton]}
                       onPress={onModalClose}
                     >
-                      <Text style={styles.cancelButtonText}>Annuler</Text>
+                      <Text style={dynamicStyles.cancelButtonText}>Annuler</Text>
                     </Pressable>
                     <Pressable
-                      style={[styles.modalButton, styles.confirmButton]}
+                      style={[dynamicStyles.modalButton, dynamicStyles.confirmButton]}
                       onPress={onSubmit}
                       disabled={isLoading}
                     >
                       {isLoading ? (
-                        <ActivityIndicator size={ms(16)} color="white" />
+                        <ActivityIndicator size={ms(16)} color={colors.primary[50]} />
                       ) : (
-                        <Text style={styles.confirmButtonText}>
+                        <Text style={dynamicStyles.confirmButtonText}>
                           Créer mon compte
                         </Text>
                       )}
@@ -194,158 +362,3 @@ const GoogleSignInPresenter = memo<GoogleSignInPresenterProps>(
 );
 
 export default GoogleSignInPresenter;
-
-const styles = StyleSheet.create({
-  container: {
-    width: "100%",
-    marginTop: ms(18),
-  },
-  button: {
-    width: "100%",
-    borderRadius: ms(16),
-    shadowColor: colors.secondary[800],
-    shadowOffset: {
-      width: 0,
-      height: ms(4),
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: ms(12),
-    elevation: 6,
-  },
-  gradient: {
-    borderRadius: ms(16),
-    paddingVertical: ms(10),
-    paddingHorizontal: ms(20),
-    borderWidth: ms(1.5),
-    borderColor: colors.tertiary[200],
-  },
-  content: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: ms(12),
-  },
-  iconContainer: {
-    width: ms(32),
-    height: ms(25),
-    borderRadius: ms(16),
-    backgroundColor: colors.primary[50],
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: colors.tertiary[800],
-    shadowOffset: {
-      width: 0,
-      height: ms(2),
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: ms(4),
-    elevation: 3,
-  },
-  text: {
-    fontSize: ms(14),
-    color: colors.secondary[600],
-    fontWeight: "600",
-    letterSpacing: ms(0.3),
-  },
-  // Modal Styles
-  modalBackdrop: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalContainer: {
-    width: "90%",
-    maxWidth: ms(400),
-    padding: ms(20),
-    backgroundColor: "white",
-    borderRadius: ms(20),
-    shadowColor: colors.secondary[800],
-    shadowOffset: {
-      width: 0,
-      height: ms(8),
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: ms(16),
-    elevation: 10,
-  },
-  modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: ms(20),
-  },
-  modalTitle: {
-    fontSize: ms(18),
-    fontWeight: "700",
-    color: colors.secondary[800],
-  },
-  closeButton: {
-    width: ms(32),
-    height: ms(32),
-    borderRadius: ms(16),
-    backgroundColor: colors.tertiary[100],
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalBody: {
-    alignItems: "center",
-    marginBottom: ms(24),
-  },
-  iconWrapper: {
-    width: ms(64),
-    height: ms(64),
-    borderRadius: ms(32),
-    backgroundColor: colors.primary[50],
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: ms(16),
-  },
-  modalDescription: {
-    fontSize: ms(14),
-    color: colors.secondary[600],
-    textAlign: "center",
-    lineHeight: ms(20),
-    marginBottom: ms(20),
-  },
-  formContainer: {
-    width: "100%",
-    gap: ms(20),
-  },
-  modalFooter: {
-    flexDirection: "row",
-    gap: ms(12),
-  },
-  modalButton: {
-    flex: 1,
-    paddingVertical: ms(12),
-    borderRadius: ms(12),
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: ms(44),
-  },
-  cancelButton: {
-    backgroundColor: colors.tertiary[100],
-    borderWidth: ms(1),
-    borderColor: colors.tertiary[300],
-  },
-  confirmButton: {
-    backgroundColor: colors.secondary[600],
-  },
-  disabledButton: {
-    backgroundColor: colors.tertiary[300],
-  },
-  cancelButtonText: {
-    fontSize: ms(14),
-    fontWeight: "600",
-    color: colors.tertiary[600],
-  },
-  confirmButtonText: {
-    fontSize: ms(14),
-    fontWeight: "600",
-    color: colors.primary[50],
-  },
-  disabledButtonText: {
-    color: colors.secondary[400],
-  },
-});

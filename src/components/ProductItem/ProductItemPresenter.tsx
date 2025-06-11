@@ -49,6 +49,7 @@ const ProductItemPresenter: React.FC<ProductItemPresenterProps> = ({
   onImageError,
   onImageLoad,
 }) => {
+
   return (
     <Pressable
       style={[styles.container, isTabletDevice && styles.containerTablet]}

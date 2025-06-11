@@ -6,7 +6,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { ms } from 'react-native-size-matters';
-import colors from 'src/utils/colors';
+import { useColors } from 'src/hooks/useColors';
 
 interface CategoryListSkeletonPresenterProps {
   fadeAnim: Animated.Value;
@@ -23,11 +23,70 @@ const CategoryListSkeletonPresenter: React.FC<CategoryListSkeletonPresenterProps
   shimmerOpacity,
   itemCount,
 }) => {
+  const colors = useColors();
+
+  const dynamicStyles = StyleSheet.create({
+    scrollViewContent: {
+      paddingHorizontal: ms(20),
+      gap: ms(16),
+    },
+    categoryCard: {
+      alignItems: 'center',
+      width: ms(80),
+    },
+    imageContainer: {
+      width: ms(70),
+      height: ms(70),
+      borderRadius: ms(35),
+      marginBottom: ms(10),
+      overflow: 'hidden',
+      position: 'relative',
+      shadowColor: colors.tertiary[300],
+      shadowOffset: { width: 0, height: ms(1) },
+      shadowOpacity: 0.08,
+      shadowRadius: ms(4),
+      elevation: 2,
+    },
+    categoryImageSkeleton: {
+      width: '100%',
+      height: '100%',
+      borderRadius: ms(35),
+    },
+    childrenIndicatorSkeleton: {
+      position: 'absolute',
+      top: ms(4),
+      right: ms(4),
+      width: ms(8),
+      height: ms(8),
+      borderRadius: ms(4),
+    },
+    categoryNameSkeleton: {
+      width: '100%',
+      height: ms(12),
+      borderRadius: ms(4),
+      marginBottom: ms(2),
+    },
+    skeletonBase: {
+      backgroundColor: colors.primary[200],
+      overflow: 'hidden',
+      position: 'relative',
+    },
+    shimmerOverlay: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: colors.primary[100],
+      opacity: 0.7,
+    },
+  });
+
   const SkeletonBox = ({ style, children }: { style: any; children?: React.ReactNode }) => (
-    <View style={[styles.skeletonBase, style]}>
+    <View style={[dynamicStyles.skeletonBase, style]}>
       <Animated.View
         style={[
-          styles.shimmerOverlay,
+          dynamicStyles.shimmerOverlay,
           {
             opacity: shimmerOpacity,
             transform: [{ translateX: shimmerTranslateX }],
@@ -42,7 +101,7 @@ const CategoryListSkeletonPresenter: React.FC<CategoryListSkeletonPresenterProps
     <Animated.View
       key={`category-skeleton-${index}`}
       style={[
-        styles.categoryCard,
+        dynamicStyles.categoryCard,
         {
           opacity: fadeAnim,
           transform: [{ scale: scaleAnim }],
@@ -50,16 +109,16 @@ const CategoryListSkeletonPresenter: React.FC<CategoryListSkeletonPresenterProps
       ]}
     >
       {/* Image Container Skeleton */}
-      <View style={styles.imageContainer}>
-        <SkeletonBox style={styles.categoryImageSkeleton}>
+      <View style={dynamicStyles.imageContainer}>
+        <SkeletonBox style={dynamicStyles.categoryImageSkeleton}>
           {/* Children Indicator Skeleton */}
-          <SkeletonBox style={styles.childrenIndicatorSkeleton} />
+          <SkeletonBox style={dynamicStyles.childrenIndicatorSkeleton} />
         </SkeletonBox>
       </View>
       
       {/* Category Name Skeleton */}
-      <SkeletonBox style={styles.categoryNameSkeleton} />
-      <SkeletonBox style={[styles.categoryNameSkeleton, { width: '60%', marginTop: ms(2) }]} />
+      <SkeletonBox style={dynamicStyles.categoryNameSkeleton} />
+      <SkeletonBox style={[dynamicStyles.categoryNameSkeleton, { width: '60%', marginTop: ms(2) }]} />
     </Animated.View>
   );
 
@@ -67,7 +126,7 @@ const CategoryListSkeletonPresenter: React.FC<CategoryListSkeletonPresenterProps
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.scrollViewContent}
+      contentContainerStyle={dynamicStyles.scrollViewContent}
       scrollEnabled={false}
     >
       {Array.from({ length: itemCount }, (_, index) => renderSkeletonItem(index))}
@@ -76,60 +135,3 @@ const CategoryListSkeletonPresenter: React.FC<CategoryListSkeletonPresenterProps
 };
 
 export default CategoryListSkeletonPresenter;
-
-const styles = StyleSheet.create({
-  scrollViewContent: {
-    paddingHorizontal: ms(20),
-    gap: ms(16),
-  },
-  categoryCard: {
-    alignItems: 'center',
-    width: ms(80),
-  },
-  imageContainer: {
-    width: ms(70),
-    height: ms(70),
-    borderRadius: ms(35),
-    marginBottom: ms(10),
-    overflow: 'hidden',
-    position: 'relative',
-    shadowColor: colors.tertiary[300],
-    shadowOffset: { width: 0, height: ms(1) },
-    shadowOpacity: 0.08,
-    shadowRadius: ms(4),
-    elevation: 2,
-  },
-  categoryImageSkeleton: {
-    width: '100%',
-    height: '100%',
-    borderRadius: ms(35),
-  },
-  childrenIndicatorSkeleton: {
-    position: 'absolute',
-    top: ms(4),
-    right: ms(4),
-    width: ms(8),
-    height: ms(8),
-    borderRadius: ms(4),
-  },
-  categoryNameSkeleton: {
-    width: '100%',
-    height: ms(12),
-    borderRadius: ms(4),
-    marginBottom: ms(2),
-  },
-  skeletonBase: {
-    backgroundColor: colors.primary[200],
-    overflow: 'hidden',
-    position: 'relative',
-  },
-  shimmerOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: colors.primary[100],
-    opacity: 0.7,
-  },
-});

@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { globalStyles } from "src/utils/globalStyles";
-import colors from "src/utils/colors";
+import { useColors } from "src/hooks/useColors";
 import { ms } from "react-native-size-matters";
 import ProductItem from "src/components/ProductItem/ProductItem";
 import { ProductBasicDto } from "src/types/Product";
@@ -29,30 +29,74 @@ function RecommandationPresenter({
   loadMoreSkeletons,
   onProductPress,
 }: RecommandationPresenterProps) {
+  const colors = useColors();
+
+  const dynamicStyles = StyleSheet.create({
+    title: {
+      fontSize: ms(18),
+      fontWeight: "700",
+      color: colors.text,
+      marginBottom: ms(10),
+      marginTop: ms(10),
+      letterSpacing: 0.5,
+      textTransform: "uppercase",
+      textShadowColor: "rgba(0, 0, 0, 0.1)",
+      textShadowOffset: { width: 1, height: 1 },
+      textShadowRadius: 2,
+    },
+    cardContainer: {
+      marginBottom: ms(20),
+    },
+    emptyContainer: {
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: ms(40),
+    },
+    emptyIcon: {
+      fontSize: ms(48),
+      marginBottom: ms(16),
+    },
+    emptyText: {
+      fontSize: ms(16),
+      color: colors.textSecondary,
+      textAlign: "center",
+      lineHeight: ms(22),
+    },
+    productsContainer: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      justifyContent: "space-between",
+    },
+    productWrapper: {
+      width: "48%",
+      marginBottom: ms(10),
+    },
+  });
+
   return (
     <View style={[globalStyles.container, { paddingTop: ms(0) }]}>
-      <Text style={styles.title}>Nos Recommandations</Text>
+      <Text style={dynamicStyles.title}>Nos Recommandations</Text>
 
       {/* <View style={styles.productsContainer}>{initialSkeletons}</View> */}
 
-      <View style={styles.cardContainer}>
+      <View style={dynamicStyles.cardContainer}>
         {isLoading ? (
-          <View style={styles.productsContainer}>{initialSkeletons}</View>
+          <View style={dynamicStyles.productsContainer}>{initialSkeletons}</View>
         ) : error || products.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyIcon}>📦</Text>
-            <Text style={styles.emptyText}>
+          <View style={dynamicStyles.emptyContainer}>
+            <Text style={dynamicStyles.emptyIcon}>📦</Text>
+            <Text style={dynamicStyles.emptyText}>
               {error || "Aucune recommandation disponible"}
             </Text>
           </View>
         ) : (
           <View
-            style={styles.productsContainer}
+            style={dynamicStyles.productsContainer}
             ref={productContainerRef}
             onLayout={handleContainerLayout}
           >
             {products.map((product, index) => (
-              <View key={product.id || index} style={styles.productWrapper}>
+              <View key={product.id || index} style={dynamicStyles.productWrapper}>
                 <ProductItem product={product} onProductPress={onProductPress} />
               </View>
             ))}
@@ -65,47 +109,3 @@ function RecommandationPresenter({
 }
 
 export default RecommandationPresenter;
-
-const styles = StyleSheet.create({
-  title: {
-    fontSize: ms(18),
-    fontWeight: "700",
-    color: colors.primary[800],
-    marginBottom: ms(10),
-    marginTop: ms(10),
-    letterSpacing: 0.5,
-    textTransform: "uppercase",
-    textShadowColor: "rgba(0, 0, 0, 0.1)",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
-  },
-  cardContainer: {
-    marginBottom: ms(20),
-  },
-  // Styles pour les états vides et erreurs
-  emptyContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: ms(40),
-  },
-  emptyIcon: {
-    fontSize: ms(48),
-    marginBottom: ms(16),
-  },
-  emptyText: {
-    fontSize: ms(16),
-    color: colors.tertiary[500],
-    textAlign: "center",
-    lineHeight: ms(22),
-  },
-  // Styles pour les produits
-  productsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-  },
-  productWrapper: {
-    width: "48%",
-    marginBottom: ms(10),
-  },
-});

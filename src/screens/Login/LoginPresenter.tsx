@@ -9,7 +9,7 @@ import { LoginFormData } from "src/types/AuthTypes";
 import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
 import ForgotPasswordModal from "src/components/ForgotPasswordModal/ForgotPasswordModal";
 import { ms } from "react-native-size-matters";
-import colors from "src/utils/colors";
+import { useColors } from "src/hooks/useColors";
 
 interface LoginPresenterProps {
   control: Control<LoginFormData>;
@@ -34,6 +34,23 @@ const LoginPresenter = ({
   onCloseForgotPasswordModal,
   onBack,
 }: LoginPresenterProps) => {
+  const colors = useColors(); // Using react-native-size-matters for responsive design
+
+  // Dynamic styles using colors from useColors hook
+  const dynamicStyles = StyleSheet.create({
+    forgotPasswordButton: {
+      alignSelf: 'flex-end',
+      paddingVertical: ms(8), // Using react-native-size-matters for responsive padding
+      paddingHorizontal: ms(4), // Using react-native-size-matters for responsive padding
+    },
+    forgotPasswordText: {
+      color: colors.secondary[500],
+      fontSize: ms(14), // Using react-native-size-matters for responsive font size
+      fontWeight: '600',
+      letterSpacing: ms(0.2), // Using react-native-size-matters for responsive letter spacing
+    },
+  });
+
   return (
     <PageContainer 
       bottomBar={false}
@@ -68,10 +85,10 @@ const LoginPresenter = ({
         />
 
         <TouchableOpacity 
-          style={styles.forgotPasswordButton}
+          style={dynamicStyles.forgotPasswordButton}
           onPress={onForgotPassword}
         >
-          <Text style={styles.forgotPasswordText}>
+          <Text style={dynamicStyles.forgotPasswordText}>
             Mot de passe oublié ?
           </Text>
         </TouchableOpacity>
@@ -86,17 +103,3 @@ const LoginPresenter = ({
 };
 
 export default LoginPresenter;
-
-const styles = StyleSheet.create({
-  forgotPasswordButton: {
-    alignSelf: 'flex-end',
-    paddingVertical: ms(8),
-    paddingHorizontal: ms(4),
-  },
-  forgotPasswordText: {
-    color: colors.secondary[500],
-    fontSize: ms(14),
-    fontWeight: '600',
-    letterSpacing: ms(0.2),
-  },
-});

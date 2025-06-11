@@ -12,7 +12,7 @@ import React, { RefObject, useRef, useEffect } from "react";
 import { globalStyles } from "src/utils/globalStyles";
 import { PromotionBannerDto } from "src/services/promotionBannersService";
 import { ms } from "react-native-size-matters";
-import colors from "src/utils/colors";
+import { useColors } from "src/hooks/useColors";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 
@@ -42,6 +42,7 @@ const PromotionBannerItem = ({
   onImageLoad: (bannerId: string) => void;
   onImageError: (bannerId: string) => void;
 }) => {
+  const colors = useColors();
   // Animation pour le skeleton de l'image
   const shimmerAnim = useRef(new Animated.Value(0)).current;
 
@@ -77,13 +78,96 @@ const PromotionBannerItem = ({
     outputRange: [0.3, 0.8, 0.3],
   });
 
+  // Dynamic styles using react-native-size-matters for responsiveness
+  const dynamicStyles = StyleSheet.create({
+    bannerContainer: {
+      width: screenWidth - ms(40), // Using react-native-size-matters for responsive calculation
+      height: ms(180), // Using react-native-size-matters for responsive height
+      borderRadius: ms(16), // Using react-native-size-matters for responsive border radius
+      overflow: "hidden",
+      marginHorizontal: 0,
+      position: "relative",
+    },
+    imageContainer: {
+      width: "100%",
+      height: "100%",
+      position: "relative",
+    },
+    bannerImage: {
+      width: "100%",
+      height: "100%",
+    },
+    imageSkeleton: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: colors.primary[200],
+      overflow: 'hidden',
+    },
+    shimmerOverlay: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: colors.primary[100],
+      opacity: 0.7,
+    },
+    bannerOverlay: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: "rgba(0, 0, 0, 0.1)",
+    },
+    discoverButtonContainer: {
+      position: "absolute",
+      bottom: ms(10), // Using react-native-size-matters for responsive positioning
+      left: 0,
+      right: 0,
+      alignItems: "center",
+      justifyContent: "flex-end",
+    },
+    discoverButton: {
+      backgroundColor: "rgba(255, 255, 255, 0.98)",
+      paddingHorizontal: ms(16), // Using react-native-size-matters for responsive padding
+      paddingVertical: ms(6), // Using react-native-size-matters for responsive padding
+      borderRadius: ms(20), // Using react-native-size-matters for responsive border radius
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      shadowColor: "rgba(0, 0, 0, 0.3)",
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 4,
+      borderWidth: 1,
+      borderColor: "rgba(255, 255, 255, 0.8)",
+    },
+    discoverText: {
+      color: colors.tertiary[800],
+      fontSize: ms(14), // Using react-native-size-matters for responsive font size
+      fontWeight: "600",
+      letterSpacing: 0.3,
+    },
+    buttonIcon: {
+      marginLeft: ms(6), // Using react-native-size-matters for responsive margin
+    },
+  });
+
   return (
-    <View style={styles.bannerContainer}>
+    <View style={dynamicStyles.bannerContainer}>
       {/* Image avec skeleton de chargement */}
-      <View style={styles.imageContainer}>
+      <View style={dynamicStyles.imageContainer}>
         <Image
           source={{ uri: item.imageUrl }}
-          style={[styles.bannerImage, isImageLoading && { opacity: 0 }]}
+          style={[dynamicStyles.bannerImage, isImageLoading && { opacity: 0 }]}
           resizeMode="stretch"
           onLoad={() => onImageLoad(item.id.toString())}
           onError={() => onImageError(item.id.toString())}
@@ -91,10 +175,10 @@ const PromotionBannerItem = ({
         
         {/* Skeleton pendant le chargement de l'image */}
         {isImageLoading && (
-          <View style={styles.imageSkeleton}>
+          <View style={dynamicStyles.imageSkeleton}>
             <Animated.View
               style={[
-                styles.shimmerOverlay,
+                dynamicStyles.shimmerOverlay,
                 {
                   opacity: shimmerOpacity,
                   transform: [{ translateX: shimmerTranslateX }],
@@ -105,23 +189,23 @@ const PromotionBannerItem = ({
         )}
       </View>
 
-      <View style={styles.bannerOverlay} />
+      <View style={dynamicStyles.bannerOverlay} />
 
       {/* Discover Button for this specific promotion */}
-      <View style={styles.discoverButtonContainer}>
+      <View style={dynamicStyles.discoverButtonContainer}>
         <Pressable
           style={({ pressed }) => [
-            styles.discoverButton,
+            dynamicStyles.discoverButton,
             pressed && globalStyles.buttonPressed,
           ]}
           onPress={() => onDiscoverPress(item)}
         >
-          <Text style={styles.discoverText}>Découvrez</Text>
+          <Text style={dynamicStyles.discoverText}>Découvrez</Text>
           <FontAwesomeIcon
             icon={faArrowRight}
-            size={ms(12)}
+            size={ms(12)} // Using react-native-size-matters for responsive icon size
             color={colors.tertiary[800]}
-            style={styles.buttonIcon}
+            style={dynamicStyles.buttonIcon}
           />
         </Pressable>
       </View>
@@ -139,9 +223,43 @@ const PromotionsBannerPresenter = ({
   onImageLoad,
   onImageError,
 }: PromotionsBannerPresenterProps) => {
+  const colors = useColors();
+
+  // Dynamic styles using react-native-size-matters for responsiveness
+  const dynamicStyles = StyleSheet.create({
+    container: {
+      height: ms(240), // Using react-native-size-matters for responsive height
+      width: "100%",
+    },
+    bannerWrapper: {
+      position: "relative",
+      height: "100%",
+    },
+    paginationContainer: {
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      marginTop: ms(16), // Using react-native-size-matters for responsive margin
+      marginBottom: ms(8), // Using react-native-size-matters for responsive margin
+    },
+    paginationDot: {
+      width: ms(8), // Using react-native-size-matters for responsive width
+      height: ms(8), // Using react-native-size-matters for responsive height
+      borderRadius: ms(4), // Using react-native-size-matters for responsive border radius
+      backgroundColor: colors.tertiary[300],
+      marginHorizontal: ms(4), // Using react-native-size-matters for responsive margin
+      opacity: 0.5,
+    },
+    activePaginationDot: {
+      backgroundColor: colors.primary[600],
+      opacity: 1,
+      transform: [{ scale: 1.2 }],
+    },
+  });
+
   return (
-    <View style={[globalStyles.container, styles.container]}>
-      <View style={styles.bannerWrapper}>
+    <View style={[globalStyles.container, dynamicStyles.container]}>
+      <View style={dynamicStyles.bannerWrapper}>
         <FlatList
           ref={flatlistRef}
           data={banners}
@@ -166,13 +284,13 @@ const PromotionsBannerPresenter = ({
 
         {/* Pagination Dots */}
         {banners.length > 1 && (
-          <View style={styles.paginationContainer}>
+          <View style={dynamicStyles.paginationContainer}>
             {banners.map((_, index) => (
               <View
                 key={index}
                 style={[
-                  styles.paginationDot,
-                  index === currentIndex && styles.activePaginationDot,
+                  dynamicStyles.paginationDot,
+                  index === currentIndex && dynamicStyles.activePaginationDot,
                 ]}
               />
             ))}
@@ -184,117 +302,3 @@ const PromotionsBannerPresenter = ({
 };
 
 export default PromotionsBannerPresenter;
-
-const styles = StyleSheet.create({
-  container: {
-    height: ms(240),
-    width: "100%",
-  },
-  bannerWrapper: {
-    position: "relative",
-    height: "100%",
-  },
-  bannerContainer: {
-    width: screenWidth - ms(40), // ms(40) pour le padding horizontal
-    height: ms(180),
-    borderRadius: ms(16),
-    overflow: "hidden",
-    marginHorizontal: 0,
-    position: "relative",
-  },
-  imageContainer: {
-    width: "100%",
-    height: "100%",
-    position: "relative",
-  },
-  bannerImage: {
-    width: "100%",
-    height: "100%",
-  },
-  imageSkeleton: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: colors.primary[200],
-    overflow: 'hidden',
-  },
-  shimmerOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: colors.primary[100],
-    opacity: 0.7,
-  },
-  bannerOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.1)",
-  },
-  paginationContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: ms(16),
-    marginBottom: ms(8),
-  },
-  paginationDot: {
-    width: ms(8),
-    height: ms(8),
-    borderRadius: ms(4),
-    backgroundColor: colors.tertiary[300],
-    marginHorizontal: ms(4),
-    opacity: 0.5,
-  },
-  activePaginationDot: {
-    backgroundColor: colors.primary[600],
-    opacity: 1,
-    transform: [{ scale: 1.2 }],
-  },
-  discoverButtonContainer: {
-    position: "absolute",
-    bottom: ms(10),
-    left: 0,
-    right: 0,
-    alignItems: "center",
-    justifyContent: "flex-end",
-  },
-  discoverButton: {
-    backgroundColor: "rgba(255, 255, 255, 0.98)",
-    paddingHorizontal: ms(16),
-    paddingVertical: ms(6),
-    borderRadius: ms(20),
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "rgba(0, 0, 0, 0.3)",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 4,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.8)",
-  },
-  discoverButtonPressed: {
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
-    transform: [{ scale: 0.96 }],
-  },
-  discoverText: {
-    color: colors.tertiary[800],
-    fontSize: ms(14),
-    fontWeight: "600",
-    letterSpacing: 0.3,
-  },
-  buttonIcon: {
-    marginLeft: ms(6),
-  },
-});
