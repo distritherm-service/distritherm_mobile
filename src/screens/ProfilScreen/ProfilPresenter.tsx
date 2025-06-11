@@ -3,7 +3,7 @@ import React from "react";
 import PageStyle from "src/components/Profil/PageStyle/PageStyle";
 import { NO_IMAGE_URL } from "src/utils/noImage";
 import { ms } from "react-native-size-matters";
-import { colors } from "src/utils/colors";
+import { useColors } from "src/hooks/useColors";
 import ProfileLinks from "src/components/Profil/ProfileLinks/ProfileLinks";
 import { isTablet } from "src/utils/deviceUtils";
 import { User, UserWithClientDto } from "src/types/User";
@@ -21,6 +21,8 @@ const ProfilPresenter: React.FC<ProfilPresenterProps> = ({
   user,
   deconnectionLoading = false,
 }) => {
+  const colors = useColors();
+
   return (
     <PageStyle 
       user={user}

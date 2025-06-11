@@ -1,4 +1,5 @@
-const colors = {
+// Définition des couleurs pour chaque thème
+const lightTheme = {
   // Primary colors (brand/main colors) - White (from lightest to darkest)
   primary: {
     50: "#ffffff",
@@ -29,8 +30,8 @@ const colors = {
 
   // Tertiary colors - Black (from lightest to darkest)
   tertiary: {
-    50: "#f8f8f8", // Blanc légèrement foncé
-    100: "#e8e8e8", // Gris très clair
+    50: "#f8f8f8",
+    100: "#e8e8e8",
     200: "#d0d0d0",
     300: "#a8a8a8",
     400: "#808080",
@@ -38,22 +39,76 @@ const colors = {
     600: "#121212",
     700: "#0a0a0a",
     800: "#050505",
-    900: "#000000", // Noir pur
+    900: "#000000",
   },
 
-  // Text color
+  // Semantic colors
+  background: "#ffffff",
+  surface: "#f8f8f8",
   text: "#333333",
-
-  // Error color
-  error: "#E53E3E", // Standard red for errors
-
-  // Success color
-  success: "#38A169", // Standard green for success states
-
-  // Border colors
-  border: "#E2E8F0", // Light gray border
-  borderDark: "#CBD5E0", // Slightly darker border
+  textSecondary: "#666666",
+  error: "#E53E3E",
+  success: "#38A169",
+  border: "#E2E8F0",
+  borderDark: "#CBD5E0",
 };
 
-export { colors };
-export default colors;
+const darkTheme = {
+  // Primary colors inversées pour le dark mode
+  primary: {
+    50: "#1a1a1a", // Inverse du light
+    100: "#2d2d2d",
+    200: "#3d3d3d",
+    300: "#4d4d4d",
+    400: "#5d5d5d",
+    500: "#6d6d6d", // Main primary color (dark)
+    600: "#7d7d7d",
+    700: "#8d8d8d",
+    800: "#a3a3a3",
+    900: "#ffffff",
+  },
+
+  // Secondary colors - gardent les mêmes teintes mais adaptées
+  secondary: {
+    50: "#0a1a1d",
+    100: "#13363c",
+    200: "#1c525b",
+    300: "#256e7a",
+    400: "#3DA5B5", // Garde la même couleur principale
+    500: "#5cc9d7",
+    600: "#8ad8e2",
+    700: "#b8e7ed",
+    800: "#e6f6f8",
+    900: "#f0fafa",
+  },
+
+  // Tertiary colors inversées
+  tertiary: {
+    50: "#000000",
+    100: "#0a0a0a",
+    200: "#121212",
+    300: "#1a1a1a",
+    400: "#333333",
+    500: "#f8f8f8", // Main tertiary color (light text)
+    600: "#e8e8e8",
+    700: "#d0d0d0",
+    800: "#a8a8a8",
+    900: "#808080",
+  },
+
+  // Semantic colors pour dark mode
+  background: "#121212",
+  surface: "#1e1e1e",
+  text: "#ffffff",
+  textSecondary: "#a8a8a8",
+  error: "#ff6b6b",
+  success: "#51cf66",
+  border: "#2d2d2d",
+  borderDark: "#404040",
+};
+
+export type ThemeColors = typeof lightTheme;
+export { lightTheme, darkTheme };
+
+// Export par défaut pour la compatibilité avec l'ancien système
+export default lightTheme;

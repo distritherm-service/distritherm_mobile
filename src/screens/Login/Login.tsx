@@ -26,6 +26,11 @@ const Login = () => {
     mode: 'onBlur',
   });
 
+  // Handle back navigation
+  const handleBack = () => {
+    navigation.goBack();
+  };
+
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     setError(undefined);
@@ -81,6 +86,7 @@ const Login = () => {
       onForgotPassword={handleForgotPassword}
       showForgotPasswordModal={showForgotPasswordModal}
       onCloseForgotPasswordModal={handleCloseForgotPasswordModal}
+      onBack={handleBack}
     />
   )
 }

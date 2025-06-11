@@ -16,6 +16,7 @@ interface RegisterPresenterProps {
   validationRules: any;
   formErrors: FieldErrors<RegisterFormData>;
   watchedValues: RegisterFormData;
+  onBack: () => void;
 }
 
 const RegisterPresenter = ({
@@ -26,9 +27,15 @@ const RegisterPresenter = ({
   validationRules,
   formErrors,
   watchedValues,
+  onBack,
 }: RegisterPresenterProps) => {
   return (
-    <PageContainer bottomBar={false}>
+    <PageContainer 
+      bottomBar={false}
+      headerBack={true}
+      headerTitle="Inscription"
+      onCustomBack={onBack}
+    >
       <AuthForm 
         type="register"
         onSubmit={onSubmit}

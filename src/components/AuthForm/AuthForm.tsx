@@ -1,4 +1,3 @@
-import { View, Text } from "react-native";
 import React, { ReactNode, useState } from "react";
 import AuthFormPresenter from "./AuthFormPresenter";
 import { useNavigation } from "@react-navigation/native";
@@ -18,7 +17,7 @@ const AuthForm = ({
   onSubmit,
   isLoading = false,
 }: AuthFormProps) => {
-  const navigation = useNavigation<any>(); // Using any to handle both Auth and Main navigation
+  const navigation = useNavigation<any>();
   const [contentHeight, setContentHeight] = useState(0);
   const [screenHeight, setScreenHeight] = useState(0);
   const [errorGoogleSignIn, setErrorGoogleSignIn] = useState<string>("");
@@ -28,31 +27,17 @@ const AuthForm = ({
 
   const onPressRedirection = () => {
     if (type === "login") {
-      // Going from Login to Register - slide from right
       navigation.navigate("Register");
     } else {
-      // Going from Register to Login - slide from left (handled by screen options)
       navigation.navigate("Login");
     }
-  };
-
-  const onGoBack = () => {
-    navigation.reset({
-      index: 0,
-      routes: [
-        {
-          name: "Main",
-          params: { initialTab: "Profil" },
-        },
-      ],
-    });
   };
 
   const onGoogleSignInError = (errorText: string) => {
     setErrorGoogleSignIn(errorText);
   };
 
-  const handleContentSizeChange = (width: number, height: number) => {
+  const handleContentSizeChange = (height: number) => {
     setContentHeight(height);
   };
 
@@ -66,7 +51,6 @@ const AuthForm = ({
       error={error}
       type={type}
       onPressRedirection={onPressRedirection}
-      onGoBack={onGoBack}
       onSubmit={onSubmit}
       isLoading={isLoading}
       isScrollable={isScrollable}

@@ -111,6 +111,11 @@ const Register = () => {
     }
   };
 
+  // Handle back navigation
+  const handleBack = () => {
+    navigation.goBack();
+  };
+
   return (
     <RegisterPresenter 
       control={control}
@@ -120,6 +125,7 @@ const Register = () => {
       validationRules={enhancedValidationRules}
       formErrors={errors}
       watchedValues={watchedValues}
+      onBack={handleBack}
     />
   )
 }

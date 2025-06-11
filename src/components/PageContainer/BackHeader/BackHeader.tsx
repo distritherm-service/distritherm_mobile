@@ -15,7 +15,6 @@ const BackHeader: React.FC<BackHeaderProps> = ({
   hideBackButton = false
 }) => {
   const navigation = useNavigation();
-  const insets = useSafeAreaInsets();
   
   const handleBackPress = () => {
     if (onCustomBack) {
@@ -29,7 +28,6 @@ const BackHeader: React.FC<BackHeaderProps> = ({
     <BackHeaderPresenter
       title={title}
       onBackPress={handleBackPress}
-      insets={insets}
       hideBackButton={hideBackButton}
     />
   );

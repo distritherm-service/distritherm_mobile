@@ -15,14 +15,12 @@ import colors from "src/utils/colors";
 interface BackHeaderPresenterProps {
   title?: string;
   onBackPress: () => void;
-  insets: EdgeInsets;
   hideBackButton?: boolean;
 }
 
 const BackHeaderPresenter: React.FC<BackHeaderPresenterProps> = ({
   title,
   onBackPress,
-  insets,
   hideBackButton = false,
 }) => {
   return (
@@ -72,17 +70,16 @@ export default BackHeaderPresenter;
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    backgroundColor: colors.primary[50],
     zIndex: 10,
-    height: ms(40),
     justifyContent: 'center',
+    backgroundColor: colors.primary[50],
   },
   headerContent: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "center",
     paddingHorizontal: ms(16),
-    height: '100%', // Prend toute la hauteur du container
+    height: ms(50),
   },
   backButton: {
     flexDirection: "row",

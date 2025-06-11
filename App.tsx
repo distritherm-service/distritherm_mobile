@@ -5,14 +5,16 @@ import { NavigationContainer } from "@react-navigation/native";
 import store from "./src/store/store";
 import StackNavigator from "./src/navigation/StackNavigator";
 import ApiProvider from "./src/providers/ApiProvider";
+import { ThemeProvider, useTheme } from "./src/providers/ThemeProvider";
 import { useEffect, useState } from "react";
 import { useAuth } from "src/hooks/useAuth";
 import { View, ActivityIndicator } from "react-native";
 import { scale } from "react-native-size-matters";
 
-// Composant interne qui a accès au Redux store
+// Composant interne qui a accès au Redux store et au ThemeProvider
 function AppContent() {
   const { initialize, isAuthenticated } = useAuth();
+  const { isDark } = useTheme();
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
@@ -36,7 +38,7 @@ function AppContent() {
       <SafeAreaProvider>
         <ApiProvider>
           <StatusBar
-            style="auto"
+            style={isDark ? "light" : "dark"}
             translucent={true}
             backgroundColor="transparent"
           />
@@ -50,7 +52,9 @@ function AppContent() {
 export default function App() {
   return (
     <Provider store={store}>
-      <AppContent />
+      <ThemeProvider>
+        <AppContent />
+      </ThemeProvider>
     </Provider>
   );
 }

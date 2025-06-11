@@ -20,6 +20,7 @@ interface LoginPresenterProps {
   onForgotPassword: () => void;
   showForgotPasswordModal: boolean;
   onCloseForgotPasswordModal: () => void;
+  onBack: () => void;
 }
 
 const LoginPresenter = ({
@@ -31,9 +32,15 @@ const LoginPresenter = ({
   onForgotPassword,
   showForgotPasswordModal,
   onCloseForgotPasswordModal,
+  onBack,
 }: LoginPresenterProps) => {
   return (
-    <PageContainer bottomBar={false}>
+    <PageContainer 
+      bottomBar={false}
+      headerBack={true}
+      headerTitle="Connexion"
+      onCustomBack={onBack}
+    >
       <AuthForm 
         type="login"
         onSubmit={onSubmit}

@@ -15,13 +15,13 @@ import { ms } from "react-native-size-matters";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import GoogleSignIn from "../GoogleSignIn/GoogleSignIn";
+import Spacer from "../Spacer/Spacer";
 
 interface AuthFormPresenterProps {
   error?: string;
   children: React.ReactNode;
   type: "login" | "register";
   onPressRedirection: () => void;
-  onGoBack: () => void;
   onSubmit?: () => void;
   isLoading?: boolean;
   isScrollable: boolean;
@@ -36,7 +36,6 @@ const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
   children,
   type,
   onPressRedirection,
-  onGoBack,
   onSubmit,
   isLoading = false,
   isScrollable,
@@ -45,30 +44,7 @@ const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
   errorGoogleSignIn,
   onGoogleSignInError,
 }) => {
-  // Footer component to avoid duplication
-  const FooterButton = () => (
-    <View style={isScrollable ? styles.footerInline : styles.footer}>
-      <Pressable style={styles.homeButton} onPress={onGoBack}>
-        <LinearGradient
-          colors={[colors.secondary[400], colors.secondary[600]]}
-          style={styles.homeButtonGradient}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        >
-          <View style={styles.homeButtonContent}>
-            <View style={styles.homeButtonIconContainer}>
-              <FontAwesome6
-                name="arrow-left"
-                size={ms(16)}
-                color={colors.primary[50]}
-              />
-            </View>
-            <Text style={styles.homeButtonText}>Revenir en arrière</Text>
-          </View>
-        </LinearGradient>
-      </Pressable>
-    </View>
-  );
+
 
   // Sticky redirection button component
   const StickyRedirectionButton = () => (
@@ -124,13 +100,15 @@ const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
           <ScrollView
             contentContainerStyle={[
               styles.scrollContent,
-              // Adjust padding based on footer position: less padding when footer is inline
               isScrollable && styles.scrollContentWithInlineFooter,
             ]}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
             onContentSizeChange={onContentSizeChange}
           >
+            {/* Spacer pour créer un espace entre le bouton sticky et le contenu */}
+            <Spacer height={20} />
+
             {/* Container du logo avec effet de profondeur */}
             <View style={styles.logoContainer}>
               <View style={styles.logoShadow}>
@@ -206,12 +184,8 @@ const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
               )}
             </View>
 
-            {/* Footer button inside ScrollView when content is scrollable (content > screen height) */}
-            {isScrollable && <FooterButton />}
           </ScrollView>
 
-          {/* Footer button absolutely positioned when content fits screen (content <= screen height) */}
-          {!isScrollable && <FooterButton />}
         </View>
       </LinearGradient>
     </View>
@@ -228,7 +202,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: ms(24),
-    paddingTop: ms(20), // Ajout du padding top qui était dans le header
   },
   // Suppression des styles header et redirectionButton
   scrollContainer: {
@@ -236,11 +209,11 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   scrollContent: {
-    paddingBottom: ms(80), // Space for absolute footer
+    paddingBottom: ms(80),
     paddingTop: ms(20), // Espace pour le bouton sticky
   },
   scrollContentWithInlineFooter: {
-    paddingBottom: ms(20), // Reduced padding when footer is inline
+    paddingBottom: ms(20),
   },
   // Nouveaux styles pour le bouton sticky
   stickyRedirectionContainer: {
@@ -413,55 +386,7 @@ const styles = StyleSheet.create({
     fontSize: ms(16),
     fontWeight: "600",
   },
-  footer: {
-    // Absolute positioning for when content fits on screen (not scrollable)
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    alignItems: "center",
-    marginBottom: ms(25),
-  },
-  footerInline: {
-    // Inline positioning for when content is scrollable (included in ScrollView)
-    alignItems: "center",
-    marginTop: ms(24),
-    marginBottom: ms(20),
-  },
-  homeButton: {
-    borderRadius: ms(25),
-    shadowColor: colors.secondary[800],
-    shadowOffset: {
-      width: 0,
-      height: ms(4),
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: ms(8),
-    elevation: 6,
-  },
-  homeButtonGradient: {
-    borderRadius: ms(25),
-    paddingHorizontal: ms(16),
-    paddingVertical: ms(10),
-  },
-  homeButtonContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: ms(8),
-  },
-  homeButtonIconContainer: {
-    width: ms(28),
-    height: ms(25),
-    borderRadius: ms(14),
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  homeButtonText: {
-    fontSize: ms(14),
-    color: colors.primary[50],
-    fontWeight: "600",
-    letterSpacing: ms(0.3),
-  },
+
   dividerContainer: {
     flexDirection: "row",
     alignItems: "center",

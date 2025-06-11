@@ -11,7 +11,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { moderateScale as ms } from "react-native-size-matters";
-import colors from "src/utils/colors";
+import { useTheme } from "src/providers/ThemeProvider";
+import { useColors } from "src/hooks/useColors";
 
 interface PageContainerPresenterProps {
   headerComponent?: React.ReactNode;
@@ -30,17 +31,26 @@ const PageContainerPresenter: React.FC<PageContainerPresenterProps> = ({
   isScrollable = false,
   bottomBar = true,
 }) => {
-  // Ajuster le padding pour éviter que le contenu touche le bas
+  const { isDark } = useTheme();
+  const colors = useColors();
+
+  const dynamicStyles = StyleSheet.create({
+    safeContainer: {
+      flex: 1,
+      backgroundColor: colors.background,
+      paddingBottom: Platform.OS == "ios" ? ms(47) : ms(65),
+    },
+  });
 
   return (
     <>
       <StatusBar
         translucent
         backgroundColor="transparent"
-        barStyle="dark-content"
+        barStyle={isDark ? "light-content" : "dark-content"}
       />
       <SafeAreaView
-        style={[styles.safeContainer, !bottomBar && {paddingBottom: 0}, style]}
+        style={[dynamicStyles.safeContainer, !bottomBar && {paddingBottom: 0}, style]}
         edges={["top", "bottom"]}
       >
         {headerComponent}
@@ -74,11 +84,6 @@ const PageContainerPresenter: React.FC<PageContainerPresenterProps> = ({
 export default PageContainerPresenter;
 
 const styles = StyleSheet.create({
-  safeContainer: {
-    flex: 1,
-    backgroundColor: colors.primary[50],
-    paddingBottom: Platform.OS == "ios" ? ms(47) : ms(65),
-  },
   keyboardAvoid: {
     flex: 1,
   },
