@@ -34,11 +34,11 @@ const PageStyle: React.FC<PageStyleProps> = ({
   const heightPercentage = isAuthenticated
     ? user?.client?.emailVerified
       ? Platform.OS == "ios"
-        ? 0.21
-        : 0.21
+        ? 0.26
+        : 0.26
       : Platform.OS == "ios"
-      ? 0.18
-      : 0.18
+      ? 0.21
+      : 0.21
     : Platform.OS == "ios"
     ? 0.61
     : 0.64;

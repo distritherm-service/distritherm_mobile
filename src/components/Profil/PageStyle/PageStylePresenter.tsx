@@ -63,14 +63,7 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
 
   return (
     <SafeAreaView style={styles.root}>
-      <ScrollView
-        style={styles.scrollContainer}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-        nestedScrollEnabled={false}
-        scrollEventThrottle={16}
-      >
+      <View style={styles.container}>
         {/* Header simplifié avec seulement le logo */}
         <LinearGradient
           colors={[
@@ -100,105 +93,115 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
         {/* Contenu principal avec effet flottant moderne */}
         <View style={styles.contentWrapper}>
           <View style={styles.contentContainer}>
-            {/* Informations utilisateur si connecté - maintenant dans le contenu */}
-            {user && (
-              <View style={styles.userInfoSection}>
-                {/* Photo de profil avec bordure élégante */}
-                <Pressable
-                  style={styles.profileImageContainer}
-                  onPress={onOpenModalImagePicker}
-                >
-                  <LinearGradient
-                    colors={[colors.primary[50], colors.primary[200]]}
-                    style={styles.profileImageBorder}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
+            {/* ScrollView pour tout le contenu scrollable */}
+            <ScrollView
+              style={styles.childrenScrollContainer}
+              contentContainerStyle={styles.childrenScrollContent}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              nestedScrollEnabled={false}
+              scrollEventThrottle={16}
+            >
+              {/* Informations utilisateur si connecté - maintenant dans le scroll */}
+              {user && (
+                <View style={styles.userInfoSection}>
+                  {/* Photo de profil avec bordure élégante */}
+                  <Pressable
+                    style={styles.profileImageContainer}
+                    onPress={onOpenModalImagePicker}
                   >
-                    <Image
-                      source={{
-                        uri: selectedImage || user.urlPicture || NO_IMAGE_URL,
-                      }}
-                      style={styles.profileImage}
-                    />
-                  </LinearGradient>
-
-                  {/* Icône caméra positionnée au-dessus */}
-                  <View style={styles.cameraIconContainer}>
                     <LinearGradient
-                      colors={[colors.tertiary[400], colors.tertiary[600]]}
-                      style={styles.cameraIconGradient}
+                      colors={[colors.primary[50], colors.primary[200]]}
+                      style={styles.profileImageBorder}
                       start={{ x: 0, y: 0 }}
                       end={{ x: 1, y: 1 }}
                     >
-                      <FontAwesome6
-                        name="camera"
-                        size={ms(12)}
-                        color={colors.primary[50]}
+                      <Image
+                        source={{
+                          uri: selectedImage || user.urlPicture || NO_IMAGE_URL,
+                        }}
+                        style={styles.profileImage}
                       />
                     </LinearGradient>
+
+                    {/* Icône caméra positionnée au-dessus */}
+                    <View style={styles.cameraIconContainer}>
+                      <LinearGradient
+                        colors={[colors.tertiary[400], colors.tertiary[600]]}
+                        style={styles.cameraIconGradient}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                      >
+                        <FontAwesome6
+                          name="camera"
+                          size={ms(12)}
+                          color={colors.primary[50]}
+                        />
+                      </LinearGradient>
+                    </View>
+                  </Pressable>
+
+                  {/* Informations textuelles */}
+                  <View style={styles.userTextInfo}>
+                    <Text style={styles.userName}>
+                      {`${user.firstName || ""} ${user.lastName || ""}`.trim() ||
+                        "Utilisateur"}
+                    </Text>
+
+                    {/* Email non vérifié - minimaliste et explicite */}
+                    {isEmailUnverified && (
+                      <TouchableOpacity
+                        style={styles.emailVerificationNotice}
+                        onPress={onResendVerificationEmail}
+                        disabled={isResendingEmail}
+                        activeOpacity={0.7}
+                      >
+                        <View style={styles.emailNoticeContainer}>
+                          <View style={styles.emailNoticeHeader}>
+                            <FontAwesomeIcon
+                              icon={faExclamationTriangle}
+                              size={ms(14)}
+                              color="#FF6B35"
+                            />
+                            <Text style={styles.emailNoticeTitle}>
+                              Email non vérifié
+                            </Text>
+                          </View>
+
+                          <View style={styles.emailNoticeButton}>
+                            <Text style={styles.emailNoticeButtonText}>
+                              {isResendingEmail
+                                ? "Envoi en cours..."
+                                : "Renvoyer l'email"}
+                            </Text>
+                          </View>
+                        </View>
+                      </TouchableOpacity>
+                    )}
                   </View>
-                </Pressable>
 
-                {/* Informations textuelles */}
-                <View style={styles.userTextInfo}>
-                  <Text style={styles.userName}>
-                    {`${user.firstName || ""} ${user.lastName || ""}`.trim() ||
-                      "Utilisateur"}
-                  </Text>
-
-                  {/* Email non vérifié - minimaliste et explicite */}
-                  {isEmailUnverified && (
-                    <TouchableOpacity
-                      style={styles.emailVerificationNotice}
-                      onPress={onResendVerificationEmail}
-                      disabled={isResendingEmail}
-                      activeOpacity={0.7}
-                    >
-                      <View style={styles.emailNoticeContainer}>
-                        <View style={styles.emailNoticeHeader}>
-                          <FontAwesomeIcon
-                            icon={faExclamationTriangle}
-                            size={ms(14)}
-                            color="#FF6B35"
-                          />
-                          <Text style={styles.emailNoticeTitle}>
-                            Email non vérifié
-                          </Text>
-                        </View>
-
-                        <View style={styles.emailNoticeButton}>
-                          <Text style={styles.emailNoticeButtonText}>
-                            {isResendingEmail
-                              ? "Envoi en cours..."
-                              : "Renvoyer l'email"}
-                          </Text>
-                        </View>
-                      </View>
-                    </TouchableOpacity>
-                  )}
+                  {/* Séparateur élégant */}
+                  <View style={styles.userInfoSeparator}>
+                    <LinearGradient
+                      colors={[
+                        colors.primary[100],
+                        colors.tertiary[200],
+                        colors.primary[100],
+                      ]}
+                      style={styles.separatorLine}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 0 }}
+                    />
+                  </View>
                 </View>
+              )}
 
-                {/* Séparateur élégant */}
-                <View style={styles.userInfoSeparator}>
-                  <LinearGradient
-                    colors={[
-                      colors.primary[100],
-                      colors.tertiary[200],
-                      colors.primary[100],
-                    ]}
-                    style={styles.separatorLine}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                  />
-                </View>
-              </View>
-            )}
-
-            {/* Contenu des enfants */}
-            <View style={styles.childrenContainer}>{children}</View>
+              {/* Contenu des enfants (ProfileLinks) */}
+              <View style={styles.childrenContainer}>{children}</View>
+            </ScrollView>
           </View>
         </View>
-      </ScrollView>
+      </View>
 
       {/* Modal pour sélection d'image */}
       <Modal
@@ -287,6 +290,9 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
   },
+  container: {
+    flex: 1,
+  },
   scrollContainer: {
     flex: 1,
   },
@@ -296,7 +302,7 @@ const styles = StyleSheet.create({
   },
   headerGradient: {
     paddingTop: ms(30),
-    paddingBottom: ms(50), // Réduit car bottom en bas
+    paddingBottom: ms(52),
     paddingHorizontal: ms(24),
     shadowColor: colors.tertiary[800],
     shadowOffset: { width: 0, height: ms(6) },
@@ -455,6 +461,12 @@ const styles = StyleSheet.create({
   },
   childrenContainer: {
     flex: 1,
+  },
+  childrenScrollContainer: {
+    flex: 1,
+  },
+  childrenScrollContent: {
+    flexGrow: 1,
   },
   modalOverlay: {
     flex: 1,

@@ -26,38 +26,42 @@ const BackHeaderPresenter: React.FC<BackHeaderPresenterProps> = ({
   return (
     <View style={[styles.container]}>
       <View style={styles.headerContent}>
-        {!hideBackButton && (
-          <Pressable
-            onPress={onBackPress}
-            style={({ pressed }) => [
-              styles.backButton,
-              pressed && styles.buttonPressed,
-            ]}
-            android_ripple={{
-              color: `${colors.secondary[400]}30`,
-              borderless: true,
-              radius: ms(20),
-            }}
-          >
-            <FontAwesomeIcon 
-              icon={faChevronLeft} 
-              size={ms(16)} 
-              color={colors.secondary[500]} 
-            />
-            <Text style={styles.backText}>Retour</Text>
-          </Pressable>
-        )}
+        {/* Section gauche - Bouton retour */}
+        <View style={styles.leftSection}>
+          {!hideBackButton && (
+            <Pressable
+              onPress={onBackPress}
+              style={({ pressed }) => [
+                styles.backButton,
+                pressed && styles.buttonPressed,
+              ]}
+              android_ripple={{
+                color: `${colors.secondary[400]}30`,
+                borderless: true,
+                radius: ms(20),
+              }}
+            >
+              <FontAwesomeIcon 
+                icon={faChevronLeft} 
+                size={ms(16)} 
+                color={colors.secondary[500]} 
+              />
+              <Text style={styles.backText}>Retour</Text>
+            </Pressable>
+          )}
+        </View>
 
+        {/* Section centrale - Titre */}
         {title && (
-          <View style={[
-            styles.titleContainer,
-            hideBackButton && styles.titleContainerNoBack
-          ]}>
+          <View style={styles.titleContainer}>
             <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
               {title}
             </Text>
           </View>
         )}
+
+        {/* Section droite - Espace vide pour équilibrer */}
+        <View style={styles.rightSection} />
       </View>
 
       <View style={styles.separator} />
@@ -77,16 +81,21 @@ const styles = StyleSheet.create({
   headerContent: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "space-between",
     paddingHorizontal: ms(16),
     height: ms(50),
+  },
+  leftSection: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
   },
   backButton: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: ms(6),
     borderRadius: ms(8),
-    zIndex: 10,
     height: '100%', // Prend toute la hauteur disponible
     justifyContent: 'center', // Centre verticalement
   },
@@ -102,10 +111,13 @@ const styles = StyleSheet.create({
   titleContainer: {
     flex: 1,
     alignItems: "center",
-    marginLeft: -ms(50), // Pour centrer le titre en compensant le bouton retour
+    justifyContent: "center",
   },
   titleContainerNoBack: {
     marginLeft: 0,
+  },
+  rightSection: {
+    flex: 1,
   },
   title: {
     fontSize: ms(16),
