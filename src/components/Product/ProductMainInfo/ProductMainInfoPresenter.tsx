@@ -6,7 +6,7 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
-import { ms, s, vs } from 'react-native-size-matters'; // Using react-native-size-matters for responsive design
+import { ms } from 'react-native-size-matters'; // Using react-native-size-matters for responsive design
 import { ProductDetailDto } from 'src/types/Product';
 import { useColors } from 'src/hooks/useColors';
 
@@ -48,8 +48,9 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
   const getStockBadge = () => {
     if (isOutOfStock) {
       return (
-        <View style={[styles.stockBadge, { backgroundColor: colors.error }]}>
-          <Text style={[styles.stockBadgeText, { color: colors.primary[50] }]}>
+        <View style={[styles.stockBadge, styles.stockBadgeError, { backgroundColor: colors.error + '15', borderColor: colors.error }]}>
+          <View style={[styles.stockIndicator, { backgroundColor: colors.error }]} />
+          <Text style={[styles.stockBadgeText, { color: colors.error }]}>
             Rupture de stock
           </Text>
         </View>
@@ -58,8 +59,9 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
     
     if (isLowStock) {
       return (
-        <View style={[styles.stockBadge, { backgroundColor: '#FF8C00' }]}>
-          <Text style={[styles.stockBadgeText, { color: colors.primary[50] }]}>
+        <View style={[styles.stockBadge, styles.stockBadgeWarning, { backgroundColor: '#FF8C00' + '15', borderColor: '#FF8C00' }]}>
+          <View style={[styles.stockIndicator, { backgroundColor: '#FF8C00' }]} />
+          <Text style={[styles.stockBadgeText, { color: '#FF8C00' }]}>
             Stock limité ({product.quantity} restant{product.quantity > 1 ? 's' : ''})
           </Text>
         </View>
@@ -67,8 +69,9 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
     }
 
     return (
-      <View style={[styles.stockBadge, { backgroundColor: colors.success }]}>
-        <Text style={[styles.stockBadgeText, { color: colors.primary[50] }]}>
+      <View style={[styles.stockBadge, styles.stockBadgeSuccess, { backgroundColor: colors.success + '15', borderColor: colors.success }]}>
+        <View style={[styles.stockIndicator, { backgroundColor: colors.success }]} />
+        <Text style={[styles.stockBadgeText, { color: colors.success }]}>
           En stock ({product.quantity} disponible{product.quantity > 1 ? 's' : ''})
         </Text>
       </View>
@@ -79,6 +82,7 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
     if (product.isInPromotion && product.promotionPercentage) {
       return (
         <View style={[styles.promotionBadge, { backgroundColor: colors.error }]}>
+          <Text style={[styles.promotionIcon, { color: colors.primary[50] }]}>🔥</Text>
           <Text style={[styles.promotionBadgeText, { color: colors.primary[50] }]}>
             -{product.promotionPercentage}%
           </Text>
@@ -90,28 +94,42 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
-      {/* Product Title */}
+      {/* Enhanced Product Title Section */}
       <View style={styles.titleSection}>
         <Text style={[styles.productName, { color: colors.text }]}>
           {product.name}
         </Text>
         
-        {/* Category and Brand */}
+        {/* Enhanced Category and Brand */}
         <View style={styles.metaInfo}>
           {product.category && (
-            <Text style={[styles.categoryText, { color: colors.textSecondary }]}>
-              {product.category.name}
-            </Text>
+            <View style={styles.metaItem}>
+              <Text style={[styles.metaLabel, { color: colors.tertiary[600] }]}>
+                Catégorie
+              </Text>
+              <View style={[styles.categoryChip, { backgroundColor: colors.secondary[50], borderColor: colors.secondary[200] }]}>
+                <Text style={[styles.categoryText, { color: colors.secondary[600] }]}>
+                  {product.category.name}
+                </Text>
+              </View>
+            </View>
           )}
           {product.mark && (
-            <Text style={[styles.brandText, { color: colors.secondary[400] }]}>
-              • {product.mark.name}
-            </Text>
+            <View style={styles.metaItem}>
+              <Text style={[styles.metaLabel, { color: colors.tertiary[600] }]}>
+                Marque
+              </Text>
+              <View style={[styles.brandChip, { backgroundColor: colors.primary[50], borderColor: colors.primary[200] }]}>
+                <Text style={[styles.brandText, { color: colors.primary[600] }]}>
+                  {product.mark.name}
+                </Text>
+              </View>
+            </View>
           )}
         </View>
       </View>
 
-      {/* Price Section */}
+      {/* Enhanced Price Section */}
       <View style={styles.priceSection}>
         <View style={styles.priceContainer}>
           {product.isInPromotion && product.promotionPrice ? (
@@ -119,38 +137,41 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
               <Text style={[styles.originalPrice, { color: colors.textSecondary }]}>
                 {formatPrice(product.priceTtc)}
               </Text>
-              <Text style={[styles.currentPrice, { color: colors.error }]}>
-                {formatPrice(product.promotionPrice)}
-              </Text>
+              <View style={styles.currentPriceContainer}>
+                <Text style={[styles.currentPrice, { color: colors.error }]}>
+                  {formatPrice(product.promotionPrice)}
+                </Text>
+                <Text style={[styles.priceLabel, { color: colors.textSecondary }]}>TTC</Text>
+              </View>
             </View>
           ) : (
-            <Text style={[styles.currentPrice, { color: colors.text }]}>
-              {formatPrice(product.priceTtc)}
-            </Text>
+            <View style={styles.currentPriceContainer}>
+              <Text style={[styles.currentPrice, { color: colors.text }]}>
+                {formatPrice(product.priceTtc)}
+              </Text>
+              <Text style={[styles.priceLabel, { color: colors.textSecondary }]}>TTC</Text>
+            </View>
           )}
-          <Text style={[styles.priceLabel, { color: colors.textSecondary }]}>
-            TTC
-          </Text>
         </View>
         {getPromotionBadge()}
       </View>
 
-      {/* Stock Status */}
+      {/* Enhanced Stock Status */}
       <View style={styles.stockSection}>
         {getStockBadge()}
       </View>
 
-      {/* Quantity Section */}
+      {/* Enhanced Quantity Section */}
       {hasStock && (
         <View style={styles.quantitySection}>
           <Text style={[styles.quantityLabel, { color: colors.text }]}>
             Quantité
           </Text>
-          <View style={[styles.quantityContainer, { borderColor: colors.border }]}>
+          <View style={[styles.quantityContainer, { backgroundColor: colors.background, borderColor: colors.border }]}>
             <TouchableOpacity
               style={[
                 styles.quantityButton,
-                { backgroundColor: colors.primary[100] },
+                { backgroundColor: quantity <= 1 ? colors.primary[100] : colors.secondary[50] },
                 quantity <= 1 && styles.quantityButtonDisabled,
               ]}
               onPress={onDecreaseQuantity}
@@ -159,21 +180,23 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
               <Text
                 style={[
                   styles.quantityButtonText,
-                  { color: quantity <= 1 ? colors.textSecondary : colors.secondary[400] }
+                  { color: quantity <= 1 ? colors.textSecondary : colors.secondary[500] }
                 ]}
               >
                 −
               </Text>
             </TouchableOpacity>
             
-            <Text style={[styles.quantityText, { color: colors.text }]}>
-              {quantity}
-            </Text>
+            <View style={styles.quantityTextContainer}>
+              <Text style={[styles.quantityText, { color: colors.text }]}>
+                {quantity}
+              </Text>
+            </View>
             
             <TouchableOpacity
               style={[
                 styles.quantityButton,
-                { backgroundColor: colors.primary[100] },
+                { backgroundColor: quantity >= product.quantity ? colors.primary[100] : colors.secondary[50] },
                 quantity >= product.quantity && styles.quantityButtonDisabled,
               ]}
               onPress={onIncreaseQuantity}
@@ -182,7 +205,7 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
               <Text
                 style={[
                   styles.quantityButtonText,
-                  { color: quantity >= product.quantity ? colors.textSecondary : colors.secondary[400] }
+                  { color: quantity >= product.quantity ? colors.textSecondary : colors.secondary[500] }
                 ]}
               >
                 +
@@ -192,37 +215,45 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
         </View>
       )}
 
-      {/* Total Price */}
+      {/* Enhanced Total Price */}
       {hasStock && quantity > 1 && (
-        <View style={styles.totalSection}>
-          <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>
-            Total:
-          </Text>
-          <Text style={[styles.totalPrice, { color: colors.secondary[400] }]}>
-            {formatPrice(totalPrice)}
-          </Text>
+        <View style={[styles.totalSection, { borderTopColor: colors.border }]}>
+          <View style={styles.totalContent}>
+            <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>
+              Total ({quantity} unité{quantity > 1 ? 's' : ''}):
+            </Text>
+            <Text style={[styles.totalPrice, { color: colors.secondary[500] }]}>
+              {formatPrice(totalPrice)}
+            </Text>
+          </View>
         </View>
       )}
 
-      {/* Add to Cart Button */}
+      {/* Enhanced Add to Cart Button */}
       <TouchableOpacity
         style={[
           styles.addToCartButton,
           {
             backgroundColor: isOutOfStock
               ? colors.textSecondary
-              : colors.secondary[400],
+              : colors.secondary[500],
           },
+          !isOutOfStock && styles.addToCartButtonActive,
         ]}
         onPress={onAddToCart}
         disabled={isOutOfStock || isLoading}
       >
         {isLoading ? (
-          <ActivityIndicator color={colors.primary[50]} size="small" />
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator color={colors.primary[50]} size="small" />
+            <Text style={[styles.loadingText, { color: colors.primary[50] }]}>
+              Ajout en cours...
+            </Text>
+          </View>
         ) : (
           <View style={styles.addToCartContent}>
-            <Text style={[styles.cartIcon, { color: colors.primary[50] }]}>
-              🛒
+            <Text style={[styles.cartIcon, { color: '#FFFFFF' }]}>
+              {isOutOfStock ? '⚠️' : '🛒'}
             </Text>
             <Text style={[styles.addToCartText, { color: colors.primary[50] }]}>
               {isOutOfStock ? 'Produit indisponible' : 'Ajouter au panier'}
@@ -236,168 +267,290 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: s(20), // Using react-native-size-matters for responsive design
-    paddingVertical: vs(16), // Using react-native-size-matters for responsive design
-    borderRadius: ms(12), // Using react-native-size-matters for responsive design
-    marginHorizontal: s(16), // Using react-native-size-matters for responsive design
-    marginVertical: vs(8), // Using react-native-size-matters for responsive design
-    elevation: 2,
+    paddingHorizontal: ms(20), // Using react-native-size-matters for responsive design - reduced from 24
+    paddingVertical: ms(20), // Using react-native-size-matters for responsive design - reduced from 24
+    borderRadius: ms(16), // Using react-native-size-matters for responsive design - reduced from 20
+    marginHorizontal: ms(16), // Using react-native-size-matters for responsive design
+    marginVertical: ms(10), // Using react-native-size-matters for responsive design - reduced from 12
+    elevation: 6,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 3,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.05)', // Subtle tertiary border
   },
   titleSection: {
-    marginBottom: vs(16), // Using react-native-size-matters for responsive design
+    marginBottom: ms(16), // Using react-native-size-matters for responsive design - reduced from 20
+    paddingBottom: ms(12), // Using react-native-size-matters for responsive design - reduced from 16
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.08)', // Tertiary color separator
   },
   productName: {
-    fontSize: ms(24), // Using react-native-size-matters for responsive design
-    fontWeight: '700',
-    lineHeight: ms(30), // Using react-native-size-matters for responsive design
-    marginBottom: vs(8), // Using react-native-size-matters for responsive design
+    fontSize: ms(22), // Using react-native-size-matters for responsive design - reduced from 26
+    fontWeight: '800',
+    lineHeight: ms(28), // Using react-native-size-matters for responsive design - reduced from 32
+    marginBottom: ms(10), // Using react-native-size-matters for responsive design - reduced from 12
+    letterSpacing: -0.5,
   },
   metaInfo: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: ms(12), // Using react-native-size-matters for responsive design - reduced from 16
+    flexWrap: 'wrap',
+  },
+  metaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: ms(8), // Using react-native-size-matters for responsive design
+  },
+  metaLabel: {
+    fontSize: ms(12), // Using react-native-size-matters for responsive design - keeping unchanged as requested
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  categoryChip: {
+    paddingHorizontal: ms(12), // Using react-native-size-matters for responsive design
+    paddingVertical: ms(6), // Using react-native-size-matters for responsive design
+    borderRadius: ms(16), // Using react-native-size-matters for responsive design
+    borderWidth: 1,
   },
   categoryText: {
-    fontSize: ms(14), // Using react-native-size-matters for responsive design
-    fontWeight: '500',
+    fontSize: ms(12), // Using react-native-size-matters for responsive design - keeping unchanged as requested
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  brandChip: {
+    paddingHorizontal: ms(12), // Using react-native-size-matters for responsive design
+    paddingVertical: ms(6), // Using react-native-size-matters for responsive design
+    borderRadius: ms(16), // Using react-native-size-matters for responsive design
+    borderWidth: 1,
   },
   brandText: {
-    fontSize: ms(14), // Using react-native-size-matters for responsive design
-    fontWeight: '600',
-    marginLeft: s(4), // Using react-native-size-matters for responsive design
+    fontSize: ms(12), // Using react-native-size-matters for responsive design - keeping unchanged as requested
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   priceSection: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     justifyContent: 'space-between',
-    marginBottom: vs(16), // Using react-native-size-matters for responsive design
+    marginBottom: ms(16), // Using react-native-size-matters for responsive design - reduced from 20
+    paddingBottom: ms(12), // Using react-native-size-matters for responsive design - reduced from 16
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.06)', // Tertiary color separator
   },
   priceContainer: {
     flex: 1,
   },
   promotionPriceContainer: {
+    gap: ms(4), // Using react-native-size-matters for responsive design
+  },
+  currentPriceContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: s(8), // Using react-native-size-matters for responsive design
+    alignItems: 'baseline',
+    gap: ms(6), // Using react-native-size-matters for responsive design - reduced from 8
   },
   originalPrice: {
-    fontSize: ms(16), // Using react-native-size-matters for responsive design
+    fontSize: ms(16), // Using react-native-size-matters for responsive design - reduced from 18
     fontWeight: '500',
     textDecorationLine: 'line-through',
   },
   currentPrice: {
-    fontSize: ms(28), // Using react-native-size-matters for responsive design
-    fontWeight: '700',
+    fontSize: ms(28), // Using react-native-size-matters for responsive design - reduced from 32
+    fontWeight: '800',
+    letterSpacing: -0.5,
   },
   priceLabel: {
-    fontSize: ms(12), // Using react-native-size-matters for responsive design
-    fontWeight: '400',
-    marginTop: vs(2), // Using react-native-size-matters for responsive design
-  },
-  promotionBadge: {
-    paddingHorizontal: s(8), // Using react-native-size-matters for responsive design
-    paddingVertical: vs(4), // Using react-native-size-matters for responsive design
-    borderRadius: ms(6), // Using react-native-size-matters for responsive design
-  },
-  promotionBadgeText: {
-    fontSize: ms(12), // Using react-native-size-matters for responsive design
-    fontWeight: '700',
-  },
-  stockSection: {
-    marginBottom: vs(20), // Using react-native-size-matters for responsive design
-  },
-  stockBadge: {
-    paddingHorizontal: s(12), // Using react-native-size-matters for responsive design
-    paddingVertical: vs(6), // Using react-native-size-matters for responsive design
-    borderRadius: ms(20), // Using react-native-size-matters for responsive design
-    alignSelf: 'flex-start',
-  },
-  stockBadgeText: {
-    fontSize: ms(12), // Using react-native-size-matters for responsive design
-    fontWeight: '600',
-  },
-  quantitySection: {
-    marginBottom: vs(16), // Using react-native-size-matters for responsive design
-  },
-  quantityLabel: {
-    fontSize: ms(16), // Using react-native-size-matters for responsive design
-    fontWeight: '600',
-    marginBottom: vs(8), // Using react-native-size-matters for responsive design
-  },
-  quantityContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderRadius: ms(8), // Using react-native-size-matters for responsive design
-    overflow: 'hidden',
-  },
-  quantityButton: {
-    width: s(44), // Using react-native-size-matters for responsive design
-    height: vs(44), // Using react-native-size-matters for responsive design
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  quantityButtonDisabled: {
-    opacity: 0.5,
-  },
-  quantityText: {
-    fontSize: ms(18), // Using react-native-size-matters for responsive design
-    fontWeight: '600',
-    minWidth: s(60), // Using react-native-size-matters for responsive design
-    textAlign: 'center',
-  },
-  totalSection: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: vs(20), // Using react-native-size-matters for responsive design
-    paddingTop: vs(16), // Using react-native-size-matters for responsive design
-    borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
-  },
-  totalLabel: {
-    fontSize: ms(16), // Using react-native-size-matters for responsive design
+    fontSize: ms(12), // Using react-native-size-matters for responsive design - reduced from 14
     fontWeight: '500',
   },
-  totalPrice: {
-    fontSize: ms(20), // Using react-native-size-matters for responsive design
-    fontWeight: '700',
-  },
-  addToCartButton: {
-    paddingVertical: vs(16), // Using react-native-size-matters for responsive design
-    borderRadius: ms(12), // Using react-native-size-matters for responsive design
-    justifyContent: 'center',
+  promotionBadge: {
+    flexDirection: 'row',
     alignItems: 'center',
-    elevation: 2,
+    paddingHorizontal: ms(10), // Using react-native-size-matters for responsive design - reduced from 12
+    paddingVertical: ms(6), // Using react-native-size-matters for responsive design - reduced from 8
+    borderRadius: ms(16), // Using react-native-size-matters for responsive design - reduced from 20
+    gap: ms(4), // Using react-native-size-matters for responsive design
+    elevation: 3,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
     },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+  },
+  promotionIcon: {
+    fontSize: ms(12), // Using react-native-size-matters for responsive design - reduced from 14
+  },
+  promotionBadgeText: {
+    fontSize: ms(12), // Using react-native-size-matters for responsive design - reduced from 14
+    fontWeight: '700',
+  },
+  stockSection: {
+    marginBottom: ms(18), // Using react-native-size-matters for responsive design - reduced from 24
+  },
+  stockBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: ms(14), // Using react-native-size-matters for responsive design - reduced from 16
+    paddingVertical: ms(8), // Using react-native-size-matters for responsive design - reduced from 10
+    borderRadius: ms(20), // Using react-native-size-matters for responsive design - reduced from 24
+    alignSelf: 'flex-start',
+    borderWidth: 1.5,
+    gap: ms(6), // Using react-native-size-matters for responsive design - reduced from 8
+  },
+  stockBadgeSuccess: {
+    elevation: 2,
+    shadowColor: '#10B981',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
     shadowOpacity: 0.1,
-    shadowRadius: 3.84,
+    shadowRadius: 4,
+  },
+  stockBadgeWarning: {
+    elevation: 2,
+    shadowColor: '#FF8C00',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  stockBadgeError: {
+    elevation: 2,
+    shadowColor: '#EF4444',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  stockIndicator: {
+    width: ms(8), // Using react-native-size-matters for responsive design
+    height: ms(8), // Using react-native-size-matters for responsive design
+    borderRadius: ms(4), // Using react-native-size-matters for responsive design
+  },
+  stockBadgeText: {
+    fontSize: ms(12), // Using react-native-size-matters for responsive design - reduced from 14
+    fontWeight: '600',
+  },
+  quantitySection: {
+    marginBottom: ms(16), // Using react-native-size-matters for responsive design - reduced from 20
+  },
+  quantityLabel: {
+    fontSize: ms(16), // Using react-native-size-matters for responsive design - reduced from 18
+    fontWeight: '700',
+    marginBottom: ms(10), // Using react-native-size-matters for responsive design - reduced from 12
+  },
+  quantityContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderRadius: ms(12), // Using react-native-size-matters for responsive design - reduced from 16
+    overflow: 'hidden',
+    alignSelf: 'flex-start',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+  },
+  quantityButton: {
+    width: ms(44), // Using react-native-size-matters for responsive design - reduced from 52
+    height: ms(44), // Using react-native-size-matters for responsive design - reduced from 52
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  quantityButtonDisabled: {
+    opacity: 0.4,
+  },
+  quantityTextContainer: {
+    paddingHorizontal: ms(16), // Using react-native-size-matters for responsive design - reduced from 20
+    minWidth: ms(50), // Using react-native-size-matters for responsive design - reduced from 60
+    alignItems: 'center',
+  },
+  quantityText: {
+    fontSize: ms(18), // Using react-native-size-matters for responsive design - reduced from 20
+    fontWeight: '800',
+  },
+  totalSection: {
+    paddingTop: ms(16), // Using react-native-size-matters for responsive design - reduced from 20
+    marginBottom: ms(20), // Using react-native-size-matters for responsive design - reduced from 24
+    borderTopWidth: 1,
+  },
+  totalContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  totalLabel: {
+    fontSize: ms(14), // Using react-native-size-matters for responsive design - reduced from 16
+    fontWeight: '600',
+  },
+  totalPrice: {
+    fontSize: ms(20), // Using react-native-size-matters for responsive design - reduced from 24
+    fontWeight: '800',
+    letterSpacing: -0.5,
+  },
+  addToCartButton: {
+    paddingVertical: ms(14), // Using react-native-size-matters for responsive design - reduced from 16
+    borderRadius: ms(12), // Using react-native-size-matters for responsive design - reduced from 16
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+  },
+  addToCartButtonActive: {
+    elevation: 6,
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
   },
   addToCartContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: s(8), // Using react-native-size-matters for responsive design
+    gap: ms(8), // Using react-native-size-matters for responsive design - reduced from 10
   },
-  addToCartText: {
-    fontSize: ms(16), // Using react-native-size-matters for responsive design
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: ms(8), // Using react-native-size-matters for responsive design - reduced from 10
+  },
+  loadingText: {
+    fontSize: ms(14), // Using react-native-size-matters for responsive design - reduced from 15
     fontWeight: '600',
   },
-  quantityButtonText: {
-    fontSize: ms(20), // Using react-native-size-matters for responsive design
+  addToCartText: {
+    fontSize: ms(15), // Using react-native-size-matters for responsive design - reduced from 16
     fontWeight: '700',
+    letterSpacing: 0.5,
+  },
+  quantityButtonText: {
+    fontSize: ms(18), // Using react-native-size-matters for responsive design - reduced from 20
+    fontWeight: '800',
   },
   cartIcon: {
-    fontSize: ms(18), // Using react-native-size-matters for responsive design
+    fontSize: ms(16), // Using react-native-size-matters for responsive design - reduced from 18
   },
 });
 

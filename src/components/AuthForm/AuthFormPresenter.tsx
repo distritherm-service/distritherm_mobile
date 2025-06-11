@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   scrollContent: {
-    paddingBottom: ms(80),
+    paddingBottom: ms(30),
     paddingTop: ms(20), // Espace pour le bouton sticky
   },
   scrollContentWithInlineFooter: {

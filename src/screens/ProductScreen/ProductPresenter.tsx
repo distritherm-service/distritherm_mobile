@@ -27,38 +27,80 @@ const ProductPresenter: React.FC<ProductPresenterProps> = ({
   onBack,
 }) => {
   const colors = useColors();
-  
-  // Loading state UI
+
+  // Enhanced loading state UI with tertiary colors
   if (loading) {
     return (
       <PageContainer
+        bottomBar={false}
         headerBack={true}
         headerTitle="Chargement..."
         onCustomBack={onBack}
         titleLeft={true}
         isScrollable={true}
       >
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.secondary[500]} />
+        <View
+          style={[
+            styles.loadingContainer,
+            { backgroundColor: colors.background },
+          ]}
+        >
+          <View
+            style={[
+              styles.loadingCard,
+              {
+                backgroundColor: colors.surface,
+                borderColor: colors.tertiary[100],
+              },
+            ]}
+          >
+            <View
+              style={[
+                styles.loadingIconContainer,
+                {
+                  backgroundColor: colors.secondary[50],
+                  borderColor: colors.tertiary[200],
+                },
+              ]}
+            >
+              <ActivityIndicator size="large" color={colors.secondary[500]} />
+            </View>
+            <Text style={[styles.loadingTitle, { color: colors.text }]}>
+              Chargement du produit...
+            </Text>
+            <Text
+              style={[styles.loadingSubtitle, { color: colors.tertiary[600] }]}
+            >
+              Veuillez patienter quelques instants
+            </Text>
+          </View>
         </View>
       </PageContainer>
     );
   }
 
-  // Main content when data is loaded
-
+  // Main content when data is loaded with enhanced styling
   return (
     <PageContainer
+      bottomBar={false}
       headerBack={true}
       headerTitle={product?.name || "Détail du produit"}
       onCustomBack={onBack}
       titleLeft={true}
       isScrollable={true}
     >
-      <View style={styles.container}>
-        <ProductImages images={fakeImages} />
-        {product && <ProductMainInfo product={product} />}
-        {product && <ProductDescription product={product} />}
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        {/* Enhanced content wrapper with subtle tertiary styling */}
+        <View style={styles.contentWrapper}>
+          <ProductImages images={fakeImages} />
+          {product && <ProductMainInfo product={product} />}
+          {product && <ProductDescription product={product} />}
+        </View>
+
+        {/* Enhanced bottom spacing with subtle gradient effect */}
+        <View
+          style={[styles.bottomSpacer, { backgroundColor: colors.background }]}
+        />
       </View>
     </PageContainer>
   );
@@ -69,10 +111,54 @@ export default ProductPresenter;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingVertical: ms(8), // Using react-native-size-matters for responsive design
+  },
+  contentWrapper: {
+    position: "relative",
   },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: ms(24), // Using react-native-size-matters for responsive design
+    paddingVertical: ms(40), // Using react-native-size-matters for responsive design
+  },
+  loadingCard: {
+    paddingHorizontal: ms(32), // Using react-native-size-matters for responsive design
+    paddingVertical: ms(40), // Using react-native-size-matters for responsive design
+    borderRadius: ms(24), // Using react-native-size-matters for responsive design
+    alignItems: "center",
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    maxWidth: ms(320), // Using react-native-size-matters for responsive design
+    width: "100%",
+    borderWidth: 1,
+  },
+  loadingIconContainer: {
+    marginBottom: ms(24), // Using react-native-size-matters for responsive design
+    padding: ms(16), // Using react-native-size-matters for responsive design
+    borderRadius: ms(50), // Using react-native-size-matters for responsive design
+    borderWidth: 1,
+  },
+  loadingTitle: {
+    fontSize: ms(20), // Using react-native-size-matters for responsive design
+    fontWeight: "700",
+    textAlign: "center",
+    marginBottom: ms(8), // Using react-native-size-matters for responsive design
+  },
+  loadingSubtitle: {
+    fontSize: ms(14), // Using react-native-size-matters for responsive design
+    fontWeight: "500",
+    textAlign: "center",
+    lineHeight: ms(20), // Using react-native-size-matters for responsive design
+  },
+  bottomSpacer: {
+    height: ms(24), // Using react-native-size-matters for responsive design
   },
 });

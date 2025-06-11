@@ -77,10 +77,14 @@ const productsService = {
   findAll: async (paginationDto?: PaginationDto): Promise<any> => {
     try {
       const params = new URLSearchParams();
-      if (paginationDto?.page) params.append('page', paginationDto.page.toString());
-      if (paginationDto?.limit) params.append('limit', paginationDto.limit.toString());
-      
-      const response = await api.get(`/products${params.toString() ? '?' + params.toString() : ''}`);
+      if (paginationDto?.page)
+        params.append("page", paginationDto.page.toString());
+      if (paginationDto?.limit)
+        params.append("limit", paginationDto.limit.toString());
+
+      const response = await api.get(
+        `/products${params.toString() ? "?" + params.toString() : ""}`
+      );
       return await response.data;
     } catch (error) {
       throw error;
@@ -88,13 +92,18 @@ const productsService = {
   },
 
   // GET /products/search - Rechercher des produits par terme de recherche
-  search: async (query: string, paginationDto?: PaginationDto): Promise<any> => {
+  search: async (
+    query: string,
+    paginationDto?: PaginationDto
+  ): Promise<any> => {
     try {
       const params = new URLSearchParams();
-      params.append('q', query);
-      if (paginationDto?.page) params.append('page', paginationDto.page.toString());
-      if (paginationDto?.limit) params.append('limit', paginationDto.limit.toString());
-      
+      params.append("q", query);
+      if (paginationDto?.page)
+        params.append("page", paginationDto.page.toString());
+      if (paginationDto?.limit)
+        params.append("limit", paginationDto.limit.toString());
+
       const response = await api.get(`/products/search?${params.toString()}`);
       return await response.data;
     } catch (error) {
@@ -113,13 +122,22 @@ const productsService = {
   },
 
   // GET /products/category/:id - Récupérer les produits par catégorie
-  getProductsByCategory: async (categoryId: number, paginationDto?: PaginationDto): Promise<any> => {
+  getProductsByCategory: async (
+    categoryId: number,
+    paginationDto?: PaginationDto
+  ): Promise<any> => {
     try {
       const params = new URLSearchParams();
-      if (paginationDto?.page) params.append('page', paginationDto.page.toString());
-      if (paginationDto?.limit) params.append('limit', paginationDto.limit.toString());
-      
-      const response = await api.get(`/products/category/${categoryId}${params.toString() ? '?' + params.toString() : ''}`);
+      if (paginationDto?.page)
+        params.append("page", paginationDto.page.toString());
+      if (paginationDto?.limit)
+        params.append("limit", paginationDto.limit.toString());
+
+      const response = await api.get(
+        `/products/category/${categoryId}${
+          params.toString() ? "?" + params.toString() : ""
+        }`
+      );
       return await response.data;
     } catch (error) {
       throw error;
@@ -127,13 +145,22 @@ const productsService = {
   },
 
   // GET /products/mark/:id - Récupérer les produits par marque
-  getProductsByMark: async (markId: number, paginationDto?: PaginationDto): Promise<any> => {
+  getProductsByMark: async (
+    markId: number,
+    paginationDto?: PaginationDto
+  ): Promise<any> => {
     try {
       const params = new URLSearchParams();
-      if (paginationDto?.page) params.append('page', paginationDto.page.toString());
-      if (paginationDto?.limit) params.append('limit', paginationDto.limit.toString());
-      
-      const response = await api.get(`/products/mark/${markId}${params.toString() ? '?' + params.toString() : ''}`);
+      if (paginationDto?.page)
+        params.append("page", paginationDto.page.toString());
+      if (paginationDto?.limit)
+        params.append("limit", paginationDto.limit.toString());
+
+      const response = await api.get(
+        `/products/mark/${markId}${
+          params.toString() ? "?" + params.toString() : ""
+        }`
+      );
       return await response.data;
     } catch (error) {
       throw error;
@@ -141,13 +168,22 @@ const productsService = {
   },
 
   // GET /products/agency/:id - Récupérer les produits par agence (nécessite authentification)
-  getProductsByAgency: async (agencyId: number, paginationDto?: PaginationDto): Promise<any> => {
+  getProductsByAgency: async (
+    agencyId: number,
+    paginationDto?: PaginationDto
+  ): Promise<any> => {
     try {
       const params = new URLSearchParams();
-      if (paginationDto?.page) params.append('page', paginationDto.page.toString());
-      if (paginationDto?.limit) params.append('limit', paginationDto.limit.toString());
-      
-      const response = await api.get(`/products/agency/${agencyId}${params.toString() ? '?' + params.toString() : ''}`);
+      if (paginationDto?.page)
+        params.append("page", paginationDto.page.toString());
+      if (paginationDto?.limit)
+        params.append("limit", paginationDto.limit.toString());
+
+      const response = await api.get(
+        `/products/agency/${agencyId}${
+          params.toString() ? "?" + params.toString() : ""
+        }`
+      );
       return await response.data;
     } catch (error) {
       throw error;
@@ -155,13 +191,21 @@ const productsService = {
   },
 
   // GET /products/promotions - Récupérer les produits en promotion
-  getProductsWithPromotions: async (paginationDto?: PaginationDto): Promise<any> => {
+  getProductsWithPromotions: async (
+    paginationDto?: PaginationDto
+  ): Promise<any> => {
     try {
       const params = new URLSearchParams();
-      if (paginationDto?.page) params.append('page', paginationDto.page.toString());
-      if (paginationDto?.limit) params.append('limit', paginationDto.limit.toString());
-      
-      const response = await api.get(`/products/promotions${params.toString() ? '?' + params.toString() : ''}`);
+      if (paginationDto?.page)
+        params.append("page", paginationDto.page.toString());
+      if (paginationDto?.limit)
+        params.append("limit", paginationDto.limit.toString());
+
+      const response = await api.get(
+        `/products/promotions${
+          params.toString() ? "?" + params.toString() : ""
+        }`
+      );
       return await response.data;
     } catch (error) {
       throw error;
@@ -169,14 +213,21 @@ const productsService = {
   },
 
   // GET /products/promotions/expiring-soon - Récupérer les produits avec promotions expirant bientôt
-  getProductsExpiringSoon: async (days: number = 7, paginationDto?: PaginationDto): Promise<any> => {
+  getProductsExpiringSoon: async (
+    days: number = 7,
+    paginationDto?: PaginationDto
+  ): Promise<any> => {
     try {
       const params = new URLSearchParams();
-      params.append('days', days.toString());
-      if (paginationDto?.page) params.append('page', paginationDto.page.toString());
-      if (paginationDto?.limit) params.append('limit', paginationDto.limit.toString());
-      
-      const response = await api.get(`/products/promotions/expiring-soon?${params.toString()}`);
+      params.append("days", days.toString());
+      if (paginationDto?.page)
+        params.append("page", paginationDto.page.toString());
+      if (paginationDto?.limit)
+        params.append("limit", paginationDto.limit.toString());
+
+      const response = await api.get(
+        `/products/promotions/expiring-soon?${params.toString()}`
+      );
       return await response.data;
     } catch (error) {
       throw error;
@@ -184,17 +235,24 @@ const productsService = {
   },
 
   // GET /products/recommendations - Récupérer les produits recommandés
-  getRecommendedProducts: async (excludedIds?: number[], paginationDto?: PaginationDto): Promise<any> => {
+  getRecommendedProducts: async (
+    excludedIds?: number[],
+    paginationDto?: PaginationDto
+  ): Promise<any> => {
     try {
       const params = new URLSearchParams();
       if (excludedIds && excludedIds.length > 0) {
-        params.append('excludedIds', excludedIds.join(','));
+        params.append("excludedIds", excludedIds.join(","));
       }
-      if (paginationDto?.page) params.append('page', paginationDto.page.toString());
-      if (paginationDto?.limit) params.append('limit', paginationDto.limit.toString());
-      
+      if (paginationDto?.page)
+        params.append("page", paginationDto.page.toString());
+      if (paginationDto?.limit)
+        params.append("limit", paginationDto.limit.toString());
+
       const queryString = params.toString();
-      const response = await api.get(`/products/recommendations${queryString ? '?' + queryString : ''}`);
+      const response = await api.get(
+        `/products/recommendations${queryString ? "?" + queryString : ""}`
+      );
       return await response.data;
     } catch (error) {
       throw error;
@@ -205,6 +263,7 @@ const productsService = {
   findOne: async (id: number): Promise<any> => {
     try {
       const response = await api.get(`/products/${id}`);
+      console.log(response.data);
       return await response.data;
     } catch (error) {
       throw error;
@@ -232,4 +291,4 @@ const productsService = {
   },
 };
 
-export default productsService; 
+export default productsService;

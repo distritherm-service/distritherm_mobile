@@ -110,10 +110,12 @@ const styles = StyleSheet.create({
   backButton: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: ms(6),
+    paddingHorizontal: ms(8),
+    paddingVertical: 0,
     borderRadius: ms(8),
     height: "100%",
     justifyContent: "center",
+    minHeight: ms(50),
   },
   buttonPressed: {
     backgroundColor: `${colors.secondary[400]}15`,

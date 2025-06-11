@@ -23,6 +23,7 @@ const Product = ({ route }: ProductProps) => {
       try {
         setLoading(true);
         const response = await productsService.findOne(productId);
+        console.log(response.product);
         setProduct(response.product);
       } catch (error) {
         console.log("Error fetching product:", error);

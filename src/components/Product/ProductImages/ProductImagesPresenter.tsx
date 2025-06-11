@@ -11,7 +11,7 @@ import {
   NativeScrollEvent,
   NativeSyntheticEvent
 } from "react-native";
-import { ms, s, vs } from "react-native-size-matters"; // Using react-native-size-matters for responsive design
+import { ms } from "react-native-size-matters"; // Using react-native-size-matters for responsive design
 
 interface ProductImagesPresenterProps {
   images: string[];
@@ -85,7 +85,7 @@ const ProductImagesPresenter: React.FC<ProductImagesPresenterProps> = memo(({
             <Image
               source={{ uri: item }}
               style={styles.image}
-              resizeMode="cover"
+              resizeMode="stretch"
               onLoadStart={() => onImageLoadStart(index)}
               onLoad={() => onImageLoad(index)}
               onError={() => onImageError(index)}
@@ -182,30 +182,31 @@ export default ProductImagesPresenter;
 
 const styles = StyleSheet.create({
   container: {
-    height: vs(320), // Slightly increased height for better visual impact
-    backgroundColor: '#ffffff',
-    borderRadius: ms(16), // More rounded corners for modern look
+    height: ms(350), // Increased height for better visual impact
+    backgroundColor: 'transparent', // Remove background for cleaner look
+    borderRadius: ms(16),
     overflow: 'hidden',
+    marginBottom: ms(16), // Add spacing from next component
   },
   imageSlide: {
     width: screenWidth,
-    height: vs(320),
-    paddingHorizontal: ms(4), // Small padding for better visual separation
+    height: ms(350),
   },
   imageContainer: {
     flex: 1,
-    borderRadius: ms(12),
+    borderRadius: ms(16), // Increased border radius for modern look
     overflow: 'hidden',
   },
   imageWrapper: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: 'transparent', // Remove background to show actual image
     justifyContent: 'center',
     alignItems: 'center',
   },
   image: {
     width: '100%',
     height: '100%',
+    borderRadius: ms(16),
   },
   loadingContainer: {
     position: 'absolute',
@@ -215,11 +216,12 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(248, 249, 250, 0.95)',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)', // Light background for loading
     zIndex: 1,
+    borderRadius: ms(16),
   },
   loadingText: {
-    marginTop: vs(12),
+    marginTop: ms(12),
     fontSize: ms(14),
     color: '#6c757d',
     fontWeight: '500',
@@ -234,17 +236,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#f8f9fa',
     zIndex: 1,
+    borderRadius: ms(16),
   },
   errorIcon: {
     fontSize: ms(48),
-    marginBottom: vs(12),
+    marginBottom: ms(12),
   },
   errorText: {
     fontSize: ms(16),
     color: '#dc3545',
     textAlign: 'center',
     fontWeight: '600',
-    marginBottom: vs(4),
+    marginBottom: ms(4),
   },
   retryText: {
     fontSize: ms(12),
@@ -253,54 +256,55 @@ const styles = StyleSheet.create({
   },
   indicatorContainer: {
     position: 'absolute',
-    bottom: vs(20),
+    bottom: ms(24),
     left: 0,
     right: 0,
     alignItems: 'center',
   },
   indicatorWrapper: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    paddingHorizontal: s(8),
-    paddingVertical: vs(5),
-    borderRadius: ms(16),
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    paddingHorizontal: ms(12),
+    paddingVertical: ms(6),
+    borderRadius: ms(20),
   },
   indicator: {
-    width: ms(6),
-    height: ms(6),
-    borderRadius: ms(3),
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
-    marginHorizontal: s(3),
+    width: ms(8),
+    height: ms(8),
+    borderRadius: ms(4),
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    marginHorizontal: ms(4),
   },
   activeIndicator: {
     backgroundColor: '#ffffff',
-    width: ms(18), // Smaller elongated active indicator
+    width: ms(24), // Elongated active indicator
     transform: [{ scale: 1 }],
   },
   counterContainer: {
     position: 'absolute',
-    top: vs(16),
-    right: s(16),
+    top: ms(20),
+    right: ms(20),
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    paddingHorizontal: s(8),
-    paddingVertical: vs(4),
-    borderRadius: ms(12),
+    paddingHorizontal: ms(12),
+    paddingVertical: ms(6),
+    borderRadius: ms(16),
   },
   counterText: {
     color: '#ffffff',
-    fontSize: ms(11),
+    fontSize: ms(12),
     fontWeight: '600',
   },
   emptyContainer: {
-    height: vs(320),
+    height: ms(350),
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f8f9fa',
     borderRadius: ms(16),
+    marginHorizontal: ms(16),
   },
   emptyIcon: {
     fontSize: ms(64),
-    marginBottom: vs(16),
+    marginBottom: ms(16),
   },
   emptyText: {
     fontSize: ms(18),
