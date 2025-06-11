@@ -8,6 +8,7 @@ interface PageContainerProps {
   headerTitle?: string;
   onCustomBack?: () => void;
   hideBackButton?: boolean;
+  titleLeft?: boolean;
   children: React.ReactNode;
   style?: ViewStyle;
   contentStyle?: ViewStyle;
@@ -20,18 +21,22 @@ const PageContainer: React.FC<PageContainerProps> = ({
   headerTitle,
   onCustomBack,
   hideBackButton = false,
+  titleLeft = false,
   children,
   style,
   contentStyle,
   isScrollable = false,
   bottomBar = true,
 }) => {
+
+
   // Création du composant d'en-tête si nécessaire
   const headerComponent = headerBack ? (
     <BackHeader
       title={headerTitle}
       onCustomBack={onCustomBack}
       hideBackButton={hideBackButton}
+      titleLeft={titleLeft}
     />
   ) : null;
 

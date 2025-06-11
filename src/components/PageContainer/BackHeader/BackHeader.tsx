@@ -1,18 +1,19 @@
 import React from "react";
 import { useNavigation } from "@react-navigation/native";
 import BackHeaderPresenter from "./BackHeaderPresenter";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface BackHeaderProps {
   title?: string;
   onCustomBack?: () => void;
   hideBackButton?: boolean;
+  titleLeft?: boolean;
 }
 
 const BackHeader: React.FC<BackHeaderProps> = ({ 
   title,
   onCustomBack,
-  hideBackButton = false
+  hideBackButton = false,
+  titleLeft = false
 }) => {
   const navigation = useNavigation();
   
@@ -29,6 +30,7 @@ const BackHeader: React.FC<BackHeaderProps> = ({
       title={title}
       onBackPress={handleBackPress}
       hideBackButton={hideBackButton}
+      titleLeft={titleLeft}
     />
   );
 };

@@ -18,9 +18,8 @@ export interface Product {
 /**
  * Interface pour les détails d'un produit
  */
-export interface ProductDetail {
+export interface ProductDetail extends Product {
   itemCode: string;
-  productId: number;
   directorWord1?: string;
   directorWord2?: string;
   designation1?: string;

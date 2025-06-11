@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  Pressable,
-  Platform,
-} from "react-native";
+import { StyleSheet, Text, View, Pressable, Platform } from "react-native";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import { EdgeInsets } from "react-native-safe-area-context";
@@ -16,18 +10,22 @@ interface BackHeaderPresenterProps {
   title?: string;
   onBackPress: () => void;
   hideBackButton?: boolean;
+  titleLeft?: boolean;
 }
 
 const BackHeaderPresenter: React.FC<BackHeaderPresenterProps> = ({
   title,
   onBackPress,
   hideBackButton = false,
+  titleLeft = false,
 }) => {
   return (
     <View style={[styles.container]}>
       <View style={styles.headerContent}>
         {/* Section gauche - Bouton retour */}
-        <View style={styles.leftSection}>
+        <View
+          style={[styles.leftSection, titleLeft && styles.leftSectionExpanded]}
+        >
           {!hideBackButton && (
             <Pressable
               onPress={onBackPress}
@@ -41,30 +39,46 @@ const BackHeaderPresenter: React.FC<BackHeaderPresenterProps> = ({
                 radius: ms(20),
               }}
             >
-              <FontAwesomeIcon 
-                icon={faChevronLeft} 
-                size={ms(16)} 
-                color={colors.secondary[500]} 
+              <FontAwesomeIcon
+                icon={faChevronLeft}
+                size={ms(16)}
+                color={colors.secondary[500]}
               />
               <Text style={styles.backText}>Retour</Text>
             </Pressable>
           )}
+
+          {title && titleLeft && (
+            <View style={styles.titleLeftContainer}>
+              <Text
+                style={[styles.title, styles.titleLeft]}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {title}
+              </Text>
+            </View>
+          )}
         </View>
 
-        {/* Section centrale - Titre */}
-        {title && (
-          <View style={styles.titleContainer}>
-            <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
-              {title}
-            </Text>
+        {/* Section droite - Titre centré (seulement si titleLeft est false) */}
+        {!titleLeft && (
+          <View style={styles.titleSection}>
+            <View style={styles.titleCenteringContainer}>
+              {title && (
+                <Text
+                  style={[styles.title, styles.titleCentered]}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  {title}
+                </Text>
+              )}
+            </View>
+            <View style={styles.titleExtensionSpace} />
           </View>
         )}
-
-        {/* Section droite - Espace vide pour équilibrer */}
-        <View style={styles.rightSection} />
       </View>
-
-      <View style={styles.separator} />
     </View>
   );
 };
@@ -75,13 +89,12 @@ const styles = StyleSheet.create({
   container: {
     width: "100%",
     zIndex: 10,
-    justifyContent: 'center',
+    justifyContent: "center",
     backgroundColor: colors.primary[50],
   },
   headerContent: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
     paddingHorizontal: ms(16),
     height: ms(50),
   },
@@ -91,13 +104,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-start",
   },
+  leftSectionExpanded: {
+    flex: 3,
+  },
   backButton: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: ms(6),
     borderRadius: ms(8),
-    height: '100%', // Prend toute la hauteur disponible
-    justifyContent: 'center', // Centre verticalement
+    height: "100%",
+    justifyContent: "center",
   },
   buttonPressed: {
     backgroundColor: `${colors.secondary[400]}15`,
@@ -108,22 +124,34 @@ const styles = StyleSheet.create({
     color: colors.secondary[500],
     marginLeft: ms(4),
   },
-  titleContainer: {
+  titleSection: {
+    flex: 2,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  titleCenteringContainer: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
   },
-  titleContainerNoBack: {
-    marginLeft: 0,
-  },
-  rightSection: {
+  titleExtensionSpace: {
     flex: 1,
   },
   title: {
     fontSize: ms(16),
     fontWeight: "600",
     color: colors.tertiary[500],
+  },
+  titleCentered: {
     textAlign: "center",
+    width: "100%",
+  },
+  titleLeftContainer: {
+    flex: 1,
+    marginLeft: ms(10),
+  },
+  titleLeft: {
+    textAlign: "left",
   },
   separator: {
     height: ms(1),
