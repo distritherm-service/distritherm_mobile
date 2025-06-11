@@ -4,7 +4,7 @@ import ProductPresenter from "./ProductPresenter";
 import productsService from "../../services/productsService";
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from 'src/navigation/types';
-import { ProductDetail } from "src/types/Product";
+import { ProductDetailDto } from "src/types/Product";
 
 type ProductScreenRouteProp = RouteProp<RootStackParamList, 'Product'>;
 
@@ -15,7 +15,7 @@ interface ProductProps {
 const Product = ({ route }: ProductProps) => {
   const { productId } = route.params;
   const navigation = useNavigation();
-  const [product, setProduct] = useState<ProductDetail | null>(null);
+  const [product, setProduct] = useState<ProductDetailDto | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

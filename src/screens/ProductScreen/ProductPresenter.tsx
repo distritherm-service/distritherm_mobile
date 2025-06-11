@@ -3,12 +3,13 @@ import { StyleSheet, View, ActivityIndicator, Text } from "react-native";
 import { ms } from "react-native-size-matters"; // Using react-native-size-matters for responsive design
 import PageContainer from "src/components/PageContainer/PageContainer";
 import ProductImages from "src/components/Product/ProductImages/ProductImages";
+import ProductMainInfo from "src/components/Product/ProductMainInfo/ProductMainInfo";
+import ProductDescription from "src/components/Product/ProductDescription/ProductDescription";
 import { useColors } from "src/hooks/useColors";
-import { ProductDetail } from "src/types/Product";
-import colors from "src/utils/colors";
+import { ProductDetailDto } from "src/types/Product";
 
 interface ProductPresenterProps {
-  product: ProductDetail | null;
+  product: ProductDetailDto | null;
   loading: boolean;
   onBack: () => void;
 }
@@ -25,6 +26,8 @@ const ProductPresenter: React.FC<ProductPresenterProps> = ({
   loading,
   onBack,
 }) => {
+  const colors = useColors();
+  
   // Loading state UI
   if (loading) {
     return (
@@ -54,6 +57,8 @@ const ProductPresenter: React.FC<ProductPresenterProps> = ({
     >
       <View style={styles.container}>
         <ProductImages images={fakeImages} />
+        {product && <ProductMainInfo product={product} />}
+        {product && <ProductDescription product={product} />}
       </View>
     </PageContainer>
   );
