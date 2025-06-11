@@ -15,7 +15,8 @@ interface ProductPresenterProps {
 
 const fakeImages = [
   "https://www.airchaud-diffusion.fr/medias/images/produits/climatiseur-mobile-split-c15000n-echangeur-deconnectable-inverter-gaz-r32-rexair-re-c15000n-re-c15000n-0d-01450-rsp.jpg?v=1722539071",
-  "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.smbois.com%2Fp%2Fcontreplaque-bouleau-50mm&psig=AOvVaw3Ix6AZ9PGeM6CrvIQ3O9eo&ust=1749723780020000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCICytJST6Y0DFQAAAAAdAAAAABAE",
+  "https://media.gqmagazine.fr/photos/6787a164a446b37cedb84437/16:9/w_2560%2Cc_limit/Renault5.jpg",
+  "https://www.smbois.com/_next/image?url=https%3A%2F%2Fapi.smbois.com%2Fmedia%2Fcatalog%2Fproduct%2Fc%2Fo%2Fcontreplaque-bouleau-50mm.jpg%3Fstore%3Ddefault%26image-type%3Dimage&w=1920&q=52",
   "https://www.fitandrack.com/web/image/product.template/127/image_1024?unique=3668cc9",
 ];
 
@@ -32,6 +33,7 @@ const ProductPresenter: React.FC<ProductPresenterProps> = ({
         headerTitle="Chargement..."
         onCustomBack={onBack}
         titleLeft={true}
+        isScrollable={true}
       >
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.secondary[500]} />
@@ -48,6 +50,7 @@ const ProductPresenter: React.FC<ProductPresenterProps> = ({
       headerTitle={product?.name || "Détail du produit"}
       onCustomBack={onBack}
       titleLeft={true}
+      isScrollable={true}
     >
       <View style={styles.container}>
         <ProductImages images={fakeImages} />
@@ -61,7 +64,6 @@ export default ProductPresenter;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: ms(20),
   },
   loadingContainer: {
     flex: 1,
