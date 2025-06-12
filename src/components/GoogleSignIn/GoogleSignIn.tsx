@@ -276,7 +276,6 @@ const GoogleSignIn: React.FC<GoogleSignInProps> = ({ onSignInError }) => {
       handleGoogleSignIn={handleGoogleSignIn}
       completeInformation={completeInformation}
       setCompleteInformation={setCompleteInformation}
-      // Form props
       control={control}
       errors={errors}
       formRules={formRules}

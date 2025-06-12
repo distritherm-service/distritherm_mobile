@@ -1,8 +1,10 @@
 import axios from "axios";
 import storageService from "src/services/storageService";
 
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_BASE_URL || "http://localhost:3000/api";
+// const API_BASE_URL =
+//   process.env.EXPO_PUBLIC_API_BASE_URL || "http://localhost:3000";
+
+const API_BASE_URL = "http://192.168.1.11:3000";
 
 // Instance globale de l'API
 const api = axios.create({
@@ -31,7 +33,11 @@ api.interceptors.response.use(
   (response: any) => response,
   async (error: any) => {
     const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry && error.response?.data?.message === 'Token invalide ou expiré') {
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      error.response?.data?.message === "Token invalide ou expiré"
+    ) {
       originalRequest._retry = true;
 
       try {

@@ -38,6 +38,27 @@ const ProductDescriptionPresenter: React.FC<
 }) => {
   const colors = useColors();
 
+  // Dynamic styles using colors from useColors hook
+  const dynamicStyles = {
+    container: {
+      backgroundColor: colors.surface,
+      shadowColor: colors.tertiary[800],
+    },
+    tabContainer: {
+      borderBottomColor: colors.border,
+    },
+    contentCard: {
+      backgroundColor: colors.background,
+      shadowColor: colors.tertiary[800],
+    },
+    emptyIconContainer: {
+      shadowColor: colors.tertiary[800],
+    },
+    redirectButton: {
+      shadowColor: colors.tertiary[800],
+    },
+  };
+
   const renderTabSection = (
     tab: "description" | "details",
     label: string,
@@ -87,6 +108,7 @@ const ProductDescriptionPresenter: React.FC<
             style={[
               styles.emptyIconContainer,
               { backgroundColor: colors.secondary[50] },
+              dynamicStyles.emptyIconContainer,
             ]}
           >
             <FontAwesome6
@@ -107,7 +129,8 @@ const ProductDescriptionPresenter: React.FC<
             <TouchableOpacity
               style={[
                 styles.redirectButton,
-                { backgroundColor: colors.secondary[500] }
+                { backgroundColor: colors.secondary[500] },
+                dynamicStyles.redirectButton,
               ]}
               onPress={() => onTabChange('details')}
               activeOpacity={0.8}
@@ -124,7 +147,7 @@ const ProductDescriptionPresenter: React.FC<
     return (
       <View style={styles.descriptionContainer}>
         <View
-          style={[styles.contentCard, { backgroundColor: colors.background }]}
+          style={[styles.contentCard, dynamicStyles.contentCard]}
         >
           <Text style={[styles.descriptionText, { color: colors.text }]}>
             {product.description}
@@ -142,6 +165,7 @@ const ProductDescriptionPresenter: React.FC<
             style={[
               styles.emptyIconContainer,
               { backgroundColor: colors.secondary[50] },
+              dynamicStyles.emptyIconContainer,
             ]}
           >
             <FontAwesome6
@@ -168,7 +192,7 @@ const ProductDescriptionPresenter: React.FC<
         showsVerticalScrollIndicator={false}
       >
         <View
-          style={[styles.contentCard, { backgroundColor: colors.background }]}
+          style={[styles.contentCard, dynamicStyles.contentCard]}
         >
           <View style={styles.detailsList}>
             {productDetails.map((detail, index) => (
@@ -220,12 +244,13 @@ const ProductDescriptionPresenter: React.FC<
   // If neither description nor details are available, show a message
   if (!hasDescription && !hasDetails) {
     return (
-      <View style={[styles.container, { backgroundColor: colors.surface }]}>
+      <View style={[styles.container, dynamicStyles.container]}>
         <View style={styles.emptyState}>
           <View
             style={[
               styles.emptyIconContainer,
               { backgroundColor: colors.secondary[50] },
+              dynamicStyles.emptyIconContainer,
             ]}
           >
             <FontAwesome6
@@ -249,7 +274,7 @@ const ProductDescriptionPresenter: React.FC<
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.surface }]}>
+    <View style={[styles.container, dynamicStyles.container]}>
       {/* Enhanced Section Title */}
       <View style={styles.headerSection}>
         <View style={styles.titleContainer}>
@@ -271,7 +296,7 @@ const ProductDescriptionPresenter: React.FC<
       </View>
 
       {/* Enhanced Tab Navigation */}
-      <View style={styles.tabContainer}>
+      <View style={[styles.tabContainer, dynamicStyles.tabContainer]}>
         {hasDescription && renderTabSection("description", "Description", "file-lines")}
         {hasDetails && renderTabSection("details", "Spécifications", "list")}
       </View>
@@ -288,7 +313,6 @@ const styles = StyleSheet.create({
     marginVertical: ms(10), // Using react-native-size-matters for responsive design - reduced from 12
     borderRadius: ms(16), // Using react-native-size-matters for responsive design - reduced from 20
     elevation: 6,
-    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 3,
@@ -325,7 +349,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: ms(20), // Using react-native-size-matters for responsive design - reduced from 24
     marginBottom: ms(16), // Using react-native-size-matters for responsive design - reduced from 20
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(0, 0, 0, 0.1)",
   },
   tabSection: {
     flex: 1,
@@ -363,7 +386,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: ms(16), // Using react-native-size-matters for responsive design - reduced from 20
     paddingVertical: ms(16), // Using react-native-size-matters for responsive design - reduced from 20
     elevation: 2,
-    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -423,7 +445,6 @@ const styles = StyleSheet.create({
     borderRadius: ms(40), // Using react-native-size-matters for responsive design - reduced from 50
     marginBottom: ms(16), // Using react-native-size-matters for responsive design - reduced from 20
     elevation: 2,
-    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -454,7 +475,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     elevation: 2,
-    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,

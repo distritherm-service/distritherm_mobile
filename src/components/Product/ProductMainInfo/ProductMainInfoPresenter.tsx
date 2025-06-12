@@ -39,6 +39,24 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
 }) => {
   const colors = useColors();
 
+  // Dynamic styles using colors from useColors hook
+  const dynamicStyles = {
+    container: {
+      backgroundColor: colors.surface,
+      borderColor: colors.border,
+      shadowColor: colors.tertiary[800],
+    },
+    titleSectionBorder: {
+      borderBottomColor: colors.border,
+    },
+    priceSectionBorder: {
+      borderBottomColor: colors.border,
+    },
+    quantityContainer: {
+      shadowColor: colors.tertiary[800],
+    },
+  };
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('fr-FR', {
       style: 'currency',
@@ -70,7 +88,7 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
     }
 
     return (
-      <View style={[styles.stockBadge, styles.stockBadgeSuccess, { backgroundColor: colors.success + '15', borderColor: colors.success }]}>
+      <View style={[styles.stockBadge, { backgroundColor: colors.success + '15', borderColor: colors.success }]}>
         <View style={[styles.stockIndicator, { backgroundColor: colors.success }]} />
         <Text style={[styles.stockBadgeText, { color: colors.success }]}>
           En stock ({product.quantity} disponible{product.quantity > 1 ? 's' : ''})
@@ -94,9 +112,9 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.surface }]}>
+    <View style={[styles.container, dynamicStyles.container]}>
       {/* Enhanced Product Title Section */}
-      <View style={styles.titleSection}>
+      <View style={[styles.titleSection, dynamicStyles.titleSectionBorder]}>
         <Text style={[styles.productName, { color: colors.text }]}>
           {product.name}
         </Text>
@@ -131,7 +149,7 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
       </View>
 
       {/* Enhanced Price Section */}
-      <View style={styles.priceSection}>
+      <View style={[styles.priceSection, dynamicStyles.priceSectionBorder]}>
         <View style={styles.priceContainer}>
           {product.isInPromotion && product.promotionPrice ? (
             <View style={styles.promotionPriceContainer}>
@@ -168,7 +186,7 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
           <Text style={[styles.quantityLabel, { color: colors.text }]}>
             Quantité
           </Text>
-          <View style={[styles.quantityContainer, { backgroundColor: colors.background, borderColor: colors.border }]}>
+          <View style={[styles.quantityContainer, { backgroundColor: colors.background, borderColor: colors.border }, dynamicStyles.quantityContainer]}>
             <TouchableOpacity
               style={[
                 styles.quantityButton,
@@ -256,7 +274,7 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
             <FontAwesome6
               name={isOutOfStock ? 'triangle-exclamation' : 'cart-shopping'}
               size={ms(16)}
-              color='#FFFFFF'
+              color={colors.primary[50]}
               style={styles.cartIcon}
             />
             <Text style={[styles.addToCartText, { color: colors.primary[50] }]}>
@@ -277,7 +295,6 @@ const styles = StyleSheet.create({
     marginHorizontal: ms(16), // Using react-native-size-matters for responsive design
     marginVertical: ms(10), // Using react-native-size-matters for responsive design - reduced from 12
     elevation: 6,
-    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 3,
@@ -291,7 +308,6 @@ const styles = StyleSheet.create({
     marginBottom: ms(16), // Using react-native-size-matters for responsive design - reduced from 20
     paddingBottom: ms(12), // Using react-native-size-matters for responsive design - reduced from 16
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.08)', // Tertiary color separator
   },
   productName: {
     fontSize: ms(22), // Using react-native-size-matters for responsive design - reduced from 26
@@ -348,7 +364,6 @@ const styles = StyleSheet.create({
     marginBottom: ms(16), // Using react-native-size-matters for responsive design - reduced from 20
     paddingBottom: ms(12), // Using react-native-size-matters for responsive design - reduced from 16
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.06)', // Tertiary color separator
   },
   priceContainer: {
     flex: 1,
@@ -383,7 +398,6 @@ const styles = StyleSheet.create({
     borderRadius: ms(16), // Using react-native-size-matters for responsive design - reduced from 20
     gap: ms(4), // Using react-native-size-matters for responsive design
     elevation: 3,
-    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -411,19 +425,8 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     gap: ms(6), // Using react-native-size-matters for responsive design - reduced from 8
   },
-  stockBadgeSuccess: {
-    elevation: 2,
-    shadowColor: '#10B981',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
   stockBadgeWarning: {
     elevation: 2,
-    shadowColor: '#FF8C00',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -433,7 +436,6 @@ const styles = StyleSheet.create({
   },
   stockBadgeError: {
     elevation: 2,
-    shadowColor: '#EF4444',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -466,7 +468,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     alignSelf: 'flex-start',
     elevation: 3,
-    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -517,7 +518,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 4,
-    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 4,

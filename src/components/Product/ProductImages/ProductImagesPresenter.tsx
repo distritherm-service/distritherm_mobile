@@ -12,6 +12,7 @@ import {
   NativeSyntheticEvent
 } from "react-native";
 import { ms } from "react-native-size-matters"; // Using react-native-size-matters for responsive design
+import { useColors } from "src/hooks/useColors";
 
 interface ProductImagesPresenterProps {
   images: string[];
@@ -41,6 +42,20 @@ const ProductImagesPresenter: React.FC<ProductImagesPresenterProps> = memo(({
   showIndicators,
 }) => {
   const flatListRef = useRef<FlatList>(null);
+  const colors = useColors();
+
+  // Dynamic styles using colors from useColors hook
+  const dynamicStyles = {
+    indicatorWrapper: {
+      backgroundColor: colors.tertiary[800] + '99', // Semi-transparent dark background
+    },
+    indicator: {
+      backgroundColor: colors.surface + '80', // Semi-transparent white
+    },
+    counterContainer: {
+      backgroundColor: colors.tertiary[800] + 'B3', // Semi-transparent dark background
+    },
+  };
 
   // Handle momentum scroll end for pagination
   const handleMomentumScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -66,18 +81,18 @@ const ProductImagesPresenter: React.FC<ProductImagesPresenterProps> = memo(({
           <View style={styles.imageWrapper}>
             {/* Loading indicator */}
             {loadState === 'loading' && (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#007AFF" />
-                <Text style={styles.loadingText}>Loading...</Text>
+              <View style={[styles.loadingContainer, { backgroundColor: colors.surface }]}>
+                <ActivityIndicator size="large" color={colors.primary[500]} />
+                <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Loading...</Text>
               </View>
             )}
             
             {/* Error state */}
             {loadState === 'error' && (
-              <View style={styles.errorContainer}>
+              <View style={[styles.errorContainer, { backgroundColor: colors.surface }]}>
                 <Text style={styles.errorIcon}>📷</Text>
-                <Text style={styles.errorText}>Failed to load image</Text>
-                <Text style={styles.retryText}>Tap to retry</Text>
+                <Text style={[styles.errorText, { color: colors.error[500] }]}>Failed to load image</Text>
+                <Text style={[styles.retryText, { color: colors.textSecondary }]}>Tap to retry</Text>
               </View>
             )}
             
@@ -102,13 +117,14 @@ const ProductImagesPresenter: React.FC<ProductImagesPresenterProps> = memo(({
 
     return (
       <View style={styles.indicatorContainer}>
-        <View style={styles.indicatorWrapper}>
+        <View style={[styles.indicatorWrapper, dynamicStyles.indicatorWrapper]}>
           {images.map((_, index) => (
             <View
               key={index}
               style={[
                 styles.indicator,
-                index === currentIndex && styles.activeIndicator,
+                dynamicStyles.indicator,
+                index === currentIndex && [styles.activeIndicator, { backgroundColor: colors.surface }],
               ]}
             />
           ))}
@@ -122,8 +138,8 @@ const ProductImagesPresenter: React.FC<ProductImagesPresenterProps> = memo(({
     if (images.length <= 1) return null;
 
     return (
-      <View style={styles.counterContainer}>
-        <Text style={styles.counterText}>
+      <View style={[styles.counterContainer, dynamicStyles.counterContainer]}>
+        <Text style={[styles.counterText, { color: colors.surface }]}>
           {currentIndex + 1} / {images.length}
         </Text>
       </View>
@@ -132,9 +148,9 @@ const ProductImagesPresenter: React.FC<ProductImagesPresenterProps> = memo(({
 
   if (images.length === 0) {
     return (
-      <View style={styles.emptyContainer}>
+      <View style={[styles.emptyContainer, { backgroundColor: colors.surface }]}>
         <Text style={styles.emptyIcon}>📷</Text>
-        <Text style={styles.emptyText}>No images available</Text>
+        <Text style={[styles.emptyText, { color: colors.textSecondary }]}>No images available</Text>
       </View>
     );
   }
@@ -216,14 +232,12 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.95)', // Light background for loading
     zIndex: 1,
     borderRadius: ms(16),
   },
   loadingText: {
     marginTop: ms(12),
     fontSize: ms(14),
-    color: '#6c757d',
     fontWeight: '500',
   },
   errorContainer: {
@@ -234,7 +248,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f8f9fa',
     zIndex: 1,
     borderRadius: ms(16),
   },
@@ -244,14 +257,12 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: ms(16),
-    color: '#dc3545',
     textAlign: 'center',
     fontWeight: '600',
     marginBottom: ms(4),
   },
   retryText: {
     fontSize: ms(12),
-    color: '#6c757d',
     textAlign: 'center',
   },
   indicatorContainer: {
@@ -263,7 +274,6 @@ const styles = StyleSheet.create({
   },
   indicatorWrapper: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     paddingHorizontal: ms(12),
     paddingVertical: ms(6),
     borderRadius: ms(20),
@@ -272,11 +282,9 @@ const styles = StyleSheet.create({
     width: ms(8),
     height: ms(8),
     borderRadius: ms(4),
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
     marginHorizontal: ms(4),
   },
   activeIndicator: {
-    backgroundColor: '#ffffff',
     width: ms(24), // Elongated active indicator
     transform: [{ scale: 1 }],
   },
@@ -284,13 +292,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: ms(20),
     right: ms(20),
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     paddingHorizontal: ms(12),
     paddingVertical: ms(6),
     borderRadius: ms(16),
   },
   counterText: {
-    color: '#ffffff',
     fontSize: ms(12),
     fontWeight: '600',
   },
@@ -298,7 +304,6 @@ const styles = StyleSheet.create({
     height: ms(350),
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f8f9fa',
     borderRadius: ms(16),
     marginHorizontal: ms(16),
   },
@@ -308,7 +313,6 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: ms(18),
-    color: '#6c757d',
     textAlign: 'center',
     fontWeight: '500',
   },

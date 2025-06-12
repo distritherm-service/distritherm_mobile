@@ -253,6 +253,7 @@ const productsService = {
       const response = await api.get(
         `/products/recommendations${queryString ? "?" + queryString : ""}`
       );
+
       return await response.data;
     } catch (error) {
       throw error;
@@ -283,7 +284,6 @@ const productsService = {
   getSimilarProducts: async (id: number): Promise<any> => {
     try {
       const response = await api.get(`/products/${id}/similar`);
-      console.log(response.data);
       return await response.data;
     } catch (error) {
       throw error;

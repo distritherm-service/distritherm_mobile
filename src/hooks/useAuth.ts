@@ -21,20 +21,26 @@ export const useAuth = () => {
     await dispatch(initializeAuth());
   };
 
-  const login = async (userData: UserWithClientDto, accessToken: string, refreshToken: string) => {
-    return await dispatch(loginUser({ user: userData, accessToken, refreshToken }));
+  const login = async (
+    userData: UserWithClientDto,
+    accessToken: string,
+    refreshToken: string
+  ) => {
+    return await dispatch(
+      loginUser({ user: userData, accessToken, refreshToken })
+    );
   };
 
   const logout = async () => {
     try {
       // Activer le loading de déconnexion
       dispatch(setDeconnectionLoading(true));
-      
+
       const refreshToken = await storageService.getRefreshToken();
       if (refreshToken) {
         await api.post("/auth/logout", { refreshToken });
       }
-    } catch (error) {
+    } catch (error: any) {
       // Ignorer les erreurs de logout API
       console.warn("Erreur lors de l'appel API de déconnexion:", error);
     } finally {

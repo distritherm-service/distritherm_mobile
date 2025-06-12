@@ -216,7 +216,7 @@ const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
     },
     stickyRedirectionContainer: {
       position: "absolute",
-      top: ms(60), // Using react-native-size-matters for responsive positioning
+      top: ms(10), // Using react-native-size-matters for responsive positioning
       zIndex: 999,
     },
     stickyRedirectionRight: {
@@ -304,6 +304,8 @@ const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
         {/* Sticky redirection button fixed to screen */}
         <StickyRedirectionButton />
 
+        {/* Spacer pour créer un espace entre le bouton sticky et le contenu */}
+
         {/* ScrollView global */}
         <View style={dynamicStyles.scrollContainer} onLayout={onScrollContainerLayout}>
           <ScrollView
@@ -316,7 +318,8 @@ const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
             onContentSizeChange={onContentSizeChange}
           >
             {/* Spacer pour créer un espace entre le bouton sticky et le contenu */}
-            <Spacer height={20} />
+            <Spacer height={45} />
+
 
             {/* Container du logo avec effet de profondeur */}
             <View style={dynamicStyles.logoContainer}>

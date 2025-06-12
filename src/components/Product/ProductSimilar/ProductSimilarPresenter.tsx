@@ -37,8 +37,23 @@ const ProductSimilarPresenter: React.FC<ProductSimilarPresenterProps> = ({
 }) => {
   const colors = useColors();
 
+  // Dynamic styles using colors from useColors hook
+  const dynamicStyles = {
+    loadingCard: {
+      backgroundColor: colors.surface,
+      shadowColor: colors.tertiary[800],
+    },
+    errorContainer: {
+      backgroundColor: colors.surface,
+      shadowColor: colors.tertiary[800],
+    },
+    emptyContainer: {
+      backgroundColor: colors.surface,
+      shadowColor: colors.tertiary[800],
+    },
+  };
+
   // Calculate item width for responsive design using react-native-size-matters
-  const itemWidth = ms(160);
   const itemMargin = ms(12);
 
   const renderSimilarProduct = ({ item }: { item: ProductBasicDto }) => {
@@ -53,13 +68,13 @@ const ProductSimilarPresenter: React.FC<ProductSimilarPresenterProps> = ({
   };
 
   const renderLoadingItem = () => (
-    <View style={[styles.loadingCard, { backgroundColor: colors.surface }]}>
+    <View style={[styles.loadingCard, dynamicStyles.loadingCard]}>
       <ActivityIndicator size="small" color={colors.tertiary[400]} />
     </View>
   );
 
   const renderErrorState = () => (
-    <View style={[styles.errorContainer, { backgroundColor: colors.surface }]}>
+    <View style={[styles.errorContainer, dynamicStyles.errorContainer]}>
       <FontAwesomeIcon
         icon={faExclamationTriangle}
         size={ms(24)} // Using react-native-size-matters for responsive design
@@ -150,7 +165,7 @@ const ProductSimilarPresenter: React.FC<ProductSimilarPresenterProps> = ({
           windowSize={10}
         />
       ) : (
-        <View style={[styles.emptyContainer, { backgroundColor: colors.surface }]}>
+        <View style={[styles.emptyContainer, dynamicStyles.emptyContainer]}>
           <Text style={[styles.emptyText, { color: colors.tertiary[600] }]}>
             Aucun Produit similaire n'a été trouvé
           </Text>
@@ -200,24 +215,29 @@ const styles = StyleSheet.create({
     width: ms(160), // Using react-native-size-matters for responsive design
     height: ms(200), // Using react-native-size-matters for responsive design
     borderRadius: ms(12), // Using react-native-size-matters for responsive design
-    opacity: 0.7,
     justifyContent: 'center',
     alignItems: 'center',
+    elevation: 2,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   // Error states
   errorContainer: {
-    marginHorizontal: ms(16), // Using react-native-size-matters for responsive design
-    padding: ms(24), // Using react-native-size-matters for responsive design
+    padding: ms(20), // Using react-native-size-matters for responsive design
     borderRadius: ms(12), // Using react-native-size-matters for responsive design
     alignItems: 'center',
+    marginHorizontal: ms(16), // Using react-native-size-matters for responsive design
     elevation: 2,
-    shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 1,
+      height: 2,
     },
     shadowOpacity: 0.1,
-    shadowRadius: 2,
+    shadowRadius: 4,
   },
   errorTitle: {
     fontSize: ms(16), // Using react-native-size-matters for responsive design
@@ -249,7 +269,6 @@ const styles = StyleSheet.create({
     borderRadius: ms(12), // Using react-native-size-matters for responsive design
     alignItems: 'center',
     elevation: 1,
-    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 1,

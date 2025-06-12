@@ -26,7 +26,6 @@ const BackHeaderPresenter: React.FC<BackHeaderPresenterProps> = ({
       width: "100%",
       zIndex: 10,
       justifyContent: "center",
-      backgroundColor: colors.background,
     },
     headerContent: {
       flexDirection: "row",
@@ -158,6 +157,9 @@ const BackHeaderPresenter: React.FC<BackHeaderPresenterProps> = ({
           </View>
         )}
       </View>
+      
+      {/* Gray separator line */}
+      <View style={dynamicStyles.separator} />
     </View>
   );
 };
