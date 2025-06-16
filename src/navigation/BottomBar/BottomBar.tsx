@@ -6,8 +6,9 @@ import Home from '../../screens/HomeScreen/Home';
 import Cart from '../../screens/CartScreen/Cart';
 import Favorite from '../../screens/FavoriteScreen/Favorite';
 import Profil from '../../screens/ProfilScreen/Profil';
-import Search from '../../screens/SearchScreen/Search';
 import { useAuth } from '../../hooks/useAuth';
+import Search from 'src/screens/SearchScreen/Search';
+import { SearchParams } from 'src/navigation/types';
 
 
 /**
@@ -16,10 +17,11 @@ import { useAuth } from '../../hooks/useAuth';
  */
 const BottomBar = () => {
   const route = useRoute();
-  const params = route.params as { initialTab?: string } | undefined;
+  const params = route.params as { initialTab?: string; searchParams?: SearchParams } | undefined;
   const { isAuthenticated, user } = useAuth();
   
   const [activeTab, setActiveTab] = useState(params?.initialTab || 'Home');
+  const [searchParams, setSearchParams] = useState<SearchParams | undefined>(params?.searchParams);
 
   // Check if user is authenticated and email is not verified
   const isEmailUnverified = !!(isAuthenticated && user && user.client && !user.client.emailVerified);
@@ -29,7 +31,10 @@ const BottomBar = () => {
     if (params?.initialTab) {
       setActiveTab(params.initialTab);
     }
-  }, [params?.initialTab]);
+    if (params?.searchParams) {
+      setSearchParams(params.searchParams);
+    }
+  }, [params?.initialTab, params?.searchParams]);
 
   // Gestion du bouton retour sur Android
   useFocusEffect(
@@ -55,15 +60,25 @@ const BottomBar = () => {
   // Gestion du changement d'onglet
   const handleTabPress = (tabName: string) => {
     setActiveTab(tabName);
+    // Clear search params when switching tabs (except when going to Search)
+    if (tabName !== 'Search') {
+      setSearchParams(undefined);
+    }
+  };
+
+  // Function to navigate to search with parameters
+  const navigateToSearch = (params: SearchParams) => {
+    setSearchParams(params);
+    setActiveTab('Search');
   };
 
   // Rendu des écrans en fonction de l'onglet actif
   const renderScreen = (tabName: string) => {
     switch (tabName) {
       case 'Home':
-        return <Home />;
+        return <Home onNavigateToSearch={navigateToSearch} />;
       case 'Search':
-        return <Search />;
+        return <Search route={{ params: searchParams } as any} />;
       case 'Favorite':
         return <Favorite />;
       case 'Cart':
@@ -71,7 +86,7 @@ const BottomBar = () => {
       case 'Profil':
         return <Profil />;
       default:
-        return <Home />;
+        return <Home onNavigateToSearch={navigateToSearch} />;
     }
   };
 

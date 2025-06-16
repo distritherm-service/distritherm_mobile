@@ -4,12 +4,22 @@ export type AuthStackParamList = {
   Register: undefined;
 };
 
+export type SearchParams = {
+  status?: "onTyping" | "onSearch";
+  filter?: {
+    categoryId?: number;
+    categoryName?: string;
+    [key: string]: any;
+  };
+};
+
 export type RootStackParamList = {
-  Main: { initialTab?: string } | undefined;
+  Main: { initialTab?: string; searchParams?: SearchParams } | undefined;
   Auth: { screen: keyof AuthStackParamList } | undefined;
   PersonalInformation: undefined;
   ForgotPassword: undefined;
-  Product: { productId: number }; // ← Ajouter cette ligne
+  Product: { productId: number };
+  Search: SearchParams | undefined;
 };
 
 declare global {

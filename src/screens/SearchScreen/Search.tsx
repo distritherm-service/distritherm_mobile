@@ -1,16 +1,40 @@
-import { StyleSheet, Text, View } from "react-native";
-import React from "react";
-import { ms } from "react-native-size-matters";
-import PageContainer from "src/components/PageContainer/PageContainer";
+import React, { useState } from "react";
+import SearchPresenter from "./SearchPresenter";
+import { RouteProp } from "@react-navigation/native";
+import { RootStackParamList } from "src/navigation/types";
 
-const Search = () => {
+type SearchScreenRouteProp = RouteProp<RootStackParamList, "Search">;
+
+interface SearchProps {
+  route?: SearchScreenRouteProp;
+}
+
+/**
+ * Container component for Search
+ * Handles business logic, data fetching, and state management
+ */
+const Search = ({ route }: SearchProps) => {
+  const [status, setStatus] = useState<"onTyping" | "onSearch">(
+    route?.params?.status || "onTyping"
+  );
+  const [filter, setFilter] = useState(route?.params?.filter || {});
+
+  const handleStatusChange = (newStatus: "onTyping" | "onSearch") => {
+    setStatus(newStatus);
+  };
+
+  const handleFilterChange = (newFilter: any) => {
+    setFilter(newFilter);
+  };
+
   return (
-    <PageContainer>
-      <Text style={{ fontSize: ms(20) }}>Search</Text>
-    </PageContainer>
+    <SearchPresenter
+      status={status}
+      filter={filter}
+      onStatusChange={handleStatusChange}
+      onFilterChange={handleFilterChange}
+    />
   );
 };
 
 export default Search;
-
-const styles = StyleSheet.create({});

@@ -8,19 +8,22 @@ import Recommandation from "src/components/Home/Recommandation/Recommandations";
 import Header from "src/components/Home/Header/Header";
 import SearchBar from "src/components/Home/SearchBar/SearchBar";
 import { useColors } from "src/hooks/useColors";
+import { SearchParams } from "src/navigation/types";
 
 interface HomePresenterProps {
   isLoading: boolean;
   error: string | null;
   searchQuery: string;
   onSearch: (query: string) => void;
+  onNavigateToSearch?: (params: SearchParams) => void;
 }
 
 const HomePresenter: React.FC<HomePresenterProps> = ({ 
   isLoading, 
   error, 
   searchQuery, 
-  onSearch 
+  onSearch,
+  onNavigateToSearch
 }) => {
   const colors = useColors();
 
@@ -41,7 +44,7 @@ const HomePresenter: React.FC<HomePresenterProps> = ({
         placeholder="Rechercher des produits..."
       />
       <View style={dynamicStyles.categorySection}>
-        <CategoryList />
+        <CategoryList onNavigateToSearch={onNavigateToSearch} />
       </View>
       <PromotionsBanner />
       <Recommandation />

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import CategoryListPresenter from './CategoryListPresenter';
 import CategoryListSkeleton from './CategoryListSkeleton/CategoryListSkeleton';
 import categoriesService from '../../../services/categoriesService';
+import { SearchParams } from 'src/navigation/types';
 
 export interface Category {
   id: number;
@@ -16,7 +17,11 @@ export interface Category {
   agenceId: number;
 }
 
-const CategoryList = () => {
+interface CategoryListProps {
+  onNavigateToSearch?: (params: SearchParams) => void;
+}
+
+const CategoryList = ({ onNavigateToSearch }: CategoryListProps) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -122,7 +127,17 @@ const CategoryList = () => {
 
   const handleCategoryPress = (category: Category) => {
     console.log('Category pressed:', category);
-    // TODO: Navigate to category details or products
+    
+    // Navigate to search with category filter
+    if (onNavigateToSearch) {
+      onNavigateToSearch({
+        status: 'onSearch',
+        filter: {
+          categoryId: category.id,
+          categoryName: category.name,
+        }
+      });
+    }
   };
 
   const handleRefresh = () => {

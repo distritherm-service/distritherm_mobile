@@ -1,7 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import HomePresenter from './HomePresenter';
+import { SearchParams } from 'src/navigation/types';
 
-const Home = () => {
+interface HomeProps {
+  onNavigateToSearch?: (params: SearchParams) => void;
+}
+
+const Home = ({ onNavigateToSearch }: HomeProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -32,6 +37,7 @@ const Home = () => {
       error={error}
       searchQuery={searchQuery}
       onSearch={handleSearch}
+      onNavigateToSearch={onNavigateToSearch}
     />
   );
 };
