@@ -111,11 +111,6 @@ const BackHeaderPresenter: React.FC<BackHeaderPresenterProps> = ({
                 dynamicStyles.backButton,
                 pressed && dynamicStyles.buttonPressed,
               ]}
-              android_ripple={{
-                color: `${colors.secondary[400]}30`,
-                borderless: true,
-                radius: ms(20),
-              }}
             >
               <FontAwesomeIcon
                 icon={faChevronLeft}

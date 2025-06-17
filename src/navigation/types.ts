@@ -4,13 +4,19 @@ export type AuthStackParamList = {
   Register: undefined;
 };
 
+export type SearchFilter = {
+  categoryId?: number;
+  categoryName?: string;
+  markId?: number;
+  markName?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  inPromotion?: boolean;
+};
+
 export type SearchParams = {
   status?: "onTyping" | "onSearch";
-  filter?: {
-    categoryId?: number;
-    categoryName?: string;
-    [key: string]: any;
-  };
+  filter?: SearchFilter;
 };
 
 export type RootStackParamList = {

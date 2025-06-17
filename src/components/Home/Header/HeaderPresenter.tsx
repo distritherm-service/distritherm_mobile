@@ -190,11 +190,6 @@ const HeaderPresenter: React.FC<HeaderPresenterProps> = ({
                   </Text>
                 </View>
 
-                                 {/* Debug: Afficher le nombre d'agences */}
-                 <Text style={[styles.debugText, { color: colors.secondary[400] }]}>
-                   Agences disponibles: {agencies?.length || 0}
-                 </Text>
-
                 {agencies && agencies.length > 0 ? (
                   <FlatList
                     data={agencies}
@@ -221,18 +216,32 @@ const HeaderPresenter: React.FC<HeaderPresenterProps> = ({
                                 },
                               ]}
                             />
-                            <Text
-                              style={[
-                                styles.agencyItemText,
-                                { color: colors.text },
-                                selectedAgency?.id === item.id && {
-                                  color: colors.secondary[400],
-                                  fontWeight: "600",
-                                },
-                              ]}
-                            >
-                              {item.name}
-                            </Text>
+                            <View style={{ flex: 1 }}>
+                              <Text
+                                style={[
+                                  styles.agencyItemText,
+                                  { color: colors.text },
+                                  selectedAgency?.id === item.id && {
+                                    color: colors.secondary[400],
+                                    fontWeight: "600",
+                                  },
+                                ]}
+                                numberOfLines={2}
+                              >
+                                {item.name}
+                              </Text>
+                              {item.city && (
+                                <Text
+                                  style={[
+                                    styles.agencySubText,
+                                    { color: colors.textSecondary },
+                                  ]}
+                                  numberOfLines={1}
+                                >
+                                  {item.city} - {item.postalCode}
+                                </Text>
+                              )}
+                            </View>
                           </View>
                           {selectedAgency?.id === item.id && (
                             <View style={[styles.checkmarkContainer, { backgroundColor: colors.secondary[400] }]}>
@@ -242,10 +251,12 @@ const HeaderPresenter: React.FC<HeaderPresenterProps> = ({
                         </View>
                       </Pressable>
                     )}
-                    showsVerticalScrollIndicator={false}
+                    showsVerticalScrollIndicator={true}
                     style={styles.agencyList}
                     contentContainerStyle={styles.agencyListContent}
                     nestedScrollEnabled={true}
+                    bounces={true}
+                    removeClippedSubviews={false}
                   />
                 ) : (
                   <View style={styles.noAgenciesContainer}>
@@ -281,6 +292,7 @@ const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
     justifyContent: "flex-end",
+    backgroundColor: 'transparent',
   },
   backdrop: {
     position: "absolute",
@@ -288,6 +300,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   backdropPressable: {
     flex: 1,
@@ -296,12 +309,14 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: ms(24),
     borderTopRightRadius: ms(24),
     paddingBottom: ms(40),
-    maxHeight: "60%",
+    maxHeight: "70%",
+    minHeight: ms(300),
     shadowColor: "#000",
     shadowOffset: { width: 0, height: ms(-4) },
     shadowOpacity: 0.25,
     shadowRadius: ms(12),
     elevation: 12,
+    zIndex: 1000,
   },
   bottomSheetHeader: {
     paddingTop: ms(16),
@@ -324,15 +339,19 @@ const styles = StyleSheet.create({
   },
   agencyList: {
     flex: 1,
+    paddingHorizontal: ms(24),
+    minHeight: ms(200),
   },
   agencyListContent: {
-    paddingHorizontal: ms(24),
+    paddingBottom: ms(20),
+    flexGrow: 1,
   },
   agencyItem: {
     paddingVertical: ms(16),
     paddingHorizontal: ms(20),
     marginVertical: ms(2),
     borderRadius: ms(12),
+    minHeight: ms(60),
   },
   agencyItemContent: {
     flexDirection: "row",
@@ -355,6 +374,11 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     flex: 1,
   },
+  agencySubText: {
+    fontSize: ms(12),
+    fontWeight: "400",
+    marginTop: ms(4),
+  },
   checkmarkContainer: {
     width: ms(24),
     height: ms(24),
@@ -376,10 +400,4 @@ const styles = StyleSheet.create({
     fontSize: ms(16),
     textAlign: "center",
   },
-     debugText: {
-     fontSize: ms(12),
-     textAlign: "center",
-     marginBottom: ms(8),
-     fontStyle: "italic",
-   },
 });

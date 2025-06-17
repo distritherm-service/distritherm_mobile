@@ -63,6 +63,12 @@ const BottomBar = () => {
     // Clear search params when switching tabs (except when going to Search)
     if (tabName !== 'Search') {
       setSearchParams(undefined);
+    } else {
+      // Reset search to onTyping mode when clicking Search tab
+      setSearchParams({
+        status: 'onTyping',
+        filter: {}
+      });
     }
   };
 

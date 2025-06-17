@@ -87,9 +87,11 @@ const ProductSimilarPresenter: React.FC<ProductSimilarPresenterProps> = ({
         {error}
       </Text>
       <Pressable
-        style={[styles.retryButton, { backgroundColor: colors.secondary[500] }]}
+        style={({ pressed }) => [
+          styles.retryButton,
+          { backgroundColor: pressed ? colors.secondary[600] : colors.secondary[500] }
+        ]}
         onPress={onRetry}
-        android_ripple={{ color: colors.secondary[600] }}
       >
         <FontAwesomeIcon
           icon={faRefresh}
@@ -125,9 +127,11 @@ const ProductSimilarPresenter: React.FC<ProductSimilarPresenterProps> = ({
         
         {!loading && similarProducts.length > 0 && (
           <Pressable
-            style={styles.seeAllButton}
+            style={({ pressed }) => [
+              styles.seeAllButton,
+              pressed && { backgroundColor: colors.tertiary[100] }
+            ]}
             onPress={onSeeAllPress}
-            android_ripple={{ color: colors.tertiary[100] }}
           >
             <Text style={[styles.seeAllText, { color: colors.secondary[600] }]}>
               Voir tout

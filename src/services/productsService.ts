@@ -72,6 +72,15 @@ export interface PaginatedResponse<T> {
   };
 }
 
+export interface SearchFilters {
+  query?: string;
+  categoryId?: number;
+  markId?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  inPromotion?: boolean;
+}
+
 const productsService = {
   // GET /products - Récupérer tous les produits avec pagination
   findAll: async (paginationDto?: PaginationDto): Promise<any> => {
@@ -105,6 +114,59 @@ const productsService = {
         params.append("limit", paginationDto.limit.toString());
 
       const response = await api.get(`/products/search?${params.toString()}`);
+      return await response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // GET /products/search/advanced - Recherche avancée avec filtres
+  searchWithFilters: async (
+    filters: SearchFilters,
+    paginationDto?: PaginationDto
+  ): Promise<any> => {
+    try {
+      const params = new URLSearchParams();
+      
+      // Add search query if provided - use 'q' parameter to match backend
+      if (filters.query && filters.query.trim()) {
+        params.append("q", filters.query.trim());
+      }
+      
+      // Add category filter if provided
+      if (filters.categoryId) {
+        params.append("categoryId", filters.categoryId.toString());
+      }
+      
+      // Add mark filter if provided
+      if (filters.markId) {
+        params.append("markId", filters.markId.toString());
+      }
+      
+      // Add price range filters if provided
+      if (filters.minPrice !== undefined) {
+        params.append("minPrice", filters.minPrice.toString());
+      }
+      
+      if (filters.maxPrice !== undefined) {
+        params.append("maxPrice", filters.maxPrice.toString());
+      }
+      
+      // Add promotion filter if provided
+      if (filters.inPromotion !== undefined) {
+        params.append("inPromotion", filters.inPromotion.toString());
+      }
+      
+      // Add pagination parameters
+      if (paginationDto?.page) {
+        params.append("page", paginationDto.page.toString());
+      }
+      
+      if (paginationDto?.limit) {
+        params.append("limit", paginationDto.limit.toString());
+      }
+
+      const response = await api.get(`/products/search/advanced?${params.toString()}`);
       return await response.data;
     } catch (error) {
       throw error;

@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import SearchPresenter from "./SearchPresenter";
 import { RouteProp } from "@react-navigation/native";
-import { RootStackParamList } from "src/navigation/types";
+import { RootStackParamList, SearchFilter } from "src/navigation/types";
 
 type SearchScreenRouteProp = RouteProp<RootStackParamList, "Search">;
 
@@ -18,21 +18,59 @@ const Search = ({ route }: SearchProps) => {
     route?.params?.status || "onTyping"
   );
   const [filter, setFilter] = useState(route?.params?.filter || {});
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [isReturningFromSearch, setIsReturningFromSearch] = useState(false);
+
+  // Update status and filter when route params change
+  useEffect(() => {
+    if (route?.params?.status) {
+      setStatus(route.params.status);
+      // Reset search query when status changes to onTyping
+      if (route.params.status === 'onTyping') {
+        setSearchQuery("");
+      }
+    }
+    if (route?.params?.filter) {
+      setFilter(route.params.filter);
+    }
+  }, [route?.params]);
 
   const handleStatusChange = (newStatus: "onTyping" | "onSearch") => {
     setStatus(newStatus);
   };
 
-  const handleFilterChange = (newFilter: any) => {
+  const handleFilterChange = (newFilter: SearchFilter) => {
     setFilter(newFilter);
+  };
+
+  /**
+   * Handle search submission - switch to search mode
+   */
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    setStatus("onSearch");
+  };
+
+  /**
+   * Handle back to typing mode
+   */
+  const handleBackToTyping = () => {
+    setIsReturningFromSearch(true);
+    setStatus("onTyping");
+    // Reset the flag after a short delay
+    setTimeout(() => setIsReturningFromSearch(false), 250);
   };
 
   return (
     <SearchPresenter
       status={status}
       filter={filter}
+      searchQuery={searchQuery}
+      isReturningFromSearch={isReturningFromSearch}
       onStatusChange={handleStatusChange}
       onFilterChange={handleFilterChange}
+      onSearch={handleSearch}
+      onBackToTyping={handleBackToTyping}
     />
   );
 };

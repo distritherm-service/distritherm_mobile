@@ -18,6 +18,18 @@ const searchHistoryService = {
     }
   },
 
+  // GET /search-history/check-exists - Vérifier si un terme de recherche existe déjà pour l'utilisateur
+  checkSearchTermExists: async (searchTerm: string): Promise<{ exists: boolean; searchHistoryId?: number }> => {
+    try {
+      const response = await api.get("/search-history/check-exists", {
+        params: { searchTerm }
+      });
+      return response.data as { exists: boolean; searchHistoryId?: number };
+    } catch (error) {
+      throw error;
+    }
+  },
+
   // GET /search-history - Récupérer tout l'historique de recherche (ADMIN uniquement)
   getAllSearchHistory: async (): Promise<any> => {
     try {
@@ -52,6 +64,16 @@ const searchHistoryService = {
   deleteSearchHistoryEntry: async (searchHistoryId: number): Promise<any> => {
     try {
       const response = await api.delete(`/search-history/${searchHistoryId}`);
+      return await response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // DELETE /search-history/users/:id/clear - Clear all search history for a user
+  clearUserHistory: async (userId: number): Promise<any> => {
+    try {
+      const response = await api.delete(`/search-history/users/${userId}/clear`);
       return await response.data;
     } catch (error) {
       throw error;

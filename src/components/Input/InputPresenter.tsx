@@ -21,6 +21,9 @@ type InputPresenterProps = {
   multiline?: boolean;
   numberOfLines?: number;
   secureTextEntry?: boolean;
+  onSelectOption?: (option: SelectOption) => void;
+  selectedOption?: SelectOption;
+  searchPlaceholder?: string;
 };
 
 const InputPresenter = ({
@@ -36,9 +39,13 @@ const InputPresenter = ({
   multiline,
   numberOfLines = 4,
   secureTextEntry,
+  onSelectOption,
+  selectedOption,
+  searchPlaceholder,
 }: InputPresenterProps) => {
   const [isSelectOpen, setIsSelectOpen] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(''); // For searchable select
   const colors = useColors(); // Using react-native-size-matters for responsive design
 
   // Dynamic styles using colors from useColors hook
@@ -198,9 +205,23 @@ const InputPresenter = ({
     }
   };
 
+  // Filter options based on search query for searchable select
+  const getFilteredOptions = () => {
+    if (!options) return [];
+    if (type !== InputType.SEARCHABLE_SELECT || !searchQuery.trim()) {
+      return options;
+    }
+    return options.filter(option => 
+      option.label.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  };
+
   const getSelectedLabel = () => {
     if (type === InputType.SELECT && options) {
       const selectedOption = options.find(option => option.value === value);
+      return selectedOption ? selectedOption.label : placeholder || 'Select an option';
+    }
+    if (type === InputType.SEARCHABLE_SELECT) {
       return selectedOption ? selectedOption.label : placeholder || 'Select an option';
     }
     return value;
@@ -211,42 +232,92 @@ const InputPresenter = ({
       visible={isSelectOpen}
       transparent={true}
       animationType="fade"
-      onRequestClose={() => setIsSelectOpen(false)}
+      onRequestClose={() => {
+        setIsSelectOpen(false);
+        setSearchQuery(''); // Clear search when closing
+      }}
     >
       <Pressable 
         style={dynamicStyles.modalOverlay}
-        onPress={() => setIsSelectOpen(false)}
+        onPress={() => {
+          setIsSelectOpen(false);
+          setSearchQuery(''); // Clear search when closing
+        }}
       >
         <View style={dynamicStyles.modalContent}>
+          {/* Search input for searchable select */}
+          {type === InputType.SEARCHABLE_SELECT && (
+            <View style={{
+              padding: ms(16),
+              borderBottomWidth: 1,
+              borderBottomColor: colors.border,
+            }}>
+              <TextInput
+                style={{
+                  backgroundColor: '#FFFFFF',
+                  borderWidth: 1,
+                  borderColor: colors.primary[300],
+                  borderRadius: ms(8),
+                  paddingHorizontal: ms(12),
+                  paddingVertical: ms(10),
+                  fontSize: ms(14),
+                  color: colors.text,
+                }}
+                placeholder={searchPlaceholder || "Rechercher..."}
+                placeholderTextColor={colors.textSecondary}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                autoFocus={true}
+              />
+            </View>
+          )}
           <FlatList
-            data={options || []}
+            data={getFilteredOptions()}
             keyExtractor={(item) => item.value}
             renderItem={({ item }) => (
               <Pressable
                 style={[
                   dynamicStyles.optionItem,
-                  item.value === value && dynamicStyles.selectedOption
+                  (type === InputType.SELECT && item.value === value) ||
+                  (type === InputType.SEARCHABLE_SELECT && selectedOption?.value === item.value)
+                    ? dynamicStyles.selectedOption : {}
                 ]}
                 onPress={() => {
-                  onChangeText(item.value);
+                  if (type === InputType.SELECT) {
+                    onChangeText(item.value);
+                  } else if (type === InputType.SEARCHABLE_SELECT && onSelectOption) {
+                    onSelectOption(item);
+                  }
                   setIsSelectOpen(false);
+                  setSearchQuery(''); // Clear search after selection
                 }}
               >
                 <Text style={[
                   dynamicStyles.optionText,
-                  item.value === value && dynamicStyles.selectedOptionText
+                  ((type === InputType.SELECT && item.value === value) ||
+                   (type === InputType.SEARCHABLE_SELECT && selectedOption?.value === item.value))
+                    ? dynamicStyles.selectedOptionText : {}
                 ]}>
                   {item.label}
                 </Text>
               </Pressable>
             )}
+            ListEmptyComponent={
+              type === InputType.SEARCHABLE_SELECT && searchQuery.trim() ? (
+                <View style={{ padding: ms(20), alignItems: 'center' }}>
+                  <Text style={{ color: colors.textSecondary, fontSize: ms(14) }}>
+                    Aucun résultat trouvé
+                  </Text>
+                </View>
+              ) : null
+            }
           />
         </View>
       </Pressable>
     </Modal>
   );
 
-  if (type === InputType.SELECT) {
+  if (type === InputType.SELECT || type === InputType.SEARCHABLE_SELECT) {
     return (
       <View>
         {label && <Text style={dynamicStyles.label}>{label}</Text>}
@@ -270,7 +341,8 @@ const InputPresenter = ({
           )}
           <Text style={[
             dynamicStyles.selectText,
-            !value && dynamicStyles.placeholderText,
+            ((type === InputType.SELECT && !value) || 
+             (type === InputType.SEARCHABLE_SELECT && !selectedOption)) && dynamicStyles.placeholderText,
           ]}>
             {getSelectedLabel()}
           </Text>

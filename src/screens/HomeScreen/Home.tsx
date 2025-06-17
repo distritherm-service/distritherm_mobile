@@ -29,6 +29,18 @@ const Home = ({ onNavigateToSearch }: HomeProps) => {
     }
   }, []);
 
+  /**
+   * Handles search bar press - navigate to SearchScreen
+   */
+  const handleSearchBarPress = useCallback(() => {
+    if (onNavigateToSearch) {
+      onNavigateToSearch({
+        status: 'onTyping', // Start in typing mode
+        filter: {} // No initial filter
+      });
+    }
+  }, [onNavigateToSearch]);
+
   // Any additional state management for the HomeScreen screen can be added here
   
   return (
@@ -37,6 +49,7 @@ const Home = ({ onNavigateToSearch }: HomeProps) => {
       error={error}
       searchQuery={searchQuery}
       onSearch={handleSearch}
+      onSearchBarPress={handleSearchBarPress}
       onNavigateToSearch={onNavigateToSearch}
     />
   );

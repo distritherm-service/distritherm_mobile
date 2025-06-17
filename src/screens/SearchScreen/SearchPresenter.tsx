@@ -1,121 +1,141 @@
-import { StyleSheet, Text, View } from "react-native";
-import React from "react";
+import { StyleSheet, View, Animated, Platform } from "react-native";
+import React, { useEffect, useRef } from "react";
 import { ms } from "react-native-size-matters";
-import PageContainer from "src/components/PageContainer/PageContainer";
 import { useColors } from "src/hooks/useColors";
+import OnTypingSection from "src/components/Search/OnTypingSection/OnTypingSection";
+import OnSearchSection from "src/components/Search/OnSearchSection/OnSearchSection";
+import PageContainer from "src/components/PageContainer/PageContainer";
+import { SearchFilter } from "src/navigation/types";
 
 interface SearchPresenterProps {
   status: "onTyping" | "onSearch";
-  filter: {
-    categoryId?: number;
-    categoryName?: string;
-    [key: string]: any;
-  };
+  filter: SearchFilter;
+  searchQuery: string;
+  isReturningFromSearch: boolean;
   onStatusChange: (status: "onTyping" | "onSearch") => void;
-  onFilterChange: (filter: any) => void;
+  onFilterChange: (filter: SearchFilter) => void;  
+  onSearch: (query: string) => void;
+  onBackToTyping: () => void;
 }
 
+/**
+ * Presenter component for Search
+ * Handles visual rendering with modern, elegant UI and smooth transitions
+ */
 const SearchPresenter: React.FC<SearchPresenterProps> = ({
   status,
   filter,
+  searchQuery,
+  isReturningFromSearch,
   onStatusChange,
   onFilterChange,
+  onSearch,
+  onBackToTyping,
 }) => {
   const colors = useColors();
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const slideAnim = useRef(new Animated.Value(0)).current;
 
+  // Simplified transition animation - reduced complexity for better Android performance
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      // Simpler animation for Android
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 100,
+        useNativeDriver: true,
+      }).start(() => {
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 150,
+          useNativeDriver: true,
+        }).start();
+      });
+    } else {
+      // Full animation for iOS
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: status === "onSearch" ? -20 : 20,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        slideAnim.setValue(status === "onSearch" ? 20 : -20);
+        Animated.parallel([
+          Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+          Animated.timing(slideAnim, {
+            toValue: 0,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      });
+    }
+  }, [status]);
+
+  // Dynamic styles using react-native-size-matters for responsiveness
   const dynamicStyles = StyleSheet.create({
-    container: {
+    contentContainer: {
       flex: 1,
-      backgroundColor: colors.background,
+      position: "relative",
     },
-    title: {
-      fontSize: ms(24),
-      fontWeight: "bold",
-      color: colors.text,
-      marginBottom: ms(20),
+    animatedContent: {
+      flex: 1,
     },
-    statusContainer: {
-      backgroundColor: colors.surface,
-      padding: ms(16),
-      borderRadius: ms(12),
-      marginBottom: ms(16),
-    },
-    statusText: {
-      fontSize: ms(16),
-      color: colors.text,
-      marginBottom: ms(8),
-    },
-    statusValue: {
-      fontSize: ms(14),
-      color: colors.primary[600],
-      fontWeight: "600",
-    },
-    filterContainer: {
-      backgroundColor: colors.surface,
-      padding: ms(16),
-      borderRadius: ms(12),
-    },
-    filterTitle: {
-      fontSize: ms(16),
-      color: colors.text,
-      fontWeight: "600",
-      marginBottom: ms(12),
-    },
-    filterItem: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      paddingVertical: ms(8),
-    },
-    filterLabel: {
-      fontSize: ms(14),
-      color: colors.textSecondary,
-    },
-    filterValue: {
-      fontSize: ms(14),
-      color: colors.text,
-      fontWeight: "500",
+    backgroundOverlay: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      height: ms(200),
+      backgroundColor: colors.primary[50],
+      opacity: Platform.OS === 'android' ? 0.1 : 0.3, // Reduced opacity on Android
     },
   });
 
   return (
-    <PageContainer>
-      <View style={dynamicStyles.container}>
-        <Text style={dynamicStyles.title}>Recherche</Text>
+    <PageContainer isScrollable={false} bottomBar={true} headerBack={false}>
+      {/* Subtle background overlay for visual depth */}
+      <View style={dynamicStyles.backgroundOverlay} />
 
-        <View style={dynamicStyles.statusContainer}>
-          <Text style={dynamicStyles.statusText}>Statut:</Text>
-          <Text style={dynamicStyles.statusValue}>{status}</Text>
-        </View>
-
-        <View style={dynamicStyles.filterContainer}>
-          <Text style={dynamicStyles.filterTitle}>Filtres appliqués</Text>
-
-          {filter.categoryName && (
-            <View style={dynamicStyles.filterItem}>
-              <Text style={dynamicStyles.filterLabel}>Catégorie:</Text>
-              <Text style={dynamicStyles.filterValue}>
-                {filter.categoryName}
-              </Text>
-            </View>
+      <View style={dynamicStyles.contentContainer}>
+        <Animated.View
+          style={[
+            dynamicStyles.animatedContent,
+            {
+              opacity: fadeAnim,
+              transform: Platform.OS === 'android' ? [] : [{ translateY: slideAnim }], // Disable slide animation on Android
+            },
+          ]}
+        >
+          {status === "onTyping" ? (
+            <OnTypingSection
+              searchQuery={searchQuery}
+              autoFocus={true}
+              isReturningFromSearch={isReturningFromSearch}
+              onSearch={onSearch}
+            />
+          ) : (
+            <OnSearchSection
+              searchQuery={searchQuery}
+              filter={filter}
+              onBackToTyping={onBackToTyping}
+              onFilterChange={onFilterChange}
+            />
           )}
-
-          {filter.categoryId && (
-            <View style={dynamicStyles.filterItem}>
-              <Text style={dynamicStyles.filterLabel}>ID Catégorie:</Text>
-              <Text style={dynamicStyles.filterValue}>{filter.categoryId}</Text>
-            </View>
-          )}
-
-          {Object.keys(filter).length === 0 && (
-            <Text style={dynamicStyles.filterLabel}>Aucun filtre appliqué</Text>
-          )}
-        </View>
+        </Animated.View>
       </View>
     </PageContainer>
   );
 };
 
 export default SearchPresenter;
-
-const styles = StyleSheet.create({});

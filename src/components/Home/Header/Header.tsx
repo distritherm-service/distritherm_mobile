@@ -83,10 +83,20 @@ const Header = () => {
       try {
         setIsLoading(true);
         const agenciesData: any = await agenciesService.getAllAgencies();
-        setAgencies(agenciesData.agencies);
+        
+        // Handle different response structures
+        if (agenciesData && Array.isArray(agenciesData.agencies)) {
+          setAgencies(agenciesData.agencies);
+        } else if (agenciesData && Array.isArray(agenciesData.data)) {
+          setAgencies(agenciesData.data);
+        } else if (agenciesData && Array.isArray(agenciesData)) {
+          setAgencies(agenciesData);
+        } else {
+          setAgencies([]);
+        }
       } catch (error) {
         console.error("Erreur lors de la récupération des agences:", error);
-        setAgencies(null);
+        setAgencies([]);
       } finally {
         setIsLoading(false);
       }

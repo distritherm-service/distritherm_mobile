@@ -3,14 +3,18 @@ import SearchBarPresenter from './SearchBarPresenter';
 
 interface SearchBarProps {
   onSearch?: (query: string) => void;
+  onPress?: () => void;
   placeholder?: string;
   autoFocus?: boolean;
+  editable?: boolean;
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({
   onSearch,
+  onPress,
   placeholder = "Rechercher des produits...",
   autoFocus = false,
+  editable = true,
 }) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isFocused, setIsFocused] = useState<boolean>(false);
@@ -19,19 +23,25 @@ const SearchBar: React.FC<SearchBarProps> = ({
    * Handles search input changes
    */
   const handleSearchChange = useCallback((text: string) => {
+    if (!editable) return;
+    
     setSearchQuery(text);
     // Trigger search callback with debouncing could be added here
     if (onSearch) {
       onSearch(text);
     }
-  }, [onSearch]);
+  }, [onSearch, editable]);
 
   /**
    * Handles search input focus
    */
   const handleFocus = useCallback(() => {
+    if (!editable && onPress) {
+      onPress();
+      return;
+    }
     setIsFocused(true);
-  }, []);
+  }, [editable, onPress]);
 
   /**
    * Handles search input blur
@@ -59,17 +69,28 @@ const SearchBar: React.FC<SearchBarProps> = ({
     }
   }, [onSearch, searchQuery]);
 
+  /**
+   * Handles press on the search input container
+   */
+  const handlePress = useCallback(() => {
+    if (onPress) {
+      onPress();
+    }
+  }, [onPress]);
+
   return (
     <SearchBarPresenter
       searchQuery={searchQuery}
       isFocused={isFocused}
       placeholder={placeholder}
       autoFocus={autoFocus}
+      editable={editable}
       onSearchChange={handleSearchChange}
       onFocus={handleFocus}
       onBlur={handleBlur}
       onClear={handleClear}
       onSubmit={handleSubmit}
+      onPress={handlePress}
     />
   );
 };

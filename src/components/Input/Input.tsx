@@ -8,6 +8,7 @@ import { Control, Controller, FieldValues, Path } from "react-hook-form";
 export interface SelectOption {
   label: string;
   value: string;
+  id?: number; // For API compatibility
 }
 
 type InputProps<T extends FieldValues> = {
@@ -25,6 +26,10 @@ type InputProps<T extends FieldValues> = {
   multiline?: boolean; // For textarea type
   numberOfLines?: number; // For textarea type
   rules?: object; // Validation rules for react-hook-form
+  // New props for searchable select
+  onSelectOption?: (option: SelectOption) => void; // Callback when option is selected
+  selectedOption?: SelectOption; // Currently selected option for searchable select
+  searchPlaceholder?: string; // Placeholder for search input
 } & Omit<TextInputProps, 'value' | 'onChangeText'>;
 
 const Input = <T extends FieldValues>({
@@ -42,6 +47,9 @@ const Input = <T extends FieldValues>({
   multiline,
   numberOfLines,
   rules,
+  onSelectOption,
+  selectedOption,
+  searchPlaceholder,
   ...props
 }: InputProps<T>) => {
   // If control is provided, use Controller from react-hook-form
@@ -65,6 +73,9 @@ const Input = <T extends FieldValues>({
             multiline={multiline}
             numberOfLines={numberOfLines}
             secureTextEntry={secureTextEntry || type === InputType.PASSWORD}
+            onSelectOption={onSelectOption}
+            selectedOption={selectedOption}
+            searchPlaceholder={searchPlaceholder}
             {...props}
           />
         )}
@@ -86,6 +97,9 @@ const Input = <T extends FieldValues>({
       multiline={multiline}
       numberOfLines={numberOfLines}
       secureTextEntry={secureTextEntry || type === InputType.PASSWORD}
+      onSelectOption={onSelectOption}
+      selectedOption={selectedOption}
+      searchPlaceholder={searchPlaceholder}
       {...props}
     />
   );

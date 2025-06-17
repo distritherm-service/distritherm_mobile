@@ -15,6 +15,7 @@ interface HomePresenterProps {
   error: string | null;
   searchQuery: string;
   onSearch: (query: string) => void;
+  onSearchBarPress: () => void;
   onNavigateToSearch?: (params: SearchParams) => void;
 }
 
@@ -23,6 +24,7 @@ const HomePresenter: React.FC<HomePresenterProps> = ({
   error, 
   searchQuery, 
   onSearch,
+  onSearchBarPress,
   onNavigateToSearch
 }) => {
   const colors = useColors();
@@ -41,7 +43,9 @@ const HomePresenter: React.FC<HomePresenterProps> = ({
       <Header />
       <SearchBar 
         onSearch={onSearch}
+        onPress={onSearchBarPress}
         placeholder="Rechercher des produits..."
+        editable={false} // Make it non-editable so it acts as a button
       />
       <View style={dynamicStyles.categorySection}>
         <CategoryList onNavigateToSearch={onNavigateToSearch} />

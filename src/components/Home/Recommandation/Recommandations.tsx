@@ -21,7 +21,6 @@ const Recommandation = () => {
   const isCheckingMiddle = useRef(false);
   const consecutiveEmptyResponses = useRef(0);
 
-  const ITEMS_PER_PAGE = 10;
   const MAX_CONSECUTIVE_EMPTY_RESPONSES = 3;
 
   const navigation = useNavigation();
@@ -114,7 +113,7 @@ const Recommandation = () => {
           : recommendedProducts.map((product) => product.id);
         const response = await productsService.getRecommendedProducts(
           excludedIds,
-          { page, limit: ITEMS_PER_PAGE }
+          { page, limit: 10 }
         );
 
         // Vérifier si on a reçu des produits

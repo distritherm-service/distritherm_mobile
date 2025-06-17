@@ -17,11 +17,13 @@ interface SearchBarPresenterProps {
   isFocused: boolean;
   placeholder: string;
   autoFocus: boolean;
+  editable: boolean;
   onSearchChange: (text: string) => void;
   onFocus: () => void;
   onBlur: () => void;
   onClear: () => void;
   onSubmit: () => void;
+  onPress: () => void;
 }
 
 const SearchBarPresenter: React.FC<SearchBarPresenterProps> = ({
@@ -29,11 +31,13 @@ const SearchBarPresenter: React.FC<SearchBarPresenterProps> = ({
   isFocused,
   placeholder,
   autoFocus,
+  editable,
   onSearchChange,
   onFocus,
   onBlur,
   onClear,
   onSubmit,
+  onPress,
 }) => {
   const colors = useColors();
 
@@ -49,6 +53,19 @@ const SearchBarPresenter: React.FC<SearchBarPresenterProps> = ({
     },
     inputContainer: {
       flex: 1,
+    },
+    pressableInputContainer: {
+      flex: 1,
+      position: 'relative',
+    },
+    pressableOverlay: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      zIndex: 1,
+      backgroundColor: 'transparent',
     },
     buttonsContainer: {
       flexDirection: 'row',
@@ -84,12 +101,11 @@ const SearchBarPresenter: React.FC<SearchBarPresenterProps> = ({
     },
   });
 
-  return (
-    <View style={dynamicStyles.container}>
-      {/* Conteneur principal avec Input et boutons */}
-      <View style={dynamicStyles.searchWrapper}>
-        {/* Composant Input avec icône de recherche */}
-        <View style={dynamicStyles.inputContainer}>
+  const renderInputContainer = () => {
+    if (!editable) {
+      // Render a pressable container when not editable
+      return (
+        <View style={dynamicStyles.pressableInputContainer}>
           <Input
             name="search" // Requis par Input mais pas utilisé ici
             value={searchQuery}
@@ -98,13 +114,49 @@ const SearchBarPresenter: React.FC<SearchBarPresenterProps> = ({
             onBlur={onBlur}
             placeholder={placeholder}
             leftLogo={faMagnifyingGlass}
-            autoFocus={autoFocus}
+            autoFocus={false} // Never auto focus when not editable
             returnKeyType="search"
             onSubmitEditing={onSubmit}
             autoCapitalize="none"
             autoCorrect={false}
+            editable={false}
+            pointerEvents="none"
+          />
+          <Pressable
+            style={dynamicStyles.pressableOverlay}
+            onPress={onPress}
           />
         </View>
+      );
+    }
+
+    // Render normal editable input
+    return (
+      <View style={dynamicStyles.inputContainer}>
+        <Input
+          name="search" // Requis par Input mais pas utilisé ici
+          value={searchQuery}
+          onChangeText={onSearchChange}
+          onFocus={onFocus}
+          onBlur={onBlur}
+          placeholder={placeholder}
+          leftLogo={faMagnifyingGlass}
+          autoFocus={autoFocus}
+          returnKeyType="search"
+          onSubmitEditing={onSubmit}
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+      </View>
+    );
+  };
+
+  return (
+    <View style={dynamicStyles.container}>
+      {/* Conteneur principal avec Input et boutons */}
+      <View style={dynamicStyles.searchWrapper}>
+        {/* Composant Input avec icône de recherche */}
+        {renderInputContainer()}
 
         {/* Conteneur des boutons à droite */}
         {(searchQuery.length > 0 || (isFocused && searchQuery.trim().length > 0)) && (
