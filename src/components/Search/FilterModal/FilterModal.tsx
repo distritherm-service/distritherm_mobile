@@ -21,6 +21,8 @@ interface FilterModalProps {
   isLoadingFilterData?: boolean;
   onClose: () => void;
   onApplyFilter: (filter: SearchFilter) => void;
+  onClearIndividualFilter?: (filterType: 'category' | 'mark' | 'price' | 'promotion') => void;
+  onClearAllFilters?: () => void;
 }
 
 /**
@@ -35,6 +37,8 @@ const FilterModal: React.FC<FilterModalProps> = ({
   isLoadingFilterData,
   onClose,
   onApplyFilter,
+  onClearIndividualFilter,
+  onClearAllFilters,
 }) => {
   // Use pre-loaded data
   const categories = preLoadedCategories || [];
@@ -46,7 +50,6 @@ const FilterModal: React.FC<FilterModalProps> = ({
   // Animation values
   const slideAnim = useRef(new Animated.Value(0)).current;
   const overlayOpacity = useRef(new Animated.Value(0)).current;
-
 
   // Handle modal visibility animations
   useEffect(() => {
@@ -61,7 +64,6 @@ const FilterModal: React.FC<FilterModalProps> = ({
   useEffect(() => {
     setTempFilter(currentFilter);
   }, [currentFilter]);
-
 
   const animateIn = () => {
     Animated.parallel([
@@ -94,7 +96,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
   };
 
   const handleCategorySelect = (categoryId: number, categoryName: string) => {
-    setTempFilter(prev => ({
+    setTempFilter((prev) => ({
       ...prev,
       categoryId: prev.categoryId === categoryId ? undefined : categoryId,
       categoryName: prev.categoryId === categoryId ? undefined : categoryName,
@@ -102,7 +104,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
   };
 
   const handleMarkSelect = (markId: number, markName: string) => {
-    setTempFilter(prev => ({
+    setTempFilter((prev) => ({
       ...prev,
       markId: prev.markId === markId ? undefined : markId,
       markName: prev.markId === markId ? undefined : markName,
@@ -110,22 +112,74 @@ const FilterModal: React.FC<FilterModalProps> = ({
   };
 
   const handlePriceChange = (minPrice?: number, maxPrice?: number) => {
-    setTempFilter(prev => ({
+    setTempFilter((prev) => ({
       ...prev,
       minPrice,
       maxPrice,
     }));
   };
 
+  const handleMinPriceChange = (text: string) => {
+    const cleanText = text.replace(/[^0-9]/g, '');
+    const minPrice = cleanText ? parseInt(cleanText) : undefined;
+    handlePriceChange(minPrice, tempFilter.maxPrice);
+  };
+
+  const handleMaxPriceChange = (text: string) => {
+    const cleanText = text.replace(/[^0-9]/g, '');
+    const maxPrice = cleanText ? parseInt(cleanText) : undefined;
+    handlePriceChange(tempFilter.minPrice, maxPrice);
+  };
+
   const handlePromotionToggle = () => {
-    setTempFilter(prev => ({
+    setTempFilter((prev) => ({
       ...prev,
       inPromotion: !prev.inPromotion,
     }));
   };
 
   const handleClearAll = () => {
-    setTempFilter({});
+    if (onClearAllFilters) {
+      // Use immediate clearing if available
+      onClearAllFilters();
+      onClose();
+    } else {
+      // Fallback to old behavior
+      setTempFilter({});
+      onApplyFilter({});
+      onClose();
+    }
+  };
+
+  const handleClearIndividual = (filterType: 'category' | 'mark' | 'price' | 'promotion') => {
+    if (onClearIndividualFilter) {
+      // Use immediate clearing if available
+      onClearIndividualFilter(filterType);
+      onClose();
+    } else {
+      // Fallback to temp filter update
+      const newTempFilter = { ...tempFilter };
+      
+      switch (filterType) {
+        case 'category':
+          delete newTempFilter.categoryId;
+          delete newTempFilter.categoryName;
+          break;
+        case 'mark':
+          delete newTempFilter.markId;
+          delete newTempFilter.markName;
+          break;
+        case 'price':
+          delete newTempFilter.minPrice;
+          delete newTempFilter.maxPrice;
+          break;
+        case 'promotion':
+          delete newTempFilter.inPromotion;
+          break;
+      }
+      
+      setTempFilter(newTempFilter);
+    }
   };
 
   const handleApply = () => {
@@ -142,26 +196,58 @@ const FilterModal: React.FC<FilterModalProps> = ({
     return count;
   };
 
+  // Generate category options for the UI
+  const categoryOptions = categories.map(category => ({
+    label: category.name,
+    value: category.id.toString(),
+    id: category.id,
+  }));
+
+  // Find selected category
+  const selectedCategory = tempFilter.categoryId 
+    ? categoryOptions.find(option => option.id === tempFilter.categoryId)
+    : undefined;
+
+  // Generate mark options for the UI
+  const markOptions = marks.map(mark => ({
+    label: mark.name,
+    value: mark.id.toString(),
+    id: mark.id,
+  }));
+
+  // Find selected mark
+  const selectedMark = tempFilter.markId 
+    ? markOptions.find(option => option.id === tempFilter.markId)
+    : undefined;
+
   return (
     <FilterModalPresenter
       isVisible={isVisible}
-      categories={categories}
-      marks={marks}
       isLoadingCategories={isLoadingFilterData || false}
       isLoadingMarks={isLoadingFilterData || false}
       tempFilter={tempFilter}
       activeFiltersCount={getActiveFiltersCount()}
+      // Category options for the UI
+      categoryOptions={categoryOptions}
+      selectedCategory={selectedCategory}
+      // Mark options for the UI
+      markOptions={markOptions}
+      selectedMark={selectedMark}
       onClose={onClose}
       onCategorySelect={handleCategorySelect}
       onMarkSelect={handleMarkSelect}
       onPriceChange={handlePriceChange}
+      onMinPriceChange={handleMinPriceChange}
+      onMaxPriceChange={handleMaxPriceChange}
       onPromotionToggle={handlePromotionToggle}
       onClearAll={handleClearAll}
+      onClearIndividual={handleClearIndividual}
       onApply={handleApply}
+      // Animation props
       slideAnim={slideAnim}
       overlayOpacity={overlayOpacity}
     />
   );
 };
 
-export default FilterModal; 
+export default FilterModal;

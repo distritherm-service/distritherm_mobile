@@ -316,15 +316,53 @@ const OnSearchSection: React.FC<OnSearchSectionProps> = ({
   }, []);
 
   /**
-   * Handle apply filter
+   * Handle apply filter with immediate feedback
    */
   const handleApplyFilter = useCallback(
     (newFilter: SearchFilter) => {
+      setIsLoadingResults(true);
       onFilterChange(newFilter);
       setIsFilterModalOpen(false);
     },
     [onFilterChange]
   );
+
+  /**
+   * Handle clearing individual filters immediately
+   */
+  const handleClearIndividualFilter = useCallback(
+    (filterType: 'category' | 'mark' | 'price' | 'promotion') => {
+      const newFilter = { ...filter };
+      
+      switch (filterType) {
+        case 'category':
+          delete newFilter.categoryId;
+          delete newFilter.categoryName;
+          break;
+        case 'mark':
+          delete newFilter.markId;
+          delete newFilter.markName;
+          break;
+        case 'price':
+          delete newFilter.minPrice;
+          delete newFilter.maxPrice;
+          break;
+        case 'promotion':
+          delete newFilter.inPromotion;
+          break;
+      }
+      
+      onFilterChange(newFilter);
+    },
+    [filter, onFilterChange]
+  );
+
+  /**
+   * Handle clearing all filters immediately
+   */
+  const handleClearAllFilters = useCallback(() => {
+    onFilterChange({});
+  }, [onFilterChange]);
 
   return (
     <OnSearchSectionPresenter
@@ -346,6 +384,8 @@ const OnSearchSection: React.FC<OnSearchSectionProps> = ({
       onFilterPress={handleFilterPress}
       onFilterModalClose={handleFilterModalClose}
       onApplyFilter={handleApplyFilter}
+      onClearIndividualFilter={handleClearIndividualFilter}
+      onClearAllFilters={handleClearAllFilters}
       // Animation props
       clearIconScale={clearIconScale}
       onClearPressIn={handleClearPressIn}

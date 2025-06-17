@@ -17,30 +17,27 @@ import { SearchFilter } from "src/navigation/types";
 import Input from "src/components/Input/Input";
 import { InputType } from "src/types/InputType";
 
-interface Category {
-  id: number;
-  name: string;
-}
-
-interface Mark {
-  id: number;
-  name: string;
-}
-
 interface FilterModalPresenterProps {
   isVisible: boolean;
-  categories: Category[];
-  marks: Mark[];
   isLoadingCategories: boolean;
   isLoadingMarks: boolean;
   tempFilter: SearchFilter;
   activeFiltersCount: number;
+  // Category options for the UI
+  categoryOptions: Array<{label: string; value: string; id: number}>;
+  selectedCategory?: {label: string; value: string; id: number};
+  // Mark options for the UI
+  markOptions: Array<{label: string; value: string; id: number}>;
+  selectedMark?: {label: string; value: string; id: number};
   onClose: () => void;
   onCategorySelect: (categoryId: number, categoryName: string) => void;
   onMarkSelect: (markId: number, markName: string) => void;
   onPriceChange: (minPrice?: number, maxPrice?: number) => void;
+  onMinPriceChange: (text: string) => void;
+  onMaxPriceChange: (text: string) => void;
   onPromotionToggle: () => void;
   onClearAll: () => void;
+  onClearIndividual: (filterType: 'category' | 'mark' | 'price' | 'promotion') => void;
   onApply: () => void;
   // Animation props
   slideAnim: Animated.Value;
@@ -53,18 +50,25 @@ interface FilterModalPresenterProps {
  */
 const FilterModalPresenter: React.FC<FilterModalPresenterProps> = ({
   isVisible,
-  categories,
-  marks,
   isLoadingCategories,
   isLoadingMarks,
   tempFilter,
   activeFiltersCount,
+  // Category options for the UI
+  categoryOptions,
+  selectedCategory,
+  // Mark options for the UI
+  markOptions,
+  selectedMark,
   onClose,
   onCategorySelect,
   onMarkSelect,
   onPriceChange,
+  onMinPriceChange,
+  onMaxPriceChange,
   onPromotionToggle,
   onClearAll,
+  onClearIndividual,
   onApply,
   slideAnim,
   overlayOpacity,
@@ -150,12 +154,18 @@ const FilterModalPresenter: React.FC<FilterModalPresenterProps> = ({
       shadowRadius: 3,
       elevation: 2,
     },
+    sectionHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: ms(14),
+    },
     sectionTitle: {
       fontSize: ms(16),
       fontWeight: "700",
       color: colors.text, // 60% - Dominant text
-      marginBottom: ms(14),
       letterSpacing: 0.3,
+      flex: 1,
     },
     categoryGrid: {
       flexDirection: "row",
@@ -276,12 +286,25 @@ const FilterModalPresenter: React.FC<FilterModalPresenterProps> = ({
       elevation: 4,
     },
     clearButton: {
+      paddingHorizontal: ms(8),
+      paddingVertical: ms(4),
+      borderRadius: ms(6),
+      backgroundColor: colors.error[100],
+      borderWidth: 1,
+      borderColor: colors.error[300],
+    },
+    clearButtonText: {
+      fontSize: ms(11),
+      fontWeight: "600",
+      color: colors.error[700],
+    },
+    footerClearButton: {
       flex: 1,
       paddingVertical: ms(14),
       borderRadius: ms(16),
       borderWidth: 1,
-      borderColor: colors.border, // 60% - Neutral border
-      backgroundColor: colors.background, // 60% - Neutral background
+      borderColor: colors.border,
+      backgroundColor: colors.background,
       alignItems: "center",
       justifyContent: "center",
       shadowColor: colors.textSecondary,
@@ -293,10 +316,10 @@ const FilterModalPresenter: React.FC<FilterModalPresenterProps> = ({
       shadowRadius: 2,
       elevation: 1,
     },
-    clearButtonText: {
+    footerClearButtonText: {
       fontSize: ms(14),
       fontWeight: "600",
-      color: colors.textSecondary, // 60% - Neutral text
+      color: colors.textSecondary,
     },
     applyButton: {
       flex: 2,
@@ -346,26 +369,22 @@ const FilterModalPresenter: React.FC<FilterModalPresenterProps> = ({
   });
 
   const renderCategorySection = () => {
-    // Convert categories to SelectOption format
-    const categoryOptions = categories.map(category => ({
-      label: category.name,
-      value: category.id.toString(),
-      id: category.id,
-    }));
-
-    // Find selected category
-    const selectedCategory = tempFilter.categoryId 
-      ? categoryOptions.find(option => option.id === tempFilter.categoryId)
-      : undefined;
-
     return (
-      <View style={dynamicStyles.section}>
+    <View style={dynamicStyles.section}>
+      <View style={dynamicStyles.sectionHeader}>
         <Text style={dynamicStyles.sectionTitle}>Catégories</Text>
-        {isLoadingCategories ? (
-          <View style={dynamicStyles.loadingContainer}>
-            <ActivityIndicator size="small" color={colors.primary[500]} />
-            <Text style={dynamicStyles.loadingText}>Chargement...</Text>
-          </View>
+        <Pressable
+          style={dynamicStyles.clearButton}
+          onPress={() => onClearIndividual('category')}
+        >
+          <Text style={dynamicStyles.clearButtonText}>Effacer</Text>
+        </Pressable>
+      </View>
+      {isLoadingCategories ? (
+        <View style={dynamicStyles.loadingContainer}>
+          <ActivityIndicator size="small" color={colors.primary[500]} />
+          <Text style={dynamicStyles.loadingText}>Chargement...</Text>
+        </View>
         ) : (
           <Input
             name="category"
@@ -389,32 +408,28 @@ const FilterModalPresenter: React.FC<FilterModalPresenterProps> = ({
               elevation: 1,
             }}
           />
-        )}
-      </View>
-    );
+      )}
+    </View>
+  );
   };
 
   const renderMarkSection = () => {
-    // Convert marks to SelectOption format
-    const markOptions = marks.map(mark => ({
-      label: mark.name,
-      value: mark.id.toString(),
-      id: mark.id,
-    }));
-
-    // Find selected mark
-    const selectedMark = tempFilter.markId 
-      ? markOptions.find(option => option.id === tempFilter.markId)
-      : undefined;
-
     return (
-      <View style={dynamicStyles.section}>
+    <View style={dynamicStyles.section}>
+      <View style={dynamicStyles.sectionHeader}>
         <Text style={dynamicStyles.sectionTitle}>Marques</Text>
-        {isLoadingMarks ? (
-          <View style={dynamicStyles.loadingContainer}>
-            <ActivityIndicator size="small" color={colors.primary[500]} />
-            <Text style={dynamicStyles.loadingText}>Chargement...</Text>
-          </View>
+        <Pressable
+          style={dynamicStyles.clearButton}
+          onPress={() => onClearIndividual('mark')}
+        >
+          <Text style={dynamicStyles.clearButtonText}>Effacer</Text>
+        </Pressable>
+      </View>
+      {isLoadingMarks ? (
+        <View style={dynamicStyles.loadingContainer}>
+          <ActivityIndicator size="small" color={colors.primary[500]} />
+          <Text style={dynamicStyles.loadingText}>Chargement...</Text>
+        </View>
         ) : (
           <Input
             name="mark"
@@ -438,27 +453,31 @@ const FilterModalPresenter: React.FC<FilterModalPresenterProps> = ({
               elevation: 1,
             }}
           />
-        )}
-      </View>
-    );
+      )}
+    </View>
+  );
   };
 
   const renderPriceSection = () => (
     <View style={dynamicStyles.section}>
-      <Text style={dynamicStyles.sectionTitle}>Fourchette de prix</Text>
+      <View style={dynamicStyles.sectionHeader}>
+        <Text style={dynamicStyles.sectionTitle}>Fourchette de prix</Text>
+        <Pressable
+          style={dynamicStyles.clearButton}
+          onPress={() => onClearIndividual('price')}
+        >
+          <Text style={dynamicStyles.clearButtonText}>Effacer</Text>
+        </Pressable>
+      </View>
       <View style={dynamicStyles.priceContainer}>
         <View style={dynamicStyles.priceInputWrapper}>
           <Text style={dynamicStyles.priceLabel}>Prix minimum</Text>
           <Input
             name="minPrice"
             type={InputType.NUMERIC}
-            placeholder="0"
-            value={tempFilter.minPrice?.toString() || ""}
-            onChangeText={(text) => {
-              const cleanText = text.replace(/[^0-9]/g, '');
-              const minPrice = cleanText ? parseInt(cleanText) : undefined;
-              onPriceChange(minPrice, tempFilter.maxPrice);
-            }}
+              placeholder="0"
+              value={tempFilter.minPrice?.toString() || ""}
+              onChangeText={onMinPriceChange}
             style={{
               backgroundColor: '#FFFFFF', // 60% - Neutral background
               borderColor: colors.border,
@@ -480,13 +499,9 @@ const FilterModalPresenter: React.FC<FilterModalPresenterProps> = ({
           <Input
             name="maxPrice"
             type={InputType.NUMERIC}
-            placeholder="∞"
-            value={tempFilter.maxPrice?.toString() || ""}
-            onChangeText={(text) => {
-              const cleanText = text.replace(/[^0-9]/g, '');
-              const maxPrice = cleanText ? parseInt(cleanText) : undefined;
-              onPriceChange(tempFilter.minPrice, maxPrice);
-            }}
+              placeholder="∞"
+              value={tempFilter.maxPrice?.toString() || ""}
+              onChangeText={onMaxPriceChange}
             style={{
               backgroundColor: '#FFFFFF', // 60% - Neutral background
               borderColor: colors.border,
@@ -509,7 +524,15 @@ const FilterModalPresenter: React.FC<FilterModalPresenterProps> = ({
 
   const renderPromotionSection = () => (
     <View style={dynamicStyles.section}>
-      <Text style={dynamicStyles.sectionTitle}>Options</Text>
+      <View style={dynamicStyles.sectionHeader}>
+        <Text style={dynamicStyles.sectionTitle}>Options</Text>
+        <Pressable
+          style={dynamicStyles.clearButton}
+          onPress={() => onClearIndividual('promotion')}
+        >
+          <Text style={dynamicStyles.clearButtonText}>Effacer</Text>
+        </Pressable>
+      </View>
       <Pressable
         style={({ pressed }) => [
           dynamicStyles.promotionContainer,
@@ -605,12 +628,12 @@ const FilterModalPresenter: React.FC<FilterModalPresenterProps> = ({
           <View style={dynamicStyles.footer}>
             <Pressable
               style={({ pressed }) => [
-                dynamicStyles.clearButton,
+                dynamicStyles.footerClearButton,
                 pressed && { backgroundColor: colors.primary[100] }, // 30% - Secondary
               ]}
               onPress={onClearAll}
             >
-              <Text style={dynamicStyles.clearButtonText}>Effacer tout</Text>
+              <Text style={dynamicStyles.footerClearButtonText}>Effacer tout</Text>
             </Pressable>
             <Pressable
               style={({ pressed }) => [

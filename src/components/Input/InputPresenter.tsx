@@ -70,6 +70,7 @@ const InputPresenter = ({
       color: colors.tertiary[500],
       backgroundColor: colors.primary[50],
       shadowColor: colors.tertiary[500],
+      flex: 1,
       shadowOffset: {
         width: 0,
         height: 1,
@@ -284,12 +285,12 @@ const InputPresenter = ({
                 ]}
                 onPress={() => {
                   if (type === InputType.SELECT) {
-                    onChangeText(item.value);
+                  onChangeText(item.value);
                   } else if (type === InputType.SEARCHABLE_SELECT && onSelectOption) {
                     onSelectOption(item);
                   }
                   setIsSelectOpen(false);
-                  setSearchQuery(''); // Clear search after selection
+                  setSearchQuery('');
                 }}
               >
                 <Text style={[

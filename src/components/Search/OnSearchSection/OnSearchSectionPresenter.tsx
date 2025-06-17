@@ -45,6 +45,8 @@ interface OnSearchSectionPresenterProps {
   onFilterPress: () => void;
   onFilterModalClose: () => void;
   onApplyFilter: (filter: SearchFilter) => void;
+  onClearIndividualFilter: (filterType: 'category' | 'mark' | 'price' | 'promotion') => void;
+  onClearAllFilters: () => void;
   // Animation props
   clearIconScale: Animated.Value;
   onClearPressIn: () => void;
@@ -74,12 +76,26 @@ const OnSearchSectionPresenter: React.FC<OnSearchSectionPresenterProps> = ({
   onFilterPress,
   onFilterModalClose,
   onApplyFilter,
+  onClearIndividualFilter,
+  onClearAllFilters,
   // Animation props
   clearIconScale,
   onClearPressIn,
   onClearPressOut,
 }) => {
   const colors = useColors();
+
+  // Count active filters for the filter button indicator
+  const getActiveFilterCount = () => {
+    let count = 0;
+    if (filter.categoryId) count++;
+    if (filter.markId) count++;
+    if (filter.minPrice || filter.maxPrice) count++;
+    if (filter.inPromotion) count++;
+    return count;
+  };
+
+  const activeFilterCount = getActiveFilterCount();
 
   // Dynamic styles using react-native-size-matters for responsiveness
   const dynamicStyles = StyleSheet.create({
@@ -284,6 +300,29 @@ const OnSearchSectionPresenter: React.FC<OnSearchSectionPresenterProps> = ({
       justifyContent: "center",
       alignItems: "center",
     },
+    filterButtonContent: {
+      position: "relative",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    filterBadge: {
+      position: "absolute",
+      top: ms(-6),
+      right: ms(-6),
+      backgroundColor: colors.primary[600],
+      borderRadius: ms(8),
+      minWidth: ms(16),
+      height: ms(16),
+      justifyContent: "center",
+      alignItems: "center",
+      paddingHorizontal: ms(4),
+    },
+    filterBadgeText: {
+      color: colors.surface,
+      fontSize: ms(10),
+      fontWeight: "600",
+      textAlign: "center",
+    },
     headerRow: {
       flexDirection: "row",
       alignItems: "center",
@@ -303,6 +342,8 @@ const OnSearchSectionPresenter: React.FC<OnSearchSectionPresenterProps> = ({
         isLoadingFilterData={isLoadingFilterData}
         onClose={onFilterModalClose}
         onApplyFilter={onApplyFilter}
+        onClearIndividualFilter={onClearIndividualFilter}
+        onClearAllFilters={onClearAllFilters}
       />
     );
   };
@@ -433,56 +474,7 @@ const OnSearchSectionPresenter: React.FC<OnSearchSectionPresenterProps> = ({
                   style={{ marginRight: ms(10) }}
                 />
                 <Text style={dynamicStyles.searchQuery}>{searchQuery}</Text>
-                {filter.categoryName && (
-                  <View style={dynamicStyles.filterChip}>
-                    <Text style={dynamicStyles.filterText}>
-                      {filter.categoryName}
-                    </Text>
-                  </View>
-                )}
-                {filter.markName && (
-                  <View style={dynamicStyles.filterChip}>
-                    <Text style={dynamicStyles.filterText}>
-                      {filter.markName}
-                    </Text>
-                  </View>
-                )}
-                {(filter.minPrice || filter.maxPrice) && (
-                  <View style={dynamicStyles.filterChip}>
-                    <Text style={dynamicStyles.filterText}>
-                      {filter.minPrice && filter.maxPrice
-                        ? `${filter.minPrice}€ - ${filter.maxPrice}€`
-                        : filter.minPrice
-                        ? `≥ ${filter.minPrice}€`
-                        : `≤ ${filter.maxPrice}€`}
-                    </Text>
-                  </View>
-                )}
-                {filter.inPromotion && (
-                  <View style={dynamicStyles.filterChip}>
-                    <Text style={dynamicStyles.filterText}>Promotion</Text>
-                  </View>
-                )}
               </View>
-              <Pressable
-                style={dynamicStyles.clearSearchBtn}
-                onPress={onClearSearch}
-                onPressIn={onClearPressIn}
-                onPressOut={onClearPressOut}
-              >
-                <Animated.View
-                  style={[
-                    dynamicStyles.clearSearchIcon,
-                    { transform: [{ scale: clearIconScale }] },
-                  ]}
-                >
-                  <FontAwesome6
-                    name="xmark"
-                    size={ms(14)}
-                    color={colors.primary[700]}
-                  />
-                </Animated.View>
-              </Pressable>
             </Pressable>
           </View>
 
@@ -494,11 +486,20 @@ const OnSearchSectionPresenter: React.FC<OnSearchSectionPresenterProps> = ({
             ]}
             onPress={onFilterPress}
           >
-            <FontAwesome6
-              name="ellipsis-vertical"
-              size={ms(18)}
-              color={colors.primary[600]}
-            />
+            <View style={dynamicStyles.filterButtonContent}>
+              <FontAwesome6
+                name="ellipsis-vertical"
+                size={ms(18)}
+                color={colors.primary[600]}
+              />
+              {activeFilterCount > 0 && (
+                <View style={dynamicStyles.filterBadge}>
+                  <Text style={dynamicStyles.filterBadgeText}>
+                    {activeFilterCount}
+                  </Text>
+                </View>
+              )}
+            </View>
           </Pressable>
         </View>
       </View>
