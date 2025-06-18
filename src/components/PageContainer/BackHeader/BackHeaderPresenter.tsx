@@ -151,6 +151,8 @@ const BackHeaderPresenter: React.FC<BackHeaderPresenterProps> = ({
             <View style={dynamicStyles.titleExtensionSpace} />
           </View>
         )}
+
+        
       </View>
       
       {/* Gray separator line */}

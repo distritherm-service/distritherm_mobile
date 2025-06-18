@@ -445,7 +445,6 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
       style={dynamicStyles.container}
       onCustomBack={onNavigateBack}
     >
-      {renderHeader()}
       {renderContent()}
     </PageContainer>
   );
