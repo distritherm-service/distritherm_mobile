@@ -26,6 +26,7 @@ export type RootStackParamList = {
   ForgotPassword: undefined;
   Product: { productId: number };
   Search: SearchParams | undefined;
+  Promotions: undefined;
 };
 
 declare global {

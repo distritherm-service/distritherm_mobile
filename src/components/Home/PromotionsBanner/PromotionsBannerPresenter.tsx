@@ -8,23 +8,26 @@ import {
   Pressable,
   Animated,
 } from "react-native";
-import React, { RefObject, useRef, useEffect } from "react";
+import React, { RefObject } from "react";
 import { globalStyles } from "src/utils/globalStyles";
-import { PromotionBannerDto } from "src/services/promotionBannersService";
+import { PromotionBannerDto, PromotionBannerResponseDto } from "src/services/promotionBannersService";
 import { ms } from "react-native-size-matters";
 import { useColors } from "src/hooks/useColors";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesome6 } from "@expo/vector-icons";
 
 interface PromotionsBannerPresenterProps {
   banners: PromotionBannerDto[];
   flatlistRef: RefObject<FlatList | null>;
   currentIndex: number;
-  imageLoadingStates: {[key: string]: boolean};
-  onDiscoverPress: () => void;
+  imageLoadingStates: { [key: string]: boolean };
+  shimmerAnimations: { [key: string]: Animated.Value };
+  onDiscoverPress: (promotionBanner: PromotionBannerDto) => void;
   onScrollEnd: (event: any) => void;
   onImageLoad: (bannerId: string) => void;
   onImageError: (bannerId: string) => void;
+  onViewAllPress: () => void;
 }
 
 const { width: screenWidth } = Dimensions.get("window");
@@ -32,41 +35,19 @@ const { width: screenWidth } = Dimensions.get("window");
 const PromotionBannerItem = ({
   item,
   isImageLoading,
+  shimmerAnim,
   onDiscoverPress,
   onImageLoad,
   onImageError,
 }: {
   item: PromotionBannerDto;
   isImageLoading: boolean;
-  onDiscoverPress: (promotion: PromotionBannerDto) => void;
+  shimmerAnim: Animated.Value;
+  onDiscoverPress: (promotionBanner: PromotionBannerDto) => void;
   onImageLoad: (bannerId: string) => void;
   onImageError: (bannerId: string) => void;
 }) => {
   const colors = useColors();
-  // Animation pour le skeleton de l'image
-  const shimmerAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    if (isImageLoading) {
-      const shimmerAnimation = Animated.loop(
-        Animated.sequence([
-          Animated.timing(shimmerAnim, {
-            toValue: 1,
-            duration: 1500,
-            useNativeDriver: true,
-          }),
-          Animated.timing(shimmerAnim, {
-            toValue: 0,
-            duration: 1500,
-            useNativeDriver: true,
-          }),
-        ])
-      );
-      shimmerAnimation.start();
-
-      return () => shimmerAnimation.stop();
-    }
-  }, [isImageLoading]);
 
   const shimmerTranslateX = shimmerAnim.interpolate({
     inputRange: [0, 1],
@@ -82,8 +63,8 @@ const PromotionBannerItem = ({
   const dynamicStyles = StyleSheet.create({
     bannerContainer: {
       width: screenWidth - ms(40), // Using react-native-size-matters for responsive calculation
-      height: ms(180), // Using react-native-size-matters for responsive height
-      borderRadius: ms(16), // Using react-native-size-matters for responsive border radius
+      height: ms(180),
+      borderRadius: ms(16),
       overflow: "hidden",
       marginHorizontal: 0,
       position: "relative",
@@ -104,10 +85,10 @@ const PromotionBannerItem = ({
       right: 0,
       bottom: 0,
       backgroundColor: colors.primary[200],
-      overflow: 'hidden',
+      overflow: "hidden",
     },
     shimmerOverlay: {
-      position: 'absolute',
+      position: "absolute",
       top: 0,
       left: 0,
       right: 0,
@@ -133,9 +114,9 @@ const PromotionBannerItem = ({
     },
     discoverButton: {
       backgroundColor: "rgba(255, 255, 255, 0.98)",
-      paddingHorizontal: ms(16), // Using react-native-size-matters for responsive padding
-      paddingVertical: ms(6), // Using react-native-size-matters for responsive padding
-      borderRadius: ms(20), // Using react-native-size-matters for responsive border radius
+      paddingHorizontal: ms(16),
+      paddingVertical: ms(6),
+      borderRadius: ms(20),
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
@@ -157,7 +138,7 @@ const PromotionBannerItem = ({
       letterSpacing: 0.3,
     },
     buttonIcon: {
-      marginLeft: ms(6), // Using react-native-size-matters for responsive margin
+      marginLeft: ms(6),
     },
   });
 
@@ -172,7 +153,7 @@ const PromotionBannerItem = ({
           onLoad={() => onImageLoad(item.id.toString())}
           onError={() => onImageError(item.id.toString())}
         />
-        
+
         {/* Skeleton pendant le chargement de l'image */}
         {isImageLoading && (
           <View style={dynamicStyles.imageSkeleton}>
@@ -218,17 +199,18 @@ const PromotionsBannerPresenter = ({
   flatlistRef,
   currentIndex,
   imageLoadingStates,
+  shimmerAnimations,
   onDiscoverPress,
   onScrollEnd,
   onImageLoad,
   onImageError,
+  onViewAllPress,
 }: PromotionsBannerPresenterProps) => {
   const colors = useColors();
 
-  // Dynamic styles using react-native-size-matters for responsiveness
   const dynamicStyles = StyleSheet.create({
     container: {
-      height: ms(240), // Using react-native-size-matters for responsive height
+      height: ms(280),
       width: "100%",
     },
     bannerWrapper: {
@@ -239,15 +221,15 @@ const PromotionsBannerPresenter = ({
       flexDirection: "row",
       justifyContent: "center",
       alignItems: "center",
-      marginTop: ms(16), // Using react-native-size-matters for responsive margin
-      marginBottom: ms(8), // Using react-native-size-matters for responsive margin
+      marginTop: ms(16),
+      marginBottom: ms(8),
     },
     paginationDot: {
-      width: ms(8), // Using react-native-size-matters for responsive width
-      height: ms(8), // Using react-native-size-matters for responsive height
-      borderRadius: ms(4), // Using react-native-size-matters for responsive border radius
+      width: ms(8),
+      height: ms(8),
+      borderRadius: ms(4),
       backgroundColor: colors.tertiary[300],
-      marginHorizontal: ms(4), // Using react-native-size-matters for responsive margin
+      marginHorizontal: ms(4),
       opacity: 0.5,
     },
     activePaginationDot: {
@@ -255,11 +237,37 @@ const PromotionsBannerPresenter = ({
       opacity: 1,
       transform: [{ scale: 1.2 }],
     },
+    seeAllButton: {
+      alignSelf: "flex-end",
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "flex-end",
+      height: ms(40),
+      paddingLeft: ms(30),
+      paddingRight: ms(5),
+    },
+    seeAllText: {
+      fontSize: ms(11), // Using react-native-size-matters for responsive font size
+      fontWeight: "500",
+      color: colors.textSecondary,
+      marginRight: ms(2), // Using react-native-size-matters for responsive margin
+    },
   });
 
   return (
     <View style={[globalStyles.container, dynamicStyles.container]}>
       <View style={dynamicStyles.bannerWrapper}>
+        <Pressable 
+          style={dynamicStyles.seeAllButton}
+          onPress={onViewAllPress}
+        >
+          <Text style={dynamicStyles.seeAllText}>Voir tout</Text>
+          <FontAwesome6
+            name="chevron-right"
+            size={ms(14)}
+            color={colors.primary[600]}
+          />
+        </Pressable>
         <FlatList
           ref={flatlistRef}
           data={banners}
@@ -267,6 +275,7 @@ const PromotionsBannerPresenter = ({
             <PromotionBannerItem
               item={item}
               isImageLoading={imageLoadingStates[item.id.toString()] || false}
+              shimmerAnim={shimmerAnimations[item.id.toString()]}
               onDiscoverPress={onDiscoverPress}
               onImageLoad={onImageLoad}
               onImageError={onImageError}

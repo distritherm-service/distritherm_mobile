@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
-import React, { useState } from "react";
+import { Alert, StyleSheet } from "react-native";
+import React, { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import ProductItemPresenter from "./ProductItemPresenter";
@@ -14,14 +14,20 @@ type NavigationProp = StackNavigationProp<RootStackParamList>;
 
 interface ProductItemProps {
   product?: ProductBasicDto;
+  onPressFavoriteAdd?: () => any;
+  onPressFavoriteRemove?: () => any;
+  onPressProduct?: () => any;
 }
 
 const ProductItem: React.FC<ProductItemProps> = ({
   product,
+  onPressFavoriteAdd,
+  onPressFavoriteRemove,
+  onPressProduct,
 }) => {
   const navigation = useNavigation<NavigationProp>();
   const { user } = useAuth();
-  
+
   // Logique métier
   const isTabletDevice = isTablet();
   // Données d'exemple pour un produit de construction
@@ -50,13 +56,12 @@ const ProductItem: React.FC<ProductItemProps> = ({
   // États pour la gestion de l'image
   const [imageError, setImageError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [isFavoriteLoading, setIsFavoriteLoading] = useState(false);
-  
+
   // État pour gérer le statut favori localement
   const [isFavorited, setIsFavorited] = useState(currentProduct.isFavorited);
-  
+
   // Mettre à jour l'état favori local quand le produit change
-  React.useEffect(() => {
+  useEffect(() => {
     setIsFavorited(currentProduct.isFavorited);
   }, [currentProduct.isFavorited]);
 
@@ -80,38 +85,46 @@ const ProductItem: React.FC<ProductItemProps> = ({
 
   // Handlers pour les actions
   const handlePress = () => {
-    // Navigate to Product screen with productId
-    navigation.navigate('Product', { productId: currentProduct.id });
+    if (onPressProduct) onPressProduct();
+    navigation.navigate("Product", { productId: currentProduct.id });
   };
 
   const handleFavoritePress = async () => {
     if (!user) {
-      console.log("User not authenticated");
+      Alert.alert(
+        "Vous n'êtes pas authentifié",
+        "Veuillez vous authentifier pour mettre un produit en favoris",
+        [
+          { text: "Annuler", style: "cancel" },
+          {
+            text: "Aller à la page de connexion",
+            style: "default",
+            onPress: () => {
+              navigation.navigate("Auth", { screen: "Login" });
+            },
+          },
+        ]
+      );
       return;
     }
 
     try {
-      setIsFavoriteLoading(true);
-      
       if (isFavorited) {
         // Remove from favorites
-        await favoritesService.deleteFavoriteByProduct(currentProduct.id);
-        console.log("Produit retiré des favoris:", currentProduct.name);
         setIsFavorited(false);
+        if (onPressFavoriteRemove) onPressFavoriteRemove();
+        await favoritesService.deleteFavoriteByProduct(currentProduct.id);
       } else {
-        // Add to favorites
+        setIsFavorited(true);
+        if (onPressFavoriteAdd) onPressFavoriteAdd();
         await favoritesService.createFavorite({
           productId: currentProduct.id,
           userId: user.id,
         });
-        console.log("Produit ajouté aux favoris:", currentProduct.name);
-        setIsFavorited(true);
+        if (onPressFavoriteAdd) onPressFavoriteAdd();
       }
-      
     } catch (error) {
-      console.error("Erreur lors de la gestion des favoris:", error);
-    } finally {
-      setIsFavoriteLoading(false);
+      console.error("Error handling favorite:", error);
     }
   };
 

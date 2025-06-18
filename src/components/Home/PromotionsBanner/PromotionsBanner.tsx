@@ -1,18 +1,21 @@
-import { FlatList, StyleSheet, Text, View, Dimensions } from "react-native";
+import { FlatList, StyleSheet, Text, View, Dimensions, Animated } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import PromotionsBannerPresenter from "./PromotionsBannerPresenter";
 import PromotionsBannerSkeleton from "./PromotionsBannerSkeleton/PromotionsBannerSkeleton";
-import promotionBannersService from "src/services/promotionBannersService";
+import promotionBannersService, { PromotionBannerDto } from "src/services/promotionBannersService";
 
 const { width: screenWidth } = Dimensions.get("window");
 import { ms } from "react-native-size-matters";
+import { useNavigation } from "@react-navigation/native";
 
 const PromotionsBanner = () => {
-  const [banners, setBanners] = useState([]);
+  const [banners, setBanners] = useState<PromotionBannerDto[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [imageLoadingStates, setImageLoadingStates] = useState<{[key: string]: boolean}>({});
+  const [shimmerAnimations, setShimmerAnimations] = useState<{[key: string]: Animated.Value}>({});
   const flatlistRef = useRef<FlatList>(null);
+  const navigation = useNavigation();
 
   useEffect(() => {
     const fetchPromotionBanners = async () => {
@@ -21,12 +24,16 @@ const PromotionsBanner = () => {
         const response = await promotionBannersService.findAll();
         setBanners(response.banners);
         
-        // Initialiser les états de chargement des images
+        // Initialiser les états de chargement des images et les animations
         const initialLoadingStates: {[key: string]: boolean} = {};
+        const initialAnimations: {[key: string]: Animated.Value} = {};
         response.banners.forEach((banner: any) => {
-          initialLoadingStates[banner.id.toString()] = true;
+          const bannerId = banner.id.toString();
+          initialLoadingStates[bannerId] = true;
+          initialAnimations[bannerId] = new Animated.Value(0);
         });
         setImageLoadingStates(initialLoadingStates);
+        setShimmerAnimations(initialAnimations);
       } catch (error) {
         console.error("Error fetching promotion banners:", error);
       } finally {
@@ -58,9 +65,35 @@ const PromotionsBanner = () => {
     return () => clearInterval(interval);
   }, [banners.length]);
 
-  const handleDiscoverPress = () => {
-    // Navigate to promotions page or handle discover action
-    console.log("Découvrez pressed - Navigate to promotions");
+  // Handle shimmer animations for loading images
+  useEffect(() => {
+    Object.keys(imageLoadingStates).forEach(bannerId => {
+      if (imageLoadingStates[bannerId] && shimmerAnimations[bannerId]) {
+        const shimmerAnimation = Animated.loop(
+          Animated.sequence([
+            Animated.timing(shimmerAnimations[bannerId], {
+              toValue: 1,
+              duration: 1500,
+              useNativeDriver: true,
+            }),
+            Animated.timing(shimmerAnimations[bannerId], {
+              toValue: 0,
+              duration: 1500,
+              useNativeDriver: true,
+            }),
+          ])
+        );
+        shimmerAnimation.start();
+
+        return () => shimmerAnimation.stop();
+      }
+    });
+  }, [imageLoadingStates, shimmerAnimations]);
+
+  const handleDiscoverPress = (promotionBanner: PromotionBannerDto) => {
+    if (promotionBanner?.promotion?.productId) {
+      navigation.navigate("Product", { productId: promotionBanner.promotion.productId });
+    }
   };
 
   // Handle manual scroll to update currentIndex
@@ -83,12 +116,15 @@ const PromotionsBanner = () => {
   };
 
   const handleImageError = (bannerId: string) => {
-    console.error(`Error loading image for banner ${bannerId}`);
     setImageLoadingStates(prev => ({
       ...prev,
       [bannerId]: false
     }));
   };
+
+  const handleClickViewAll = () => {
+    navigation.navigate("Promotions");
+  }
 
   // Afficher le skeleton pendant le chargement initial
   if (isLoading) {
@@ -101,10 +137,12 @@ const PromotionsBanner = () => {
       flatlistRef={flatlistRef}
       currentIndex={currentIndex}
       imageLoadingStates={imageLoadingStates}
+      shimmerAnimations={shimmerAnimations}
       onDiscoverPress={handleDiscoverPress}
       onScrollEnd={handleScrollEnd}
       onImageLoad={handleImageLoad}
       onImageError={handleImageError}
+      onViewAllPress={handleClickViewAll}
     />
   );
 };

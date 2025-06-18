@@ -54,49 +54,58 @@ const ProductItemPresenter: React.FC<ProductItemPresenterProps> = ({
   // Dynamic styles using colors from useColors hook
   const dynamicStyles = {
     container: {
-      backgroundColor: colors.primary[50],
-      borderColor: colors.secondary[100],
-      shadowColor: colors.tertiary[800],
+      backgroundColor: colors.surface,
+      borderColor: colors.border,
+      shadowColor: colors.text,
     },
     productImage: {
-      backgroundColor: colors.secondary[50],
-      borderColor: colors.secondary[100],
+      backgroundColor: colors.background,
+      borderColor: colors.borderDark,
     },
     loadingOverlay: {
-      backgroundColor: colors.secondary[50],
+      backgroundColor: colors.surface,
+    },
+    loadingText: {
+      color: colors.textSecondary,
     },
     promotionBadge: {
-      backgroundColor: colors.secondary[500],
-      shadowColor: colors.tertiary[800],
+      backgroundColor: colors.accent[500],
+      shadowColor: colors.accent[900],
     },
     promotionText: {
-      color: colors.primary[50],
+      color: colors.surface,
     },
     favoriteButton: {
-      backgroundColor: colors.primary[50],
-      borderColor: colors.secondary[200],
+      backgroundColor: colors.surface,
+      borderColor: colors.border,
     },
     favoriteButtonActive: {
-      backgroundColor: colors.secondary[500],
-      borderColor: colors.secondary[600],
+      backgroundColor: colors.accent[500],
+      borderColor: colors.accent[600],
+    },
+    favoriteIcon: {
+      color: isFavorited ? colors.surface : colors.textSecondary,
     },
     categoryText: {
       color: colors.secondary[600],
     },
     productName: {
-      color: colors.tertiary[700],
+      color: colors.text,
+    },
+    priceBackground: {
+      backgroundColor: colors.secondary[50],
     },
     price: {
-      color: colors.secondary[600],
+      color: colors.secondary[700],
     },
     unit: {
-      color: colors.tertiary[500],
+      color: colors.textSecondary,
+    },
+    stockDot: {
+      backgroundColor: inStock ? colors.success[500] : colors.danger[500],
     },
     stockText: {
-      color: colors.secondary[500],
-    },
-    stockTextOutOfStock: {
-      color: colors.tertiary[500],
+      color: inStock ? colors.success[600] : colors.danger[600],
     },
   };
 
@@ -132,14 +141,16 @@ const ProductItemPresenter: React.FC<ProductItemPresenterProps> = ({
               isTabletDevice && styles.productImageTablet,
             ]}
           >
-            <Text style={styles.loadingText}>📦</Text>
+            <Text style={[styles.loadingText, dynamicStyles.loadingText]}>📦</Text>
           </View>
         )}
 
         {/* Promotion Badge */}
         {promotionPercentage && (
           <View style={[styles.promotionBadge, dynamicStyles.promotionBadge]}>
-            <Text style={[styles.promotionText, dynamicStyles.promotionText]}>-{promotionPercentage}%</Text>
+            <Text style={[styles.promotionText, dynamicStyles.promotionText]}>
+              -{promotionPercentage}%
+            </Text>
           </View>
         )}
 
@@ -155,7 +166,7 @@ const ProductItemPresenter: React.FC<ProductItemPresenterProps> = ({
           <FontAwesomeIcon
             icon={isFavorited ? faHeartSolid : faHeart}
             size={ms(16)}
-            color={isFavorited ? colors.primary[50] : colors.secondary[400]}
+            color={dynamicStyles.favoriteIcon.color}
           />
         </Pressable>
       </View>
@@ -176,8 +187,10 @@ const ProductItemPresenter: React.FC<ProductItemPresenterProps> = ({
 
         {/* Price Container */}
         <View style={styles.priceContainer}>
-          <View style={styles.priceBackground}>
-            <Text style={[styles.price, dynamicStyles.price]}>{price.toFixed(2)} €</Text>
+          <View style={[styles.priceBackground, dynamicStyles.priceBackground]}>
+            <Text style={[styles.price, dynamicStyles.price]}>
+              {price.toFixed(2)} €
+            </Text>
             <Text style={[styles.unit, dynamicStyles.unit]}>/{unit}</Text>
           </View>
         </View>
@@ -187,19 +200,10 @@ const ProductItemPresenter: React.FC<ProductItemPresenterProps> = ({
           <View
             style={[
               styles.stockDot,
-              {
-                backgroundColor: inStock
-                  ? colors.secondary[400]
-                  : colors.tertiary[400],
-              },
+              dynamicStyles.stockDot,
             ]}
           />
-          <Text
-            style={[
-              styles.stockStatus,
-              inStock ? dynamicStyles.stockText : dynamicStyles.stockTextOutOfStock,
-            ]}
-          >
+          <Text style={[styles.stockStatus, dynamicStyles.stockText]}>
             {inStock ? "En stock" : "Rupture"}
           </Text>
         </View>
@@ -228,7 +232,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     width: "100%",
     overflow: "hidden",
-    position: "relative",
+    position: "relative"
   },
   containerTablet: {
     padding: ms(16),
@@ -264,9 +268,9 @@ const styles = StyleSheet.create({
   },
   promotionBadge: {
     position: "absolute",
-    top: ms(5),
-    left: ms(5),
-    paddingHorizontal: ms(10),
+    top: ms(8),
+    left: ms(8),
+    paddingHorizontal: ms(12),
     paddingVertical: ms(6),
     borderRadius: ms(16),
     shadowOffset: {
@@ -278,15 +282,15 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   promotionText: {
-    fontSize: ms(9),
+    fontSize: ms(10),
     fontWeight: "800",
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
   favoriteButton: {
     position: "absolute",
-    top: ms(5),
-    right: ms(5),
+    top: ms(8),
+    right: ms(8),
     width: ms(40),
     height: ms(40),
     borderRadius: ms(20),
@@ -305,7 +309,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   contentContainer: {
-    paddingHorizontal: ms(2),
+    paddingHorizontal: ms(4),
     gap: ms(8),
   },
   categoryContainer: {
@@ -320,9 +324,9 @@ const styles = StyleSheet.create({
     letterSpacing: ms(0.8),
   },
   productName: {
-    fontSize: ms(14),
+    fontSize: ms(15),
     fontWeight: "700",
-    lineHeight: ms(18),
+    lineHeight: ms(20),
     marginBottom: ms(8),
   },
   priceContainer: {
@@ -332,8 +336,8 @@ const styles = StyleSheet.create({
   priceBackground: {
     flexDirection: "row",
     alignItems: "baseline",
-    paddingHorizontal: ms(8),
-    paddingVertical: ms(4),
+    paddingHorizontal: ms(10),
+    paddingVertical: ms(6),
     borderRadius: ms(12),
   },
   price: {
@@ -342,19 +346,19 @@ const styles = StyleSheet.create({
     letterSpacing: ms(-0.2),
   },
   unit: {
-    fontSize: ms(11),
+    fontSize: ms(12),
     fontWeight: "500",
-    marginLeft: ms(2),
+    marginLeft: ms(3),
   },
   statusContainer: {
     flexDirection: "row",
     alignItems: "center",
   },
   stockDot: {
-    width: ms(6),
-    height: ms(6),
-    borderRadius: ms(3),
-    marginRight: ms(6),
+    width: ms(8),
+    height: ms(8),
+    borderRadius: ms(4),
+    marginRight: ms(8),
   },
   stockStatus: {
     fontSize: ms(11),
