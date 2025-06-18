@@ -1,25 +1,27 @@
 import { StyleSheet, Text, View } from "react-native";
 import React, { useState } from "react";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
 import ProductItemPresenter from "./ProductItemPresenter";
 import { ProductBasicDto } from "src/types/Product";
 import { isTablet } from "src/utils/deviceUtils";
 import { NO_IMAGE_URL } from "src/utils/noImage";
+import { RootStackParamList } from "src/navigation/types";
+import { useAuth } from "src/hooks/useAuth";
+import favoritesService from "src/services/favoritesService";
+
+type NavigationProp = StackNavigationProp<RootStackParamList>;
 
 interface ProductItemProps {
   product?: ProductBasicDto;
-  onProductPress?: (productId: number) => void;
-  onFavoritePress?: (product: ProductBasicDto) => void;
 }
 
 const ProductItem: React.FC<ProductItemProps> = ({
   product,
-  onProductPress,
-  onFavoritePress,
 }) => {
-  // États pour la gestion de l'image
-  const [imageError, setImageError] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
+  const navigation = useNavigation<NavigationProp>();
+  const { user } = useAuth();
+  
   // Logique métier
   const isTabletDevice = isTablet();
   // Données d'exemple pour un produit de construction
@@ -45,6 +47,19 @@ const ProductItem: React.FC<ProductItemProps> = ({
 
   const currentProduct = product || defaultProduct;
 
+  // États pour la gestion de l'image
+  const [imageError, setImageError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isFavoriteLoading, setIsFavoriteLoading] = useState(false);
+  
+  // État pour gérer le statut favori localement
+  const [isFavorited, setIsFavorited] = useState(currentProduct.isFavorited);
+  
+  // Mettre à jour l'état favori local quand le produit change
+  React.useEffect(() => {
+    setIsFavorited(currentProduct.isFavorited);
+  }, [currentProduct.isFavorited]);
+
   // Handlers pour l'image
   const handleImageError = () => {
     setImageError(true);
@@ -65,20 +80,38 @@ const ProductItem: React.FC<ProductItemProps> = ({
 
   // Handlers pour les actions
   const handlePress = () => {
-    if (onProductPress) {
-      onProductPress(currentProduct.id);
-    } else {
-      // Action par défaut
-      console.log("Produit sélectionné:", currentProduct.name);
-    }
+    // Navigate to Product screen with productId
+    navigation.navigate('Product', { productId: currentProduct.id });
   };
 
-  const handleFavoritePress = () => {
-    if (onFavoritePress) {
-      onFavoritePress(currentProduct);
-    } else {
-      // Action par défaut pour les favoris
-      console.log("Favori togglé:", currentProduct.name);
+  const handleFavoritePress = async () => {
+    if (!user) {
+      console.log("User not authenticated");
+      return;
+    }
+
+    try {
+      setIsFavoriteLoading(true);
+      
+      if (isFavorited) {
+        // Remove from favorites
+        await favoritesService.deleteFavoriteByProduct(currentProduct.id);
+        console.log("Produit retiré des favoris:", currentProduct.name);
+        setIsFavorited(false);
+      } else {
+        // Add to favorites
+        await favoritesService.createFavorite({
+          productId: currentProduct.id,
+          userId: user.id,
+        });
+        console.log("Produit ajouté aux favoris:", currentProduct.name);
+        setIsFavorited(true);
+      }
+      
+    } catch (error) {
+      console.error("Erreur lors de la gestion des favoris:", error);
+    } finally {
+      setIsFavoriteLoading(false);
     }
   };
 
@@ -91,7 +124,7 @@ const ProductItem: React.FC<ProductItemProps> = ({
       imageSource={getImageSource()}
       inStock={currentProduct.quantity > 0}
       onPress={handlePress}
-      isFavorited={currentProduct.isFavorited}
+      isFavorited={isFavorited}
       onFavoritePress={handleFavoritePress}
       promotionPercentage={currentProduct.promotionPercentage}
       isTabletDevice={isTabletDevice}

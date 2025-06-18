@@ -173,9 +173,7 @@ const Recommandation = () => {
     ]
   );
 
-  const onProductPress = (productId: number) => {
-    navigation.navigate('Product', { productId: productId });
-  }
+
 
   const loadMoreProducts = useCallback(() => {
     const allLoaded = areAllProductsLoaded();
@@ -314,7 +312,7 @@ const Recommandation = () => {
       handleContainerLayout={handleContainerLayout}
       initialSkeletons={generateInitialSkeletons()}
       loadMoreSkeletons={generateLoadMoreSkeletons()}
-      onProductPress={onProductPress}
+
     />
   );
 };

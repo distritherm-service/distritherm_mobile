@@ -321,6 +321,7 @@ const PersonalInformationPresenter: React.FC<
       headerTitle="Informations personnelles"
       onCustomBack={onBack}
       bottomBar={false}
+      titleLeft={true}
     >
       <KeyboardAvoidingView
         style={dynamicStyles.container}

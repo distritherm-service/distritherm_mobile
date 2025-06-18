@@ -38,7 +38,7 @@ interface OnSearchSectionPresenterProps {
   categories: Category[];
   marks: Mark[];
   isLoadingFilterData: boolean;
-  onProductPress: (product: ProductBasicDto) => void;
+
   onRetrySearch: () => void;
   onClearSearch: () => void;
   onBackToTyping: () => void;
@@ -69,7 +69,7 @@ const OnSearchSectionPresenter: React.FC<OnSearchSectionPresenterProps> = ({
   categories,
   marks,
   isLoadingFilterData,
-  onProductPress,
+
   onRetrySearch,
   onClearSearch,
   onBackToTyping,
@@ -353,7 +353,6 @@ const OnSearchSectionPresenter: React.FC<OnSearchSectionPresenterProps> = ({
       <View key={item.id.toString()} style={dynamicStyles.productItemContainer}>
         <ProductItem
           product={item}
-          onProductPress={() => onProductPress(item)}
         />
       </View>
     );

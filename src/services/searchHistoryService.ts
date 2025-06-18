@@ -3,13 +3,13 @@ import api from "../interceptors/api";
 // DTOs et interfaces pour l'historique de recherche
 interface CreateSearchHistoryDto {
   value: string;
-  userId: number;
+  // userId est assigné automatiquement par le backend depuis le token JWT
 }
 
 
 const searchHistoryService = {
   // POST /search-history - Créer une nouvelle entrée d'historique de recherche
-  createSearchHistory: async (searchData: Omit<CreateSearchHistoryDto, 'userId'>): Promise<any> => {
+  createSearchHistory: async (searchData: CreateSearchHistoryDto): Promise<any> => {
     try {
       const response = await api.post("/search-history", searchData);
       return await response.data;

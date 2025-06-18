@@ -211,7 +211,7 @@ const ForgotPasswordPresenter: React.FC<ForgotPasswordPresenterProps> = ({
       paddingLeft: ms(4), // Using react-native-size-matters for responsive padding
     },
     requirementMet: {
-      color: colors.success,
+      color: colors.success[500],
       fontWeight: "500",
     },
     buttonSection: {
@@ -311,6 +311,7 @@ const ForgotPasswordPresenter: React.FC<ForgotPasswordPresenterProps> = ({
       headerTitle="Changer le mot de passe"
       onCustomBack={onBack}
       bottomBar={false}
+      titleLeft={true}
     >
       <KeyboardAvoidingView
         style={dynamicStyles.container}

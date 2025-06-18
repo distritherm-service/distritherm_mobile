@@ -116,7 +116,6 @@ const FilterModalPresenter: React.FC<FilterModalPresenterProps> = ({
       paddingBottom: ms(16),
       borderBottomWidth: 1,
       borderBottomColor: colors.border, // 60% - Neutral
-      backgroundColor: colors.surface, // 30% - Secondary neutral
     },
     headerTitle: {
       fontSize: ms(18),

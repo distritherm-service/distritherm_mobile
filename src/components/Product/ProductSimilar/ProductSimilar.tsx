@@ -52,16 +52,6 @@ const ProductSimilar: React.FC<ProductSimilarProps> = ({
     fetchSimilarProducts();
   }, [currentProductId, categoryId, markId]);
 
-  const handleProductPress = (productId: number) => {
-    if (onProductSelect) {
-      // If parent component handles product selection (for updating current product)
-      onProductSelect(productId);
-    } else {
-      // Default navigation behavior
-      navigation.push('Product', { productId });
-    }
-  };
-
   const handleSeeAllPress = () => {
     if (categoryId) {
       // Navigate to category screen or products list with category filter
@@ -75,7 +65,6 @@ const ProductSimilar: React.FC<ProductSimilarProps> = ({
       similarProducts={similarProducts}
       loading={loading}
       error={error}
-      onProductPress={handleProductPress}
       onSeeAllPress={handleSeeAllPress}
       onRetry={() => {
         setError(null);

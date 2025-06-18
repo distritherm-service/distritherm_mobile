@@ -22,7 +22,6 @@ interface ProductSimilarPresenterProps {
   similarProducts: ProductBasicDto[];
   loading: boolean;
   error: string | null;
-  onProductPress: (productId: number) => void;
   onSeeAllPress: () => void;
   onRetry: () => void;
 }
@@ -31,7 +30,6 @@ const ProductSimilarPresenter: React.FC<ProductSimilarPresenterProps> = ({
   similarProducts,
   loading,
   error,
-  onProductPress,
   onSeeAllPress,
   onRetry,
 }) => {
@@ -61,7 +59,6 @@ const ProductSimilarPresenter: React.FC<ProductSimilarPresenterProps> = ({
       <View style={styles.productItemWrapper}>
         <ProductItem
           product={item}
-          onProductPress={onProductPress}
         />
       </View>
     );

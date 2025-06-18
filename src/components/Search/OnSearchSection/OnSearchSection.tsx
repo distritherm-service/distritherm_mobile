@@ -274,15 +274,7 @@ const OnSearchSection: React.FC<OnSearchSectionProps> = ({
     }
   }, [searchQuery, filter]);
 
-  /**
-   * Handle product selection
-   */
-  const handleProductPress = useCallback(
-    (product: ProductBasicDto) => {
-      navigation.navigate("Product", { productId: product.id });
-    },
-    [navigation]
-  );
+
 
   /**
    * Handle retry search
@@ -377,7 +369,7 @@ const OnSearchSection: React.FC<OnSearchSectionProps> = ({
       categories={categories}
       marks={marks}
       isLoadingFilterData={isLoadingFilterData}
-      onProductPress={handleProductPress}
+
       onRetrySearch={handleRetrySearch}
       onClearSearch={handleClearSearch}
       onBackToTyping={onBackToTyping}
