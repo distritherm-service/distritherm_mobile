@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import promotionsService, { PromotionDto } from "src/services/promotionsService";
+import promotionsService, { PromotionDto, PromotionFiltersDto } from "src/services/promotionsService";
+import categoriesService from "src/services/categoriesService";
 import { RootStackParamList } from "src/navigation/types";
 import { ProductBasicDto } from "src/types/Product";
+import { Category } from "src/types/Category";
 import PromotionsPresenter from "./PromotionsPresenter";
 
 type PromotionsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -21,11 +23,33 @@ const Promotions: React.FC = () => {
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [hasMorePages, setHasMorePages] = useState<boolean>(true);
+  
+  // Category filter state
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+  const [isCategoriesLoading, setIsCategoriesLoading] = useState<boolean>(true);
 
   const ITEMS_PER_PAGE = 10;
 
+  // Fetch categories function
+  const fetchCategories = useCallback(async () => {
+    try {
+      setIsCategoriesLoading(true);
+      const response = await categoriesService.getAllCategories();
+      
+      if (response && response.categories) {
+        setCategories(response.categories);
+      }
+    } catch (err: any) {
+      console.error("Error fetching categories:", err);
+      // Categories loading error doesn't block the main functionality
+    } finally {
+      setIsCategoriesLoading(false);
+    }
+  }, []);
+
   // Fetch promotions function
-  const fetchPromotions = useCallback(async (page: number = 1, isRefresh: boolean = false) => {
+  const fetchPromotions = useCallback(async (page: number = 1, isRefresh: boolean = false, categoryId: number | null = selectedCategoryId) => {
     try {
       // Clear error and set loading states
       setError(null);
@@ -36,10 +60,16 @@ const Promotions: React.FC = () => {
         setIsLoadingMore(true);
       }
 
-      const response = await promotionsService.findAll({
+      const filters: PromotionFiltersDto = {
         page,
         limit: ITEMS_PER_PAGE,
-      });
+      };
+      
+      if (categoryId) {
+        filters.categoryId = categoryId;
+      }
+
+      const response = await promotionsService.findAll(filters);
 
       if (response && response.promotions) {
         const newPromotions = response.promotions;
@@ -91,11 +121,21 @@ const Promotions: React.FC = () => {
       setIsRefreshing(false);
       setIsLoadingMore(false);
     }
-  }, []);
+  }, [selectedCategoryId]);
 
   // Initial load
   useEffect(() => {
+    fetchCategories();
     fetchPromotions(1);
+  }, [fetchCategories, fetchPromotions]);
+
+  // Handle category selection
+  const handleCategorySelect = useCallback((categoryId: number | null) => {
+    setSelectedCategoryId(categoryId);
+    setCurrentPage(1);
+    setHasMorePages(true);
+    setError(null);
+    fetchPromotions(1, false, categoryId);
   }, [fetchPromotions]);
 
   // Handle refresh
@@ -143,10 +183,14 @@ const Promotions: React.FC = () => {
       error={error}
       isLoadingMore={isLoadingMore}
       hasMorePages={hasMorePages}
+      categories={categories}
+      selectedCategoryId={selectedCategoryId}
+      isCategoriesLoading={isCategoriesLoading}
       onRefresh={handleRefresh}
       onLoadMore={handleLoadMore}
       onRetry={handleRetry}
       onNavigateBack={handleNavigateBack}
+      onCategorySelect={handleCategorySelect}
     />
   );
 };

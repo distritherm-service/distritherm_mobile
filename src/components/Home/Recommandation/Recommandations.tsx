@@ -318,10 +318,10 @@ const Recommandation = () => {
 };
 
 export default Recommandation;
+
 const styles = StyleSheet.create({
   productWrapper: {
     width: "48%",
     marginBottom: 10,
   },
 });
-

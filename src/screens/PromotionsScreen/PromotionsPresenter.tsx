@@ -7,6 +7,7 @@ import {
   Pressable,
   ActivityIndicator,
   RefreshControl,
+  ScrollView,
 } from "react-native";
 import { ms } from "react-native-size-matters";
 import { FontAwesome6 } from "@expo/vector-icons";
@@ -15,6 +16,7 @@ import ProductItem from "src/components/ProductItem/ProductItem";
 import { useColors } from "src/hooks/useColors";
 import { PromotionDto } from "src/services/promotionsService";
 import { ProductBasicDto } from "src/types/Product";
+import { Category } from "src/types/Category";
 import { Dimensions } from "react-native";
 
 interface PromotionsPresenterProps {
@@ -26,10 +28,14 @@ interface PromotionsPresenterProps {
   error: string | null;
   isLoadingMore: boolean;
   hasMorePages: boolean;
+  categories: Category[];
+  selectedCategoryId: number | null;
+  isCategoriesLoading: boolean;
   onRefresh: () => void;
   onLoadMore: () => void;
   onRetry: () => void;
   onNavigateBack: () => void;
+  onCategorySelect: (categoryId: number | null) => void;
 }
 
 const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
@@ -41,10 +47,14 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
   error,
   isLoadingMore,
   hasMorePages,
+  categories,
+  selectedCategoryId,
+  isCategoriesLoading,
   onRefresh,
   onLoadMore,
   onRetry,
   onNavigateBack,
+  onCategorySelect,
 }) => {
   const colors = useColors();
   const { width } = Dimensions.get("window");
@@ -248,11 +258,180 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
       fontSize: ms(14),
       fontWeight: "500",
     },
+
+    // Category filter styles - Using react-native-size-matters for responsiveness
+    categoryFilterContainer: {
+      backgroundColor: colors.surface,
+      borderBottomColor: colors.border,
+      shadowColor: colors.text,
+      paddingVertical: ms(16),
+      borderBottomWidth: 1,
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.05,
+      shadowRadius: 3,
+      elevation: 2,
+    },
+    categoryFilterTitle: {
+      color: colors.text,
+      fontSize: ms(16),
+      fontWeight: "600",
+      marginHorizontal: ms(20),
+      marginBottom: ms(12),
+    },
+    categoryScrollContainer: {
+      paddingHorizontal: ms(12), // Using react-native-size-matters for responsive padding
+    },
+    categoryChip: {
+      backgroundColor: colors.background,
+      borderColor: colors.border,
+      paddingHorizontal: ms(16), // Using react-native-size-matters for responsive padding
+      paddingVertical: ms(10), // Using react-native-size-matters for responsive padding
+      borderRadius: ms(20),
+      marginHorizontal: ms(4), // Using react-native-size-matters for responsive margin
+      borderWidth: 1.5,
+      shadowColor: colors.text,
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 3,
+      elevation: 3,
+      minWidth: ms(80), // Using react-native-size-matters for responsive min width
+      alignItems: "center",
+    },
+    categoryChipSelected: {
+      backgroundColor: colors.primary[500],
+      borderColor: colors.primary[600],
+      shadowColor: colors.primary[500],
+      shadowOpacity: 0.3,
+      elevation: 6,
+    },
+    categoryChipText: {
+      color: colors.text,
+      fontSize: ms(14),
+      fontWeight: "500",
+      textAlign: "center",
+    },
+    categoryChipTextSelected: {
+      color: colors.surface,
+      fontWeight: "600",
+    },
+    categoryLoadingContainer: {
+      paddingHorizontal: ms(20),
+      paddingVertical: ms(8), // Using react-native-size-matters for responsive padding
+      alignItems: "center",
+    },
+    categoryLoadingText: {
+      color: colors.textSecondary,
+      fontSize: ms(12),
+      marginTop: ms(4), // Using react-native-size-matters for responsive margin
+    },
   });
+
+  // Render category filter chip
+  const renderCategoryChip = ({ item }: { item: Category }) => {
+    const isSelected = selectedCategoryId === item.id;
+    
+    return (
+      <Pressable
+        style={[
+          dynamicStyles.categoryChip,
+          isSelected && dynamicStyles.categoryChipSelected,
+        ]}
+        onPress={() => onCategorySelect(isSelected ? null : item.id)}
+      >
+        <Text
+          style={[
+            dynamicStyles.categoryChipText,
+            isSelected && dynamicStyles.categoryChipTextSelected,
+          ]}
+          numberOfLines={1}
+        >
+          {item.name}
+        </Text>
+      </Pressable>
+    );
+  };
+
+  // Render category filter
+  const renderCategoryFilter = () => {
+    if (isCategoriesLoading) {
+      return (
+        <View style={dynamicStyles.categoryFilterContainer}>
+          <Text style={dynamicStyles.categoryFilterTitle}>Filtrer par catégorie</Text>
+          <View style={dynamicStyles.categoryLoadingContainer}>
+            <ActivityIndicator size="small" color={colors.primary[500]} />
+            <Text style={dynamicStyles.categoryLoadingText}>
+              Chargement des catégories...
+            </Text>
+          </View>
+        </View>
+      );
+    }
+
+    if (categories.length === 0) {
+      return null;
+    }
+
+    // Add "Toutes" option at the beginning
+    const allCategoriesOption = {
+      id: 0,
+      name: "Toutes",
+      level: 0,
+      alias: "ALL",
+      haveParent: false,
+      haveChildren: false,
+      agenceId: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const categoryOptions = [allCategoriesOption, ...categories];
+
+    return (
+      <View style={dynamicStyles.categoryFilterContainer}>
+        <Text style={dynamicStyles.categoryFilterTitle}>Filtrer par catégorie</Text>
+        <FlatList
+          data={categoryOptions}
+          renderItem={({ item }) => (
+            <Pressable
+              style={[
+                dynamicStyles.categoryChip,
+                (selectedCategoryId === null && item.id === 0) || selectedCategoryId === item.id
+                  ? dynamicStyles.categoryChipSelected
+                  : {},
+              ]}
+              onPress={() => onCategorySelect(item.id === 0 ? null : item.id)}
+            >
+              <Text
+                style={[
+                  dynamicStyles.categoryChipText,
+                  (selectedCategoryId === null && item.id === 0) || selectedCategoryId === item.id
+                    ? dynamicStyles.categoryChipTextSelected
+                    : {},
+                ]}
+                numberOfLines={1}
+              >
+                {item.name}
+              </Text>
+            </Pressable>
+          )}
+          keyExtractor={(item) => item.id.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={dynamicStyles.categoryScrollContainer}
+        />
+      </View>
+    );
+  };
 
   // Render loading state
   const renderLoadingState = () => (
-    <View style={dynamicStyles.loadingContainer}>
+    <View style={[dynamicStyles.loadingContainer, { flex: 1 }]}>
       <ActivityIndicator size="large" color={colors.primary[500]} />
       <Text style={dynamicStyles.loadingText}>
         Chargement des promotions...
@@ -262,7 +441,7 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
 
   // Render error state
   const renderErrorState = () => (
-    <View style={dynamicStyles.centeredContainer}>
+    <View style={[dynamicStyles.centeredContainer, { flex: 1 }]}>
       <View style={dynamicStyles.errorContainer}>
         <FontAwesome6
           name="triangle-exclamation"
@@ -289,7 +468,7 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
 
   // Render empty state
   const renderEmptyState = () => (
-    <View style={dynamicStyles.centeredContainer}>
+    <View style={[dynamicStyles.centeredContainer, { flex: 1 }]}>
       <View style={dynamicStyles.emptyContainer}>
         <FontAwesome6 
           name="tags" 
@@ -298,11 +477,14 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
         />
 
         <Text style={dynamicStyles.emptyTitle}>
-          Aucune promotion disponible
+          {selectedCategoryId ? "Aucune promotion dans cette catégorie" : "Aucune promotion disponible"}
         </Text>
 
         <Text style={dynamicStyles.emptyDescription}>
-          Les nouvelles promotions apparaîtront ici dès qu'elles seront disponibles !
+          {selectedCategoryId 
+            ? "Essayez de sélectionner une autre catégorie ou consultez toutes les promotions."
+            : "Les nouvelles promotions apparaîtront ici dès qu'elles seront disponibles !"
+          }
         </Text>
       </View>
     </View>
@@ -346,28 +528,30 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
     }
 
     return (
-      <FlatList
-        data={products.filter(item => item && item.id)} // Filter out invalid items
-        renderItem={renderProductItem}
-        keyExtractor={(item) => item.id.toString()}
-        numColumns={2}
-        contentContainerStyle={dynamicStyles.listContent}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={isRefreshing}
-            onRefresh={onRefresh}
-            colors={[colors.primary[500]]}
-            tintColor={colors.primary[500]}
-          />
-        }
-        onEndReached={onLoadMore}
-        onEndReachedThreshold={0.1}
-        ListFooterComponent={renderLoadMoreFooter}
-        removeClippedSubviews={true} // Improve performance
-        maxToRenderPerBatch={10} // Render in smaller batches
-        windowSize={10} // Keep fewer items in memory
-      />
+      <View style={{ flex: 1 }}>
+        <FlatList
+          data={products.filter(item => item && item.id)} // Filter out invalid items
+          renderItem={renderProductItem}
+          keyExtractor={(item) => item.id.toString()}
+          numColumns={2}
+          contentContainerStyle={dynamicStyles.listContent}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={onRefresh}
+              colors={[colors.primary[500]]}
+              tintColor={colors.primary[500]}
+            />
+          }
+          onEndReached={onLoadMore}
+          onEndReachedThreshold={0.1}
+          ListFooterComponent={renderLoadMoreFooter}
+          removeClippedSubviews={true} // Improve performance
+          maxToRenderPerBatch={10} // Render in smaller batches
+          windowSize={10} // Keep fewer items in memory
+        />
+      </View>
     );
   };
 
@@ -379,7 +563,10 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
       style={dynamicStyles.container}
       onCustomBack={onNavigateBack}
     >
-      {renderContent()}
+      <View style={{ flex: 1 }}>
+        {renderCategoryFilter()}
+        {renderContent()}
+      </View>
     </PageContainer>
   );
 };

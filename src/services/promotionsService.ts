@@ -60,13 +60,18 @@ export interface PromotionDeleteResponseDto {
   message: string;
 }
 
+export interface PromotionFiltersDto extends PaginationDto {
+  categoryId?: number;
+}
+
 const promotionsService = {
-  // GET /promotions/all - Récupérer toutes les promotions avec pagination (PUBLIC)
-  findAll: async (paginationDto?: PaginationDto): Promise<PromotionsListResponseDto> => {
+  // GET /promotions/all - Récupérer toutes les promotions avec pagination et filtres (PUBLIC)
+  findAll: async (filtersDto?: PromotionFiltersDto): Promise<PromotionsListResponseDto> => {
     try {
       const params = new URLSearchParams();
-      if (paginationDto?.page) params.append('page', paginationDto.page.toString());
-      if (paginationDto?.limit) params.append('limit', paginationDto.limit.toString());
+      if (filtersDto?.page) params.append('page', filtersDto.page.toString());
+      if (filtersDto?.limit) params.append('limit', filtersDto.limit.toString());
+      if (filtersDto?.categoryId) params.append('categoryId', filtersDto.categoryId.toString());
       
       const response = await api.get<PromotionsListResponseDto>(`/promotions/all${params.toString() ? '?' + params.toString() : ''}`);
       return response.data;
