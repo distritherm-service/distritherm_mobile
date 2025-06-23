@@ -250,30 +250,6 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
     },
   });
 
-  // Custom header component
-  const renderHeader = () => (
-    <View style={dynamicStyles.headerContainer}>
-      <View style={dynamicStyles.headerContent}>
-        <View style={dynamicStyles.headerIconContainer}>
-          <FontAwesome6
-            name="tags"
-            size={ms(20)} // Using react-native-size-matters for responsive icon size
-            color={colors.secondary[500]}
-            solid
-          />
-        </View>
-        <Text style={dynamicStyles.headerTitle}>Promotions</Text>
-        <View style={dynamicStyles.headerCount}>
-          <Text
-            style={[dynamicStyles.headerCountText, { color: colors.surface }]}
-          >
-            {promotionsCount}
-          </Text>
-        </View>
-      </View>
-    </View>
-  );
-
   // Render loading state
   const renderLoadingState = () => (
     <View style={dynamicStyles.loadingContainer}>
@@ -290,7 +266,7 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
       <View style={dynamicStyles.errorContainer}>
         <FontAwesome6
           name="triangle-exclamation"
-          size={ms(48)} // Using react-native-size-matters for responsive icon size
+          size={ms(48)} 
           color={colors.danger[500]}
         />
 
@@ -317,7 +293,7 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
       <View style={dynamicStyles.emptyContainer}>
         <FontAwesome6 
           name="tags" 
-          size={ms(64)} // Using react-native-size-matters for responsive icon size
+          size={ms(64)} 
           color={colors.primary[300]} 
         />
 
@@ -345,7 +321,7 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
 
   // Render load more footer
   const renderLoadMoreFooter = () => {
-    if (!isLoadingMore || !hasMorePages) return null;
+    if (!isLoadingMore || !hasMorePages || products.length === 0) return null;
 
     return (
       <View style={dynamicStyles.loadMoreContainer}>
@@ -365,13 +341,13 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
       return renderErrorState();
     }
 
-    if (products.length != 0) {
+    if (products.length === 0) {
       return renderEmptyState();
     }
 
     return (
       <FlatList
-        data={products}
+        data={products.filter(item => item && item.id)} // Filter out invalid items
         renderItem={renderProductItem}
         keyExtractor={(item) => item.id.toString()}
         numColumns={2}
@@ -388,6 +364,9 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
         onEndReached={onLoadMore}
         onEndReachedThreshold={0.1}
         ListFooterComponent={renderLoadMoreFooter}
+        removeClippedSubviews={true} // Improve performance
+        maxToRenderPerBatch={10} // Render in smaller batches
+        windowSize={10} // Keep fewer items in memory
       />
     );
   };

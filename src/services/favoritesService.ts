@@ -1,10 +1,32 @@
 import api from "../interceptors/api";
 import { PaginationDto } from "../types/paginationDto";
+import { ProductBasicDto } from "../types/Product";
 
 // DTOs et interfaces pour les favoris
 interface CreateFavoriteDto {
   productId: number;
   userId: number;
+}
+
+interface FavoriteDto {
+  id: number;
+  productId: number;
+  userId: number;
+  product?: ProductBasicDto;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface FavoritesResponseDto {
+  favorites: FavoriteDto[];
+  count: number;
+  meta?: {
+    total: number;
+    page: number;
+    limit: number;
+    lastPage: number;
+  };
+  message: string;
 }
 
 
@@ -26,7 +48,7 @@ const favoritesService = {
   getFavoritesByUser: async (
     userId: number,
     paginationDto?: PaginationDto
-  ): Promise<any> => {
+  ): Promise<FavoritesResponseDto> => {
     try {
       const params = new URLSearchParams();
       if (paginationDto?.page)
@@ -39,8 +61,8 @@ const favoritesService = {
         ? `/favorites/by-user/${userId}?${queryString}`
         : `/favorites/by-user/${userId}`;
 
-      const response = await api.get(url);
-      return await response.data;
+      const response = await api.get<FavoritesResponseDto>(url);
+      return response.data;
     } catch (error) {
       throw error;
     }

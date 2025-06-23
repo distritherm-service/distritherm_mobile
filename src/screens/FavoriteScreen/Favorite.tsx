@@ -32,10 +32,10 @@ const Favorite = () => {
       }
 
       try {
-        setError("Erreur lors du chargement des favoris");
+        // Clear error and set loading states
+        setError(null);
         if (page === 1) {
           isRefresh ? setIsRefreshing(true) : setIsLoading(true);
-          setError(null);
         } else {
           setIsLoadingMore(true);
         }
@@ -47,25 +47,38 @@ const Favorite = () => {
 
         // Handle different response structures
         let favoriteProducts: ProductBasicDto[] = [];
+        let totalCount = 0;
+        let hasMore = false;
 
         if (response?.favorites && Array.isArray(response.favorites)) {
           // If response has favorites array with product data
-          favoriteProducts = response.favorites.map((fav: any) => ({
-            ...fav.product,
-            isFavorited: true,
-          }));
-        } else if (response?.data && Array.isArray(response.data)) {
-          // If response has data array
-          favoriteProducts = response.data.map((fav: any) => ({
-            ...fav.product,
-            isFavorited: true,
-          }));
+          favoriteProducts = response.favorites
+            .filter((fav: any) => fav?.product)
+            .map((fav: any) => ({
+              ...fav.product,
+              isFavorited: true,
+            }));
+
+          // Handle meta data if available
+          if (response.meta) {
+            totalCount = response.meta.total || 0;
+            hasMore = page < (response.meta.lastPage || 1);
+          } else {
+            hasMore = favoriteProducts.length === 10;
+          }
         } else if (Array.isArray(response)) {
-          // If response is directly an array
-          favoriteProducts = response.map((fav: any) => ({
-            ...fav.product,
-            isFavorited: true,
-          }));
+          favoriteProducts = response
+            .filter((fav: any) => fav?.product)
+            .map((fav: any) => ({
+              ...fav.product,
+              isFavorited: true,
+            }));
+          hasMore = favoriteProducts.length === 10;
+        } else {
+          // Handle unexpected response format
+          console.warn("Unexpected response format:", response);
+          favoriteProducts = [];
+          hasMore = false;
         }
 
         if (page === 1) {
@@ -76,12 +89,22 @@ const Favorite = () => {
           setCurrentPage(page);
         }
 
-        // Check if there are more pages
-        setHasMorePages(favoriteProducts.length === 10);
+        // Update pagination state
+        setHasMorePages(hasMore);
       } catch (err: any) {
         console.error("Error fetching favorites:", err);
+
+        // Set appropriate error message
+        const errorMessage =
+          err?.response?.data?.message ||
+          err?.message ||
+          "Erreur lors du chargement des favoris";
+        setError(errorMessage);
+
+        // Reset data only on first page error
         if (page === 1) {
           setFavorites([]);
+          setHasMorePages(false);
         }
       } finally {
         setIsLoading(false);
@@ -94,19 +117,36 @@ const Favorite = () => {
 
   // Load more favorites
   const loadMoreFavorites = useCallback(() => {
-    if (!isLoadingMore && hasMorePages && favorites.length > 0) {
+    if (
+      !isLoadingMore &&
+      !isLoading &&
+      !isRefreshing &&
+      hasMorePages &&
+      favorites.length > 0 &&
+      !error &&
+      isAuthenticated &&
+      user
+    ) {
       fetchFavorites(currentPage + 1);
     }
   }, [
     fetchFavorites,
     currentPage,
     isLoadingMore,
+    isLoading,
+    isRefreshing,
     hasMorePages,
     favorites.length,
+    error,
+    isAuthenticated,
+    user,
   ]);
 
   // Refresh favorites
   const handleRefresh = useCallback(() => {
+    setCurrentPage(1);
+    setHasMorePages(true);
+    setError(null);
     fetchFavorites(1, true);
   }, [fetchFavorites]);
 
@@ -137,6 +177,8 @@ const Favorite = () => {
   // Retry loading favorites
   const handleRetry = useCallback(() => {
     setError(null);
+    setCurrentPage(1);
+    setHasMorePages(true);
     fetchFavorites(1);
   }, [fetchFavorites]);
 

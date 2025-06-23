@@ -422,7 +422,7 @@ const FavoritePresenter: React.FC<FavoritePresenterProps> = ({
 
   // Render load more footer
   const renderLoadMoreFooter = () => {
-    if (!isLoadingMore || !hasMorePages) return null;
+    if (!isLoadingMore || !hasMorePages || favorites.length === 0) return null;
 
     return (
       <View style={dynamicStyles.loadMoreContainer}>
@@ -452,7 +452,7 @@ const FavoritePresenter: React.FC<FavoritePresenterProps> = ({
 
     return (
       <FlatList
-        data={favorites}
+        data={favorites.filter(item => item && item.id)} // Filter out invalid items
         renderItem={renderProductItem}
         keyExtractor={(item) => item.id.toString()}
         numColumns={2}
@@ -469,6 +469,9 @@ const FavoritePresenter: React.FC<FavoritePresenterProps> = ({
         onEndReached={onLoadMore}
         onEndReachedThreshold={0.1}
         ListFooterComponent={renderLoadMoreFooter}
+        removeClippedSubviews={true} // Improve performance
+        maxToRenderPerBatch={10} // Render in smaller batches
+        windowSize={10} // Keep fewer items in memory
       />
     );
   };
