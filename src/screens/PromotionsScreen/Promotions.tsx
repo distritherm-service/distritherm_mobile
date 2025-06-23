@@ -3,15 +3,20 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import promotionsService, { PromotionDto } from "src/services/promotionsService";
 import { RootStackParamList } from "src/navigation/types";
+import { ProductBasicDto } from "src/types/Product";
+import { useAuth } from "src/hooks/useAuth";
+import interactionsService from "src/services/interactionsService";
 import PromotionsPresenter from "./PromotionsPresenter";
 
 type PromotionsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const Promotions: React.FC = () => {
   const navigation = useNavigation<PromotionsScreenNavigationProp>();
+  const { user } = useAuth();
 
   // State management
   const [promotions, setPromotions] = useState<PromotionDto[]>([]);
+  const [products, setProducts] = useState<ProductBasicDto[]>([]);
   const [promotionsCount, setPromotionsCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
@@ -38,14 +43,30 @@ const Promotions: React.FC = () => {
         limit: ITEMS_PER_PAGE,
       });
 
-      if (response && response.data) {
-        const newPromotions = response.data;
+      if (response && response.promotions) {
+        const newPromotions = response.promotions;
         const meta = response.meta;
+
+        // Extract products from promotions
+        const newProducts = newPromotions
+          .filter(promotion => promotion.product)
+          .map(promotion => {
+            const product = promotion.product!;
+            return {
+              ...product,
+              isInPromotion: true,
+              promotionPrice: promotion.promotionPrice || product.priceTtc,
+              promotionEndDate: new Date(promotion.endDate),
+              promotionPercentage: promotion.reductionPercentage,
+            };
+          });
 
         if (page === 1) {
           setPromotions(newPromotions);
+          setProducts(newProducts);
         } else {
           setPromotions(prev => [...prev, ...newPromotions]);
+          setProducts(prev => [...prev, ...newProducts]);
         }
 
         setPromotionsCount(meta.total);
@@ -93,13 +114,10 @@ const Promotions: React.FC = () => {
     navigation.goBack();
   }, [navigation]);
 
-  const handleNavigateToProduct = useCallback((productId: number) => {
-    navigation.navigate("Product", { productId });
-  }, [navigation]);
-
   return (
     <PromotionsPresenter
       promotions={promotions}
+      products={products}
       promotionsCount={promotionsCount}
       isLoading={isLoading}
       isRefreshing={isRefreshing}
@@ -110,7 +128,6 @@ const Promotions: React.FC = () => {
       onLoadMore={handleLoadMore}
       onRetry={handleRetry}
       onNavigateBack={handleNavigateBack}
-      onNavigateToProduct={handleNavigateToProduct}
     />
   );
 };

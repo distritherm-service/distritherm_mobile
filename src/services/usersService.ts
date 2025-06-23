@@ -1,4 +1,5 @@
 import api from "../interceptors/api";
+import { PaginationDto } from "../types/paginationDto";
 import { UserWithClientDto, UpdateUserDto } from "src/types/User";
 
 // DTOs et interfaces pour les utilisateurs
@@ -33,11 +34,7 @@ interface RemindMeDto {
   phoneNumber: string;
 }
 
-interface PaginationDto {
-  page?: number;
-  limit?: number;
-  search?: string;
-}
+
 
 const usersService = {
   // GET /users/verify-email - Vérifier l'email avec un token

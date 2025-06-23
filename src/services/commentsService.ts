@@ -1,4 +1,5 @@
 import api from "../interceptors/api";
+import { PaginationDto } from "../types/paginationDto";
 
 // DTOs et interfaces pour les commentaires
 interface CreateCommentDto {
@@ -9,10 +10,7 @@ interface CreateCommentDto {
   productId: number;
 }
 
-interface PaginationDto {
-  page?: number;
-  limit?: number;
-}
+
 
 type CommentStatus = 'PENDING' | 'VALIDED' | 'DENIED';
 

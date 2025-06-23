@@ -47,6 +47,7 @@ interface OnSearchSectionPresenterProps {
   onApplyFilter: (filter: SearchFilter) => void;
   onClearIndividualFilter: (filterType: 'category' | 'mark' | 'price' | 'promotion') => void;
   onClearAllFilters: () => void;
+  onProductPress: (productId: number) => void;
   // Animation props
   clearIconScale: Animated.Value;
   onClearPressIn: () => void;
@@ -78,6 +79,7 @@ const OnSearchSectionPresenter: React.FC<OnSearchSectionPresenterProps> = ({
   onApplyFilter,
   onClearIndividualFilter,
   onClearAllFilters,
+  onProductPress,
   // Animation props
   clearIconScale,
   onClearPressIn,
@@ -353,6 +355,7 @@ const OnSearchSectionPresenter: React.FC<OnSearchSectionPresenterProps> = ({
       <View key={item.id.toString()} style={dynamicStyles.productItemContainer}>
         <ProductItem
           product={item}
+          onPressProduct={() => onProductPress(item.id)}
         />
       </View>
     );

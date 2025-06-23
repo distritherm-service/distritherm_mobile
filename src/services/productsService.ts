@@ -1,4 +1,5 @@
 import api from "../interceptors/api";
+import { PaginationDto, PaginatedResponse } from "../types/paginationDto";
 
 // Types et interfaces pour les DTOs
 export interface CreateProductDto {
@@ -57,20 +58,7 @@ export interface UpdateProductDto {
   ecoContributionApplication?: boolean;
 }
 
-export interface PaginationDto {
-  page?: number;
-  limit?: number;
-}
 
-export interface PaginatedResponse<T> {
-  data: T[];
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    lastPage: number;
-  };
-}
 
 export interface SearchFilters {
   query?: string;

@@ -9,6 +9,7 @@ import { NO_IMAGE_URL } from "src/utils/noImage";
 import { RootStackParamList } from "src/navigation/types";
 import { useAuth } from "src/hooks/useAuth";
 import favoritesService from "src/services/favoritesService";
+import interactionsService from "src/services/interactionsService";
 
 type NavigationProp = StackNavigationProp<RootStackParamList>;
 
@@ -84,8 +85,22 @@ const ProductItem: React.FC<ProductItemProps> = ({
   };
 
   // Handlers pour les actions
-  const handlePress = () => {
+  const handlePress = async () => {
     if (onPressProduct) onPressProduct();
+    
+    if (user) {
+      try {
+        await interactionsService.createInteraction({
+          type: 'CLICK_PRODUCT',
+          productId: currentProduct.id,
+          userId: user.id,
+        });
+      } catch (error) {
+        console.error('Failed to track product interaction:', error);
+        // Don't block navigation if interaction tracking fails
+      }
+    }
+    
     navigation.navigate("Product", { productId: currentProduct.id });
   };
 

@@ -11,12 +11,15 @@ import {
 import { ms } from "react-native-size-matters";
 import { FontAwesome6 } from "@expo/vector-icons";
 import PageContainer from "src/components/PageContainer/PageContainer";
+import ProductItem from "src/components/ProductItem/ProductItem";
 import { useColors } from "src/hooks/useColors";
 import { PromotionDto } from "src/services/promotionsService";
+import { ProductBasicDto } from "src/types/Product";
 import { Dimensions } from "react-native";
 
 interface PromotionsPresenterProps {
   promotions: PromotionDto[];
+  products: ProductBasicDto[];
   promotionsCount: number;
   isLoading: boolean;
   isRefreshing: boolean;
@@ -27,11 +30,11 @@ interface PromotionsPresenterProps {
   onLoadMore: () => void;
   onRetry: () => void;
   onNavigateBack: () => void;
-  onNavigateToProduct: (productId: number) => void;
 }
 
 const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
   promotions,
+  products,
   promotionsCount,
   isLoading,
   isRefreshing,
@@ -42,7 +45,6 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
   onLoadMore,
   onRetry,
   onNavigateBack,
-  onNavigateToProduct,
 }) => {
   const colors = useColors();
   const { width } = Dimensions.get("window");
@@ -73,9 +75,27 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
       alignItems: "center",
       gap: ms(12), // Using react-native-size-matters for responsive gap
     },
+    headerIconContainer: {
+      backgroundColor: colors.surface,
+      borderColor: colors.secondary[200],
+      width: ms(40), // Using react-native-size-matters for responsive width
+      height: ms(40), // Using react-native-size-matters for responsive height
+      borderRadius: ms(20),
+      justifyContent: "center",
+      alignItems: "center",
+      borderWidth: 2,
+      shadowColor: colors.text,
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 3,
+      elevation: 3,
+    },
     headerTitle: {
       color: colors.text,
-      fontSize: ms(20),
+      fontSize: ms(18), // Using react-native-size-matters - reduced from ms(20) for consistency
       fontWeight: "700",
       flex: 1,
     },
@@ -133,7 +153,7 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
     },
     errorTitle: {
       color: colors.danger[600],
-      fontSize: ms(20),
+      fontSize: ms(18), // Using react-native-size-matters - reduced from ms(20) for consistency
       fontWeight: "700",
       textAlign: "center",
       marginTop: ms(16),
@@ -188,7 +208,7 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
     },
     emptyTitle: {
       color: colors.text,
-      fontSize: ms(20),
+      fontSize: ms(18), // Using react-native-size-matters - reduced from ms(20) for consistency
       fontWeight: "700",
       textAlign: "center",
       marginTop: ms(16),
@@ -213,50 +233,7 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
       borderRadius: ms(16),
       overflow: "hidden",
     },
-    // Promotion card styles
-    promotionCard: {
-      backgroundColor: colors.surface,
-      borderColor: colors.border,
-      shadowColor: colors.text,
-      borderRadius: ms(16),
-      padding: ms(16),
-      borderWidth: 1,
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 3,
-    },
-    promotionHeader: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      marginBottom: ms(12),
-    },
-    promotionDiscount: {
-      backgroundColor: colors.success[500],
-      paddingHorizontal: ms(12),
-      paddingVertical: ms(6),
-      borderRadius: ms(20),
-    },
-    promotionDiscountText: {
-      color: colors.surface,
-      fontSize: ms(14),
-      fontWeight: "700",
-    },
-    promotionDate: {
-      color: colors.textSecondary,
-      fontSize: ms(12),
-      fontWeight: "500",
-    },
-    promotionProductId: {
-      color: colors.primary[600],
-      fontSize: ms(14),
-      fontWeight: "600",
-      marginTop: ms(8),
-    },
+
     // Load more styles
     loadMoreContainer: {
       backgroundColor: colors.background,
@@ -277,12 +254,14 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
   const renderHeader = () => (
     <View style={dynamicStyles.headerContainer}>
       <View style={dynamicStyles.headerContent}>
-        <FontAwesome6
-          name="tags"
-          size={ms(24)} // Using react-native-size-matters for responsive icon size
-          color={colors.secondary[500]}
-          solid
-        />
+        <View style={dynamicStyles.headerIconContainer}>
+          <FontAwesome6
+            name="tags"
+            size={ms(20)} // Using react-native-size-matters for responsive icon size
+            color={colors.secondary[500]}
+            solid
+          />
+        </View>
         <Text style={dynamicStyles.headerTitle}>Promotions</Text>
         <View style={dynamicStyles.headerCount}>
           <Text
@@ -353,38 +332,14 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
     </View>
   );
 
-  // Format date helper
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
-  };
 
-  // Render promotion item
-  const renderPromotionItem = ({ item }: { item: PromotionDto }) => (
+
+  // Render product item
+  const renderProductItem = ({ item }: { item: ProductBasicDto }) => (
     <View style={dynamicStyles.promotionItemStyle}>
-      <Pressable
-        style={dynamicStyles.promotionCard}
-        onPress={() => onNavigateToProduct(item.productId)}
-      >
-        <View style={dynamicStyles.promotionHeader}>
-          <View style={dynamicStyles.promotionDiscount}>
-            <Text style={dynamicStyles.promotionDiscountText}>
-              -{item.reductionPercentage}%
-            </Text>
-          </View>
-          <Text style={dynamicStyles.promotionDate}>
-            Jusqu'au {formatDate(item.endDate)}
-          </Text>
-        </View>
-        
-        <Text style={dynamicStyles.promotionProductId}>
-          Produit #{item.productId}
-        </Text>
-      </Pressable>
+      <ProductItem
+        product={item}
+      />
     </View>
   );
 
@@ -410,14 +365,14 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
       return renderErrorState();
     }
 
-    if (promotions.length === 0) {
+    if (products.length != 0) {
       return renderEmptyState();
     }
 
     return (
       <FlatList
-        data={promotions}
-        renderItem={renderPromotionItem}
+        data={products}
+        renderItem={renderProductItem}
         keyExtractor={(item) => item.id.toString()}
         numColumns={2}
         contentContainerStyle={dynamicStyles.listContent}

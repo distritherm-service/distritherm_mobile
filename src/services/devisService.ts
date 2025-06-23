@@ -1,4 +1,5 @@
 import api from "../interceptors/api";
+import { PaginationDto } from "../types/paginationDto";
 
 // DTOs et interfaces pour les devis
 interface CreateDeviDto {
@@ -12,10 +13,7 @@ interface PostDeviDto {
   endDate: string;
 }
 
-interface PaginationDto {
-  page?: number;
-  limit?: number;
-}
+
 
 type DevisStatus = "SENDED" | "PROGRESS" | "CONSULTED" | "EXPIRED";
 

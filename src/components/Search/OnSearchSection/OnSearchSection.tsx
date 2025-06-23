@@ -7,6 +7,8 @@ import { ProductBasicDto } from "src/types/Product";
 import { SearchFilter } from "src/navigation/types";
 import categoriesService from "src/services/categoriesService";
 import marksService from "src/services/marksService";
+import interactionsService from "src/services/interactionsService";
+import { useAuth } from "src/hooks/useAuth";
 
 interface Category {
   id: number;
@@ -49,6 +51,8 @@ const OnSearchSection: React.FC<OnSearchSectionProps> = ({
 
   // Animation for clear search icon
   const clearIconScale = useRef(new Animated.Value(1)).current;
+
+  const { user } = useAuth();
 
   /**
    * Animation handlers for clear search icon
@@ -274,8 +278,6 @@ const OnSearchSection: React.FC<OnSearchSectionProps> = ({
     }
   }, [searchQuery, filter]);
 
-
-
   /**
    * Handle retry search
    */
@@ -356,6 +358,25 @@ const OnSearchSection: React.FC<OnSearchSectionProps> = ({
     onFilterChange({});
   }, [onFilterChange]);
 
+  /**
+   * Handle product press from search results - track SEARCH_PRODUCT interaction
+   */
+  const handleProductPress = useCallback(async (productId: number) => {
+    // Track interaction if user is connected
+    if (user) {
+      try {
+        await interactionsService.createInteraction({
+          type: 'SEARCH_PRODUCT',
+          productId: productId,
+          userId: user.id,
+        });
+      } catch (error) {
+        console.error('Failed to track search product interaction:', error);
+        // Don't block the interaction if tracking fails
+      }
+    }
+  }, [user]);
+
   return (
     <OnSearchSectionPresenter
       searchQuery={searchQuery}
@@ -378,6 +399,7 @@ const OnSearchSection: React.FC<OnSearchSectionProps> = ({
       onApplyFilter={handleApplyFilter}
       onClearIndividualFilter={handleClearIndividualFilter}
       onClearAllFilters={handleClearAllFilters}
+      onProductPress={handleProductPress}
       // Animation props
       clearIconScale={clearIconScale}
       onClearPressIn={handleClearPressIn}

@@ -67,9 +67,9 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
   const getStockBadge = () => {
     if (isOutOfStock) {
       return (
-        <View style={[styles.stockBadge, styles.stockBadgeError, { backgroundColor: colors.error + '15', borderColor: colors.error }]}>
-          <View style={[styles.stockIndicator, { backgroundColor: colors.error }]} />
-          <Text style={[styles.stockBadgeText, { color: colors.error }]}>
+        <View style={[styles.stockBadge, styles.stockBadgeError, { backgroundColor: colors.danger[500] + '15', borderColor: colors.danger[500] }]}>
+          <View style={[styles.stockIndicator, { backgroundColor: colors.danger[500] }]} />
+          <Text style={[styles.stockBadgeText, { color: colors.danger[600] }]}>
             Rupture de stock
           </Text>
         </View>
@@ -78,9 +78,9 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
     
     if (isLowStock) {
       return (
-        <View style={[styles.stockBadge, styles.stockBadgeWarning, { backgroundColor: '#FF8C00' + '15', borderColor: '#FF8C00' }]}>
-          <View style={[styles.stockIndicator, { backgroundColor: '#FF8C00' }]} />
-          <Text style={[styles.stockBadgeText, { color: '#FF8C00' }]}>
+        <View style={[styles.stockBadge, styles.stockBadgeWarning, { backgroundColor: colors.warning[500] + '15', borderColor: colors.warning[500] }]}>
+          <View style={[styles.stockIndicator, { backgroundColor: colors.warning[500] }]} />
+          <Text style={[styles.stockBadgeText, { color: colors.warning[600] }]}>
             Stock limité ({product.quantity} restant{product.quantity > 1 ? 's' : ''})
           </Text>
         </View>
@@ -88,9 +88,9 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
     }
 
     return (
-      <View style={[styles.stockBadge, { backgroundColor: colors.success + '15', borderColor: colors.success }]}>
-        <View style={[styles.stockIndicator, { backgroundColor: colors.success }]} />
-        <Text style={[styles.stockBadgeText, { color: colors.success }]}>
+      <View style={[styles.stockBadge, { backgroundColor: colors.success[500] + '15', borderColor: colors.success[500] }]}>
+        <View style={[styles.stockIndicator, { backgroundColor: colors.success[500] }]} />
+        <Text style={[styles.stockBadgeText, { color: colors.success[600] }]}>
           En stock ({product.quantity} disponible{product.quantity > 1 ? 's' : ''})
         </Text>
       </View>
@@ -100,7 +100,7 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
   const getPromotionBadge = () => {
     if (product.isInPromotion && product.promotionPercentage) {
       return (
-        <View style={[styles.promotionBadge, { backgroundColor: colors.error }]}>
+        <View style={[styles.promotionBadge, { backgroundColor: colors.accent[500] }]}>
           <Text style={[styles.promotionIcon, { color: colors.primary[50] }]}>🔥</Text>
           <Text style={[styles.promotionBadgeText, { color: colors.primary[50] }]}>
             -{product.promotionPercentage}%
@@ -157,7 +157,7 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
                 {formatPrice(product.priceTtc)}
               </Text>
               <View style={styles.currentPriceContainer}>
-                <Text style={[styles.currentPrice, { color: colors.error }]}>
+                <Text style={[styles.currentPrice, { color: colors.accent[500] }]}>
                   {formatPrice(product.promotionPrice)}
                 </Text>
                 <Text style={[styles.priceLabel, { color: colors.textSecondary }]}>TTC</Text>

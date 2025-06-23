@@ -78,7 +78,7 @@ const FavoritePresenter: React.FC<FavoritePresenterProps> = ({
     },
     headerTitle: {
       color: colors.text,
-      fontSize: ms(20),
+      fontSize: ms(18), // Using react-native-size-matters - reduced from ms(20)
       fontWeight: "700",
       flex: 1,
     },
@@ -134,7 +134,7 @@ const FavoritePresenter: React.FC<FavoritePresenterProps> = ({
     },
     unauthTitle: {
       color: colors.text,
-      fontSize: ms(22),
+      fontSize: ms(18), // Using react-native-size-matters - reduced from ms(22)
       fontWeight: "700",
       textAlign: "center",
       marginBottom: ms(12),
@@ -201,7 +201,7 @@ const FavoritePresenter: React.FC<FavoritePresenterProps> = ({
     },
     errorTitle: {
       color: colors.danger[600],
-      fontSize: ms(20),
+      fontSize: ms(18), // Using react-native-size-matters - reduced from ms(20)
       fontWeight: "700",
       textAlign: "center",
       marginTop: ms(16),
@@ -256,7 +256,7 @@ const FavoritePresenter: React.FC<FavoritePresenterProps> = ({
     },
     emptyTitle: {
       color: colors.text,
-      fontSize: ms(20),
+      fontSize: ms(18), // Using react-native-size-matters - reduced from ms(20)
       fontWeight: "700",
       textAlign: "center",
       marginTop: ms(16),

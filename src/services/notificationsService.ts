@@ -1,4 +1,5 @@
 import api from "../interceptors/api";
+import { PaginationDto } from "../types/paginationDto";
 
 // DTOs et interfaces pour les notifications
 interface PushSubscriptionDto {
@@ -9,10 +10,7 @@ interface PushSubscriptionDto {
   };
 }
 
-interface PaginationDto {
-  page?: number;
-  limit?: number;
-}
+
 
 const notificationsService = {
   // GET /notifications/user/:userId - Récupérer les notifications d'un utilisateur

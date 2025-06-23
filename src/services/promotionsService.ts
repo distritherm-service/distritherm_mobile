@@ -1,4 +1,6 @@
 import api from "../interceptors/api";
+import { PaginationDto, PaginatedResponse } from "../types/paginationDto";
+import { ProductBasicDto } from "../types/Product";
 
 // Types et interfaces pour les DTOs
 export interface CreatePromotionDto {
@@ -25,22 +27,12 @@ export interface PromotionDto {
   productId: number;
   createdAt: string;
   updatedAt: string;
+  product?: ProductBasicDto;
+  originalPrice?: number;
+  promotionPrice?: number;
 }
 
-export interface PaginationDto {
-  page?: number;
-  limit?: number;
-}
 
-export interface PaginatedResponse<T> {
-  data: T[];
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    lastPage: number;
-  };
-}
 
 export interface PromotionResponseDto {
   promotion: PromotionDto;
@@ -49,6 +41,13 @@ export interface PromotionResponseDto {
 
 export interface PromotionsListResponseDto {
   promotions: PromotionDto[];
+  count: number;
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    lastPage: number;
+  };
   message: string;
 }
 
@@ -63,14 +62,14 @@ export interface PromotionDeleteResponseDto {
 
 const promotionsService = {
   // GET /promotions/all - Récupérer toutes les promotions avec pagination (PUBLIC)
-  findAll: async (paginationDto?: PaginationDto): Promise<any> => {
+  findAll: async (paginationDto?: PaginationDto): Promise<PromotionsListResponseDto> => {
     try {
       const params = new URLSearchParams();
       if (paginationDto?.page) params.append('page', paginationDto.page.toString());
       if (paginationDto?.limit) params.append('limit', paginationDto.limit.toString());
       
-      const response = await api.get(`/promotions/all${params.toString() ? '?' + params.toString() : ''}`);
-      return await response.data;
+      const response = await api.get<PromotionsListResponseDto>(`/promotions/all${params.toString() ? '?' + params.toString() : ''}`);
+      return response.data;
     } catch (error) {
       throw error;
     }

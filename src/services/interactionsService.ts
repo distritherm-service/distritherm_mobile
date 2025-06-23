@@ -2,7 +2,7 @@ import api from "../interceptors/api";
 
 // DTOs et interfaces pour les interactions
 interface CreateInteractionDto {
-  type: 'CLICK_PRODUCT' | 'VIEW_PRODUCT' | 'ADD_TO_CART' | 'REMOVE_FROM_CART' | 'PURCHASE' | 'SEARCH';
+  type: 'CLICK_PRODUCT' | 'SEARCH_PRODUCT';
   productId: number;
   userId: number;
 }

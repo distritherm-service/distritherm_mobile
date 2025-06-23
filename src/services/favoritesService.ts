@@ -1,4 +1,5 @@
 import api from "../interceptors/api";
+import { PaginationDto } from "../types/paginationDto";
 
 // DTOs et interfaces pour les favoris
 interface CreateFavoriteDto {
@@ -6,10 +7,7 @@ interface CreateFavoriteDto {
   userId: number;
 }
 
-interface PaginationDto {
-  page?: number;
-  limit?: number;
-}
+
 
 const favoritesService = {
   // POST /favorites - Créer un nouveau favori
