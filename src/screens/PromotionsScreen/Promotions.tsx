@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import promotionsService, { PromotionDto, PromotionFiltersDto } from "src/services/promotionsService";
 import categoriesService from "src/services/categoriesService";
 import { RootStackParamList } from "src/navigation/types";
 import { ProductBasicDto } from "src/types/Product";
 import { Category } from "src/types/Category";
+import { SelectOption } from "src/components/Input/Input";
 import PromotionsPresenter from "./PromotionsPresenter";
 
 type PromotionsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -27,6 +28,8 @@ const Promotions: React.FC = () => {
   // Category filter state
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+  const [selectedCategoryOption, setSelectedCategoryOption] = useState<SelectOption | undefined>(undefined);
+  const [categoryOptions, setCategoryOptions] = useState<SelectOption[]>([]);
   const [isCategoriesLoading, setIsCategoriesLoading] = useState<boolean>(true);
 
   const ITEMS_PER_PAGE = 10;
@@ -39,17 +42,37 @@ const Promotions: React.FC = () => {
       
       if (response && response.categories) {
         setCategories(response.categories);
+        
+        // Create category options for the select input
+        const allOption: SelectOption = {
+          label: "Toutes les catégories",
+          value: "all",
+        };
+        
+        const categorySelectOptions: SelectOption[] = response.categories.map((category: Category) => ({
+          label: category.name,
+          value: category.id.toString(),
+        }));
+        
+        setCategoryOptions([allOption, ...categorySelectOptions]);
+        setSelectedCategoryOption(allOption); // Default to "All categories"
       }
     } catch (err: any) {
       console.error("Error fetching categories:", err);
-      // Categories loading error doesn't block the main functionality
+      // Set default "All categories" option even if categories fail to load
+      const allOption: SelectOption = {
+        label: "Toutes les catégories",
+        value: "all",
+      };
+      setCategoryOptions([allOption]);
+      setSelectedCategoryOption(allOption);
     } finally {
       setIsCategoriesLoading(false);
     }
   }, []);
 
-  // Fetch promotions function
-  const fetchPromotions = useCallback(async (page: number = 1, isRefresh: boolean = false, categoryId: number | null = selectedCategoryId) => {
+  // Fetch promotions function - removed selectedCategoryId dependency to prevent stale closures
+  const fetchPromotions = useCallback(async (page: number = 1, isRefresh: boolean = false, categoryId?: number | null) => {
     try {
       // Clear error and set loading states
       setError(null);
@@ -65,8 +88,10 @@ const Promotions: React.FC = () => {
         limit: ITEMS_PER_PAGE,
       };
       
-      if (categoryId) {
-        filters.categoryId = categoryId;
+      // Use the passed categoryId parameter or current selectedCategoryId
+      const currentCategoryId = categoryId !== undefined ? categoryId : selectedCategoryId;
+      if (currentCategoryId && currentCategoryId > 0) {
+        filters.categoryId = currentCategoryId;
       }
 
       const response = await promotionsService.findAll(filters);
@@ -99,19 +124,51 @@ const Promotions: React.FC = () => {
 
         setPromotionsCount(meta.total);
         setCurrentPage(page);
-        setHasMorePages(page < meta.lastPage); // Fix: use lastPage instead of total
+        setHasMorePages(page < meta.lastPage);
+      } else {
+        // Handle case where response is successful but no promotions
+        if (page === 1) {
+          setPromotions([]);
+          setProducts([]);
+          setPromotionsCount(0);
+        }
+        setHasMorePages(false);
       }
     } catch (err: any) {
       console.error("Error fetching promotions:", err);
       
-      // Set appropriate error message
-      const errorMessage = err?.response?.data?.message || 
-                         err?.message || 
-                         "Erreur lors du chargement des promotions";
-      setError(errorMessage);
+      // Handle different types of errors more gracefully
+      let errorMessage = "Erreur lors du chargement des promotions";
       
-      // Reset data only on first page error
-      if (page === 1) {
+      if (err?.response?.status === 404) {
+        // 404 means no promotions found for this category - not really an error
+        if (page === 1) {
+          setPromotions([]);
+          setProducts([]);
+          setPromotionsCount(0);
+        }
+        setHasMorePages(false);
+        setError(null); // Don't show error for empty results
+      } else if (err?.response?.status === 500) {
+        // Server error - could be temporary
+        errorMessage = "Erreur du serveur. Veuillez réessayer plus tard.";
+        setError(errorMessage);
+      } else if (err?.response?.status >= 400 && err?.response?.status < 500) {
+        // Client error
+        errorMessage = err?.response?.data?.message || "Erreur de requête";
+        setError(errorMessage);
+      } else if (err?.code === 'NETWORK_ERROR' || !err?.response) {
+        // Network error
+        errorMessage = "Erreur de connexion. Vérifiez votre connexion internet.";
+        setError(errorMessage);
+      } else {
+        // Other errors
+        errorMessage = err?.response?.data?.message || err?.message || errorMessage;
+        setError(errorMessage);
+      }
+      
+      // Reset data only on first page error (and only if it's a real error, not empty results)
+      if (page === 1 && err?.response?.status !== 404) {
         setPromotions([]);
         setProducts([]);
         setHasMorePages(false);
@@ -123,30 +180,46 @@ const Promotions: React.FC = () => {
     }
   }, [selectedCategoryId]);
 
-  // Initial load
+  // Initial load - only fetch categories and initial promotions once
   useEffect(() => {
     fetchCategories();
-    fetchPromotions(1);
-  }, [fetchCategories, fetchPromotions]);
+  }, [fetchCategories]);
+
+  // Fetch initial promotions after categories are loaded
+  useEffect(() => {
+    if (!isCategoriesLoading && categoryOptions.length > 0) {
+      fetchPromotions(1, false, null);
+    }
+  }, [isCategoriesLoading, categoryOptions.length]);
 
   // Handle category selection
-  const handleCategorySelect = useCallback((categoryId: number | null) => {
+  const handleCategorySelect = useCallback((option: SelectOption) => {
+    const categoryId = option.value === "all" ? null : parseInt(option.value) || null;
+    
     setSelectedCategoryId(categoryId);
+    setSelectedCategoryOption(option);
     setCurrentPage(1);
     setHasMorePages(true);
     setError(null);
+    
+    // Clear current data before fetching new data
+    setPromotions([]);
+    setProducts([]);
+    setPromotionsCount(0);
+    
+    // Fetch promotions with the new category filter
     fetchPromotions(1, false, categoryId);
   }, [fetchPromotions]);
 
-  // Handle refresh
+  // Handle refresh - use current selected category
   const handleRefresh = useCallback(() => {
     setCurrentPage(1);
     setHasMorePages(true);
     setError(null);
-    fetchPromotions(1, true);
-  }, [fetchPromotions]);
+    fetchPromotions(1, true, selectedCategoryId);
+  }, [fetchPromotions, selectedCategoryId]);
 
-  // Handle load more
+  // Handle load more - use current selected category
   const handleLoadMore = useCallback(() => {
     if (!isLoadingMore && 
         !isLoading && 
@@ -154,24 +227,22 @@ const Promotions: React.FC = () => {
         hasMorePages && 
         products.length > 0 && 
         !error) {
-      fetchPromotions(currentPage + 1);
+      fetchPromotions(currentPage + 1, false, selectedCategoryId);
     }
-  }, [isLoadingMore, isLoading, isRefreshing, hasMorePages, products.length, error, currentPage, fetchPromotions]);
+  }, [isLoadingMore, isLoading, isRefreshing, hasMorePages, products.length, error, currentPage, fetchPromotions, selectedCategoryId]);
 
-  // Handle retry
+  // Handle retry - use current selected category
   const handleRetry = useCallback(() => {
     setError(null);
     setCurrentPage(1);
     setHasMorePages(true);
-    fetchPromotions(1);
-  }, [fetchPromotions]);
+    fetchPromotions(1, false, selectedCategoryId);
+  }, [fetchPromotions, selectedCategoryId]);
 
   // Navigation handlers
   const handleNavigateBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
-
-
 
   return (
     <PromotionsPresenter
@@ -185,6 +256,8 @@ const Promotions: React.FC = () => {
       hasMorePages={hasMorePages}
       categories={categories}
       selectedCategoryId={selectedCategoryId}
+      selectedCategoryOption={selectedCategoryOption}
+      categoryOptions={categoryOptions}
       isCategoriesLoading={isCategoriesLoading}
       onRefresh={handleRefresh}
       onLoadMore={handleLoadMore}

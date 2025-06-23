@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { Animated } from "react-native";
 import OnSearchSectionPresenter from "./OnSearchSectionPresenter";
 import productsService, { SearchFilters } from "src/services/productsService";
 import { ProductBasicDto } from "src/types/Product";
@@ -49,31 +48,7 @@ const OnSearchSection: React.FC<OnSearchSectionProps> = ({
   const [marks, setMarks] = useState<Mark[]>([]);
   const [isLoadingFilterData, setIsLoadingFilterData] = useState(false);
 
-  // Animation for clear search icon
-  const clearIconScale = useRef(new Animated.Value(1)).current;
-
   const { user } = useAuth();
-
-  /**
-   * Animation handlers for clear search icon
-   */
-  const handleClearPressIn = useCallback(() => {
-    Animated.spring(clearIconScale, {
-      toValue: 0.85,
-      useNativeDriver: true,
-      tension: 300,
-      friction: 10,
-    }).start();
-  }, [clearIconScale]);
-
-  const handleClearPressOut = useCallback(() => {
-    Animated.spring(clearIconScale, {
-      toValue: 1,
-      useNativeDriver: true,
-      tension: 300,
-      friction: 10,
-    }).start();
-  }, [clearIconScale]);
 
   /**
    * Pre-load categories and marks data
@@ -400,10 +375,6 @@ const OnSearchSection: React.FC<OnSearchSectionProps> = ({
       onClearIndividualFilter={handleClearIndividualFilter}
       onClearAllFilters={handleClearAllFilters}
       onProductPress={handleProductPress}
-      // Animation props
-      clearIconScale={clearIconScale}
-      onClearPressIn={handleClearPressIn}
-      onClearPressOut={handleClearPressOut}
     />
   );
 };

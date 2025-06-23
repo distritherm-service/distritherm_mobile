@@ -8,15 +8,20 @@ import {
   ActivityIndicator,
   RefreshControl,
   ScrollView,
+  Animated,
 } from "react-native";
 import { ms } from "react-native-size-matters";
 import { FontAwesome6 } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import PageContainer from "src/components/PageContainer/PageContainer";
 import ProductItem from "src/components/ProductItem/ProductItem";
+import Input from "src/components/Input/Input";
+import { InputType } from "src/types/InputType";
 import { useColors } from "src/hooks/useColors";
 import { PromotionDto } from "src/services/promotionsService";
 import { ProductBasicDto } from "src/types/Product";
 import { Category } from "src/types/Category";
+import { SelectOption } from "src/components/Input/Input";
 import { Dimensions } from "react-native";
 
 interface PromotionsPresenterProps {
@@ -30,12 +35,14 @@ interface PromotionsPresenterProps {
   hasMorePages: boolean;
   categories: Category[];
   selectedCategoryId: number | null;
+  selectedCategoryOption: SelectOption | undefined;
+  categoryOptions: SelectOption[];
   isCategoriesLoading: boolean;
   onRefresh: () => void;
   onLoadMore: () => void;
   onRetry: () => void;
   onNavigateBack: () => void;
-  onCategorySelect: (categoryId: number | null) => void;
+  onCategorySelect: (option: SelectOption) => void;
 }
 
 const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
@@ -49,6 +56,8 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
   hasMorePages,
   categories,
   selectedCategoryId,
+  selectedCategoryOption,
+  categoryOptions,
   isCategoriesLoading,
   onRefresh,
   onLoadMore,
@@ -64,64 +73,65 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
     container: {
       backgroundColor: colors.background,
     },
-    // Header styles
-    headerContainer: {
-      backgroundColor: colors.surface,
-      borderBottomColor: colors.border,
-      shadowColor: colors.text,
-      paddingHorizontal: ms(20),
-      paddingVertical: ms(16),
-      borderBottomWidth: 1,
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-      shadowOpacity: 0.1,
-      shadowRadius: 3.84,
-      elevation: 5,
+    headerGradient: {
+      position: "absolute",
+      left: 0,
+      right: 0,
+      top: 0,
+      bottom: 0,
     },
     headerContent: {
       flexDirection: "row",
       alignItems: "center",
-      gap: ms(12), // Using react-native-size-matters for responsive gap
+      gap: ms(16), // Using react-native-size-matters - increased gap for better spacing
+      zIndex: 1, // Ensure content appears above gradient
     },
     headerIconContainer: {
-      backgroundColor: colors.surface,
-      borderColor: colors.secondary[200],
-      width: ms(40), // Using react-native-size-matters for responsive width
-      height: ms(40), // Using react-native-size-matters for responsive height
-      borderRadius: ms(20),
+      backgroundColor: "rgba(255, 255, 255, 0.9)",
+      borderColor: colors.primary[300],
+      width: ms(44), // Using react-native-size-matters - increased size for better touch target
+      height: ms(44), // Using react-native-size-matters - increased size for better touch target
+      borderRadius: ms(22),
       justifyContent: "center",
       alignItems: "center",
-      borderWidth: 2,
-      shadowColor: colors.text,
+      borderWidth: 1.5,
+      shadowColor: colors.primary[500],
+      shadowOffset: {
+        width: 0,
+        height: 3,
+      },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      elevation: 5,
+    },
+    headerTitle: {
+      color: colors.text,
+      fontSize: ms(22), // Using react-native-size-matters - increased for better visual hierarchy
+      fontWeight: "800",
+      flex: 1,
+      letterSpacing: 0.5, // Added letter spacing for premium feel
+    },
+    headerCount: {
+      backgroundColor: colors.primary[500],
+      minWidth: ms(36), // Using react-native-size-matters - increased for better visual presence
+      height: ms(36), // Using react-native-size-matters - increased for better visual presence
+      borderRadius: ms(18),
+      justifyContent: "center",
+      alignItems: "center",
+      paddingHorizontal: ms(10), // Using react-native-size-matters - increased padding
+      shadowColor: colors.primary[500],
       shadowOffset: {
         width: 0,
         height: 2,
       },
-      shadowOpacity: 0.1,
+      shadowOpacity: 0.3,
       shadowRadius: 3,
-      elevation: 3,
-    },
-    headerTitle: {
-      color: colors.text,
-      fontSize: ms(18), // Using react-native-size-matters - reduced from ms(20) for consistency
-      fontWeight: "700",
-      flex: 1,
-    },
-    headerCount: {
-      backgroundColor: colors.secondary[500],
-      color: colors.surface,
-      minWidth: ms(32), // Using react-native-size-matters for responsive width
-      height: ms(32), // Using react-native-size-matters for responsive height
-      borderRadius: ms(16),
-      justifyContent: "center",
-      alignItems: "center",
-      paddingHorizontal: ms(8),
+      elevation: 4,
     },
     headerCountText: {
+      color: colors.surface,
       fontSize: ms(14),
-      fontWeight: "600",
+      fontWeight: "700",
     },
     // Common styles
     centeredContainer: {
@@ -130,36 +140,58 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
       alignItems: "center",
       paddingHorizontal: ms(20),
     },
-    // Loading state styles
+    // Loading state styles with gradient background
     loadingContainer: {
-      backgroundColor: colors.primary[50],
       flex: 1,
       justifyContent: "center",
       alignItems: "center",
       paddingHorizontal: ms(20),
     },
-    loadingText: {
-      color: colors.textSecondary,
-      fontSize: ms(16),
-      marginTop: ms(16),
+    loadingGradient: {
+      position: "absolute",
+      left: 0,
+      right: 0,
+      top: 0,
+      bottom: 0,
     },
-    // Error state styles
-    errorContainer: {
-      backgroundColor: colors.surface,
-      borderColor: colors.danger[200],
-      shadowColor: colors.text,
-      borderRadius: ms(16),
-      padding: ms(32),
+    loadingContent: {
       alignItems: "center",
-      borderWidth: 1,
+      backgroundColor: "rgba(255, 255, 255, 0.9)",
+      borderRadius: ms(20),
+      padding: ms(32),
+      shadowColor: colors.primary[500],
       shadowOffset: {
         width: 0,
         height: 4,
       },
-      shadowOpacity: 0.1,
+      shadowOpacity: 0.15,
       shadowRadius: 8,
       elevation: 8,
-      maxWidth: ms(320),
+    },
+    loadingText: {
+      color: colors.text,
+      fontSize: ms(16),
+      fontWeight: "600",
+      marginTop: ms(16),
+      textAlign: "center",
+    },
+    // Error state styles with enhanced visual design
+    errorContainer: {
+      backgroundColor: "rgba(255, 255, 255, 0.95)",
+      borderColor: colors.danger[300],
+      shadowColor: colors.danger[500],
+      borderRadius: ms(20),
+      padding: ms(36), // Using react-native-size-matters - increased padding for better visual appeal
+      alignItems: "center",
+      borderWidth: 1.5,
+      shadowOffset: {
+        width: 0,
+        height: 6,
+      },
+      shadowOpacity: 0.2,
+      shadowRadius: 12,
+      elevation: 10,
+      maxWidth: ms(340), // Using react-native-size-matters - increased width for better content display
     },
     errorTitle: {
       color: colors.danger[600],
@@ -178,17 +210,17 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
     },
     retryButton: {
       backgroundColor: colors.danger[500],
-      shadowColor: colors.text,
-      paddingHorizontal: ms(24),
-      paddingVertical: ms(12),
-      borderRadius: ms(8),
+      shadowColor: colors.danger[500],
+      paddingHorizontal: ms(28), // Using react-native-size-matters - increased padding for better touch target
+      paddingVertical: ms(14), // Using react-native-size-matters - increased padding for better touch target
+      borderRadius: ms(12), // Using react-native-size-matters - increased border radius for modern look
       shadowOffset: {
         width: 0,
-        height: 2,
+        height: 4,
       },
-      shadowOpacity: 0.2,
-      shadowRadius: 4,
-      elevation: 4,
+      shadowOpacity: 0.3,
+      shadowRadius: 6,
+      elevation: 6,
     },
     retryButtonPressed: {
       backgroundColor: colors.danger[600],
@@ -198,23 +230,23 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
       fontSize: ms(16),
       fontWeight: "600",
     },
-    // Empty state styles
+    // Empty state styles with gradient and enhanced design
     emptyContainer: {
-      backgroundColor: colors.surface,
-      borderColor: colors.border,
-      shadowColor: colors.text,
-      borderRadius: ms(16),
-      padding: ms(32),
+      backgroundColor: "rgba(255, 255, 255, 0.95)",
+      borderColor: colors.primary[200],
+      shadowColor: colors.primary[500],
+      borderRadius: ms(24), // Using react-native-size-matters - increased border radius for modern look
+      padding: ms(40), // Using react-native-size-matters - increased padding for better visual appeal
       alignItems: "center",
-      borderWidth: 1,
+      borderWidth: 1.5,
       shadowOffset: {
         width: 0,
-        height: 4,
+        height: 8,
       },
-      shadowOpacity: 0.1,
-      shadowRadius: 8,
-      elevation: 8,
-      maxWidth: ms(320),
+      shadowOpacity: 0.15,
+      shadowRadius: 16,
+      elevation: 12,
+      maxWidth: ms(360), // Using react-native-size-matters - increased width for better content display
     },
     emptyTitle: {
       color: colors.text,
@@ -230,18 +262,30 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
       textAlign: "center",
       lineHeight: ms(24),
     },
-    // List styles
+    // Enhanced list styles for better UI/UX
     listContent: {
-      paddingHorizontal: ms(16),
-      paddingTop: ms(16),
-      paddingBottom: ms(20),
+      paddingHorizontal: ms(10), // Using react-native-size-matters - optimized padding
+      paddingTop: ms(20), // Using react-native-size-matters - increased top padding for better visual separation
+      paddingBottom: ms(28), // Using react-native-size-matters - increased bottom padding for better scroll experience
     },
     promotionItemStyle: {
       flex: 1,
-      marginHorizontal: ms(8),
-      marginBottom: ms(16),
-      borderRadius: ms(16),
+      marginHorizontal: ms(8), // Using react-native-size-matters - reduced for better grid layout
+      marginBottom: ms(18), // Using react-native-size-matters - increased spacing between rows
+      borderRadius: ms(16), // Using react-native-size-matters - maintained modern border radius
       overflow: "hidden",
+    },
+    // Enhanced list container with gradient background
+    listContainer: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    listGradientBackground: {
+      position: "absolute",
+      left: 0,
+      right: 0,
+      top: 0,
+      bottom: 0,
     },
 
     // Load more styles
@@ -259,172 +303,155 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
       fontWeight: "500",
     },
 
-    // Category filter styles - Using react-native-size-matters for responsiveness
+    // Beautiful minimalist category filter with intelligent layout
     categoryFilterContainer: {
-      backgroundColor: colors.surface,
-      borderBottomColor: colors.border,
-      shadowColor: colors.text,
-      paddingVertical: ms(16),
+      backgroundColor: colors.secondary[50], // Clean white background
+      borderBottomColor: colors.secondary[100],
+      paddingHorizontal: ms(20), // Using react-native-size-matters for responsive padding
+      paddingVertical: ms(16), // Using react-native-size-matters - slightly increased for better spacing
       borderBottomWidth: 1,
+      flexDirection: "column",
+      gap: ms(5),
+    },
+    categoryFilterHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginBottom: ms(12), // Using react-native-size-matters - spacing before input
+    },
+    categoryFilterTitleSection: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: ms(10), // Using react-native-size-matters - spacing between icon and title
+    },
+    categoryFilterIcon: {
+      backgroundColor: colors.secondary[400], // 60% - Secondary color for icon
+      width: ms(32), // Using react-native-size-matters - slightly larger for better visual balance
+      height: ms(32), // Using react-native-size-matters - slightly larger for better visual balance
+      borderRadius: ms(16),
+      justifyContent: "center",
+      alignItems: "center",
+      shadowColor: colors.secondary[500],
       shadowOffset: {
         width: 0,
         height: 2,
       },
-      shadowOpacity: 0.05,
-      shadowRadius: 3,
-      elevation: 2,
-    },
-    categoryFilterTitle: {
-      color: colors.text,
-      fontSize: ms(16),
-      fontWeight: "600",
-      marginHorizontal: ms(20),
-      marginBottom: ms(12),
-    },
-    categoryScrollContainer: {
-      paddingHorizontal: ms(12), // Using react-native-size-matters for responsive padding
-    },
-    categoryChip: {
-      backgroundColor: colors.background,
-      borderColor: colors.border,
-      paddingHorizontal: ms(16), // Using react-native-size-matters for responsive padding
-      paddingVertical: ms(10), // Using react-native-size-matters for responsive padding
-      borderRadius: ms(20),
-      marginHorizontal: ms(4), // Using react-native-size-matters for responsive margin
-      borderWidth: 1.5,
-      shadowColor: colors.text,
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-      shadowOpacity: 0.1,
+      shadowOpacity: 0.15,
       shadowRadius: 3,
       elevation: 3,
-      minWidth: ms(80), // Using react-native-size-matters for responsive min width
+    },
+    categoryFilterTitle: {
+      color: colors.tertiary[500], // 30% - Tertiary color for main text
+      fontSize: ms(16), // Using react-native-size-matters - clean, readable size
+      fontWeight: "600",
+      letterSpacing: 0.2,
+    },
+    categoryFilterBadge: {
+      backgroundColor: colors.secondary[500], // 60% - Secondary color for badge
+      paddingHorizontal: ms(12), // Using react-native-size-matters for responsive padding
+      paddingVertical: ms(6), // Using react-native-size-matters for responsive padding
+      borderRadius: ms(16),
+      shadowColor: colors.secondary[500],
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      elevation: 4,
+      minWidth: ms(50), // Using react-native-size-matters - ensure minimum width
       alignItems: "center",
     },
-    categoryChipSelected: {
-      backgroundColor: colors.primary[500],
-      borderColor: colors.primary[600],
-      shadowColor: colors.primary[500],
-      shadowOpacity: 0.3,
-      elevation: 6,
+    categoryFilterBadgeText: {
+      color: colors.surface, // White text on secondary background
+      fontSize: ms(13), // Using react-native-size-matters for responsive font size
+      fontWeight: "700",
+      letterSpacing: 0.3,
     },
-    categoryChipText: {
-      color: colors.text,
-      fontSize: ms(14),
-      fontWeight: "500",
-      textAlign: "center",
-    },
-    categoryChipTextSelected: {
-      color: colors.surface,
-      fontWeight: "600",
+    categoryFilterInputContainer: {
+      flexGrow: 1,
     },
     categoryLoadingContainer: {
-      paddingHorizontal: ms(20),
-      paddingVertical: ms(8), // Using react-native-size-matters for responsive padding
+      flexDirection: "row",
       alignItems: "center",
+      gap: ms(8), // Using react-native-size-matters for spacing
     },
     categoryLoadingText: {
-      color: colors.textSecondary,
-      fontSize: ms(12),
-      marginTop: ms(4), // Using react-native-size-matters for responsive margin
+      color: colors.secondary[600], // 60% - Secondary color for loading text
+      fontSize: ms(13), // Using react-native-size-matters - compact font size
+      fontWeight: "500",
     },
   });
 
-  // Render category filter chip
-  const renderCategoryChip = ({ item }: { item: Category }) => {
-    const isSelected = selectedCategoryId === item.id;
-    
-    return (
-      <Pressable
-        style={[
-          dynamicStyles.categoryChip,
-          isSelected && dynamicStyles.categoryChipSelected,
-        ]}
-        onPress={() => onCategorySelect(isSelected ? null : item.id)}
-      >
-        <Text
-          style={[
-            dynamicStyles.categoryChipText,
-            isSelected && dynamicStyles.categoryChipTextSelected,
-          ]}
-          numberOfLines={1}
-        >
-          {item.name}
-        </Text>
-      </Pressable>
-    );
-  };
-
-  // Render category filter
+  // Render beautiful and intelligent category filter with visible promotion count
   const renderCategoryFilter = () => {
     if (isCategoriesLoading) {
       return (
         <View style={dynamicStyles.categoryFilterContainer}>
-          <Text style={dynamicStyles.categoryFilterTitle}>Filtrer par catégorie</Text>
-          <View style={dynamicStyles.categoryLoadingContainer}>
-            <ActivityIndicator size="small" color={colors.primary[500]} />
-            <Text style={dynamicStyles.categoryLoadingText}>
-              Chargement des catégories...
-            </Text>
+          <View style={dynamicStyles.categoryFilterHeader}>
+            <View style={dynamicStyles.categoryFilterTitleSection}>
+              <View style={dynamicStyles.categoryFilterIcon}>
+                <FontAwesome6
+                  name="filter"
+                  size={ms(15)} // Using react-native-size-matters for responsive icon size
+                  color={colors.surface} // White icon on secondary background
+                />
+              </View>
+              <Text style={dynamicStyles.categoryFilterTitle}>
+                Filtrer par catégorie
+              </Text>
+            </View>
+            <View style={dynamicStyles.categoryLoadingContainer}>
+              <ActivityIndicator size="small" color={colors.secondary[500]} />
+              <Text style={dynamicStyles.categoryLoadingText}>
+                Chargement...
+              </Text>
+            </View>
           </View>
         </View>
       );
     }
 
-    if (categories.length === 0) {
+    if (categoryOptions.length === 0) {
       return null;
     }
 
-    // Add "Toutes" option at the beginning
-    const allCategoriesOption = {
-      id: 0,
-      name: "Toutes",
-      level: 0,
-      alias: "ALL",
-      haveParent: false,
-      haveChildren: false,
-      agenceId: 0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    const categoryOptions = [allCategoriesOption, ...categories];
-
     return (
       <View style={dynamicStyles.categoryFilterContainer}>
-        <Text style={dynamicStyles.categoryFilterTitle}>Filtrer par catégorie</Text>
-        <FlatList
-          data={categoryOptions}
-          renderItem={({ item }) => (
-            <Pressable
-              style={[
-                dynamicStyles.categoryChip,
-                (selectedCategoryId === null && item.id === 0) || selectedCategoryId === item.id
-                  ? dynamicStyles.categoryChipSelected
-                  : {},
-              ]}
-              onPress={() => onCategorySelect(item.id === 0 ? null : item.id)}
-            >
-              <Text
-                style={[
-                  dynamicStyles.categoryChipText,
-                  (selectedCategoryId === null && item.id === 0) || selectedCategoryId === item.id
-                    ? dynamicStyles.categoryChipTextSelected
-                    : {},
-                ]}
-                numberOfLines={1}
-              >
-                {item.name}
+        <View style={dynamicStyles.categoryFilterHeader}>
+          <View style={dynamicStyles.categoryFilterTitleSection}>
+            <View style={dynamicStyles.categoryFilterIcon}>
+              <FontAwesome6
+                name="filter"
+                size={ms(15)}
+                color={colors.surface}
+              />
+            </View>
+            <Text style={dynamicStyles.categoryFilterTitle}>
+              Filtrer par catégorie
+            </Text>
+          </View>
+          {promotionsCount > 0 && (
+            <View style={dynamicStyles.categoryFilterBadge}>
+              <Text style={dynamicStyles.categoryFilterBadgeText}>
+                {promotionsCount}
               </Text>
-            </Pressable>
+            </View>
           )}
-          keyExtractor={(item) => item.id.toString()}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={dynamicStyles.categoryScrollContainer}
-        />
+        </View>
+
+        <View style={dynamicStyles.categoryFilterInputContainer}>
+          <Input
+            name="category"
+            type={InputType.SEARCHABLE_SELECT}
+            placeholder="Sélectionner une catégorie"
+            searchPlaceholder="Rechercher une catégorie..."
+            options={categoryOptions}
+            selectedOption={selectedCategoryOption}
+            onSelectOption={onCategorySelect}
+            style={{ marginVertical: ms(40) }}
+          />
+        </View>
       </View>
     );
   };
@@ -445,7 +472,7 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
       <View style={dynamicStyles.errorContainer}>
         <FontAwesome6
           name="triangle-exclamation"
-          size={ms(48)} 
+          size={ms(48)}
           color={colors.danger[500]}
         />
 
@@ -470,34 +497,27 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
   const renderEmptyState = () => (
     <View style={[dynamicStyles.centeredContainer, { flex: 1 }]}>
       <View style={dynamicStyles.emptyContainer}>
-        <FontAwesome6 
-          name="tags" 
-          size={ms(64)} 
-          color={colors.primary[300]} 
-        />
+        <FontAwesome6 name="tags" size={ms(64)} color={colors.primary[300]} />
 
         <Text style={dynamicStyles.emptyTitle}>
-          {selectedCategoryId ? "Aucune promotion dans cette catégorie" : "Aucune promotion disponible"}
+          {selectedCategoryId
+            ? "Aucune promotion dans cette catégorie"
+            : "Aucune promotion disponible"}
         </Text>
 
         <Text style={dynamicStyles.emptyDescription}>
-          {selectedCategoryId 
+          {selectedCategoryId
             ? "Essayez de sélectionner une autre catégorie ou consultez toutes les promotions."
-            : "Les nouvelles promotions apparaîtront ici dès qu'elles seront disponibles !"
-          }
+            : "Les nouvelles promotions apparaîtront ici dès qu'elles seront disponibles !"}
         </Text>
       </View>
     </View>
   );
 
-
-
   // Render product item
   const renderProductItem = ({ item }: { item: ProductBasicDto }) => (
     <View style={dynamicStyles.promotionItemStyle}>
-      <ProductItem
-        product={item}
-      />
+      <ProductItem product={item} />
     </View>
   );
 
@@ -528,9 +548,9 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
     }
 
     return (
-      <View style={{ flex: 1 }}>
+      <View style={dynamicStyles.listContainer}>
         <FlatList
-          data={products.filter(item => item && item.id)} // Filter out invalid items
+          data={products.filter((item) => item && item.id)} // Filter out invalid items
           renderItem={renderProductItem}
           keyExtractor={(item) => item.id.toString()}
           numColumns={2}
@@ -540,16 +560,24 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
             <RefreshControl
               refreshing={isRefreshing}
               onRefresh={onRefresh}
-              colors={[colors.primary[500]]}
-              tintColor={colors.primary[500]}
+              colors={[colors.secondary[500], colors.secondary[600]]} // Using secondary colors for consistency
+              tintColor={colors.secondary[500]}
+              progressBackgroundColor={colors.surface}
             />
           }
           onEndReached={onLoadMore}
           onEndReachedThreshold={0.1}
           ListFooterComponent={renderLoadMoreFooter}
           removeClippedSubviews={true} // Improve performance
-          maxToRenderPerBatch={10} // Render in smaller batches
-          windowSize={10} // Keep fewer items in memory
+          maxToRenderPerBatch={8} // Optimized for better performance
+          windowSize={8} // Optimized memory usage
+          ItemSeparatorComponent={() => <View style={{ height: ms(2) }} />} // Minimal separator for better visual spacing
+          getItemLayout={(data, index) => ({
+            // Optimize scrolling performance
+            length: ms(220), // Estimated item height
+            offset: ms(220) * Math.floor(index / 2), // Account for 2 columns
+            index,
+          })}
         />
       </View>
     );
@@ -571,4 +599,4 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
   );
 };
 
-export default PromotionsPresenter; 
+export default PromotionsPresenter;

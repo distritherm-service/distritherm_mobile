@@ -60,7 +60,7 @@ const FavoritePresenter: React.FC<FavoritePresenterProps> = ({
       backgroundColor: colors.surface,
       borderBottomColor: colors.border,
       shadowColor: colors.text,
-      paddingHorizontal: ms(20),
+      paddingHorizontal: ms(10),
       paddingVertical: ms(16),
       borderBottomWidth: 1,
       shadowOffset: {

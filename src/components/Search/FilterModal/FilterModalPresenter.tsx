@@ -24,11 +24,11 @@ interface FilterModalPresenterProps {
   tempFilter: SearchFilter;
   activeFiltersCount: number;
   // Category options for the UI
-  categoryOptions: Array<{label: string; value: string; id: number}>;
-  selectedCategory?: {label: string; value: string; id: number};
+  categoryOptions: Array<{label: string; value: string}>;
+  selectedCategory?: {label: string; value: string};
   // Mark options for the UI
-  markOptions: Array<{label: string; value: string; id: number}>;
-  selectedMark?: {label: string; value: string; id: number};
+  markOptions: Array<{label: string; value: string}>;
+  selectedMark?: {label: string; value: string};
   onClose: () => void;
   onCategorySelect: (categoryId: number, categoryName: string) => void;
   onMarkSelect: (markId: number, markName: string) => void;
@@ -393,7 +393,7 @@ const FilterModalPresenter: React.FC<FilterModalPresenterProps> = ({
             options={categoryOptions}
             selectedOption={selectedCategory}
             onSelectOption={(option) => {
-              const categoryId = option.id || parseInt(option.value);
+              const categoryId = parseInt(option.value);
               onCategorySelect(categoryId, option.label);
             }}
             style={{
@@ -438,7 +438,7 @@ const FilterModalPresenter: React.FC<FilterModalPresenterProps> = ({
             options={markOptions}
             selectedOption={selectedMark}
             onSelectOption={(option) => {
-              const markId = option.id || parseInt(option.value);
+              const markId = parseInt(option.value);
               onMarkSelect(markId, option.label);
             }}
             style={{

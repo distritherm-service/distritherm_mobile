@@ -167,7 +167,7 @@ const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
     submitButton: {
       marginTop: ms(24), // Using react-native-size-matters for responsive margin
       borderRadius: ms(12), // Using react-native-size-matters for responsive border radius
-      paddingVertical: ms(16), // Using react-native-size-matters for responsive padding
+      paddingVertical: ms(14), // Using react-native-size-matters - reduced from 16 to 14
       paddingHorizontal: ms(24), // Using react-native-size-matters for responsive padding
       backgroundColor: colors.secondary[400],
       alignItems: "center",

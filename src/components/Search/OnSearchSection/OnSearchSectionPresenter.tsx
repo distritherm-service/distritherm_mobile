@@ -6,7 +6,6 @@ import {
   ScrollView,
   Pressable,
   ActivityIndicator,
-  Animated,
 } from "react-native";
 import { ms } from "react-native-size-matters";
 import { useColors } from "src/hooks/useColors";
@@ -45,13 +44,11 @@ interface OnSearchSectionPresenterProps {
   onFilterPress: () => void;
   onFilterModalClose: () => void;
   onApplyFilter: (filter: SearchFilter) => void;
-  onClearIndividualFilter: (filterType: 'category' | 'mark' | 'price' | 'promotion') => void;
+  onClearIndividualFilter: (
+    filterType: "category" | "mark" | "price" | "promotion"
+  ) => void;
   onClearAllFilters: () => void;
   onProductPress: (productId: number) => void;
-  // Animation props
-  clearIconScale: Animated.Value;
-  onClearPressIn: () => void;
-  onClearPressOut: () => void;
 }
 
 /**
@@ -80,10 +77,6 @@ const OnSearchSectionPresenter: React.FC<OnSearchSectionPresenterProps> = ({
   onClearIndividualFilter,
   onClearAllFilters,
   onProductPress,
-  // Animation props
-  clearIconScale,
-  onClearPressIn,
-  onClearPressOut,
 }) => {
   const colors = useColors();
 
@@ -106,48 +99,134 @@ const OnSearchSectionPresenter: React.FC<OnSearchSectionPresenterProps> = ({
       backgroundColor: colors.background,
     },
     header: {
-      backgroundColor: colors.surface,
-      paddingHorizontal: ms(24),
+      backgroundColor: colors.tertiary[100],
+      paddingHorizontal: ms(20),
       paddingTop: ms(16),
       paddingBottom: ms(20),
-      borderBottomWidth: 1,
-      borderBottomColor: colors.primary[200],
+      borderBottomWidth: ms(3),
+      borderBottomColor: colors.secondary[50],
+      shadowColor: colors.tertiary[200],
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.06,
+      shadowRadius: 6,
+      elevation: 2,
+    },
+    searchInputContainer: {
+      flex: 1,
+      backgroundColor: colors.surface,
+      paddingHorizontal: ms(16),
+      paddingVertical: ms(14),
+      borderRadius: ms(16),
+      borderWidth: 1,
+      borderColor: colors.borderDark,
+      shadowColor: colors.tertiary[200],
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.08,
+      shadowRadius: 4,
+      elevation: 2,
+      marginRight: ms(12),
     },
 
-    searchInfo: {
-      backgroundColor: colors.primary[50],
-      paddingHorizontal: ms(14),
-      paddingVertical: ms(12),
-      borderRadius: ms(12),
-      borderWidth: 1.5,
-      borderColor: colors.primary[300],
-    },
-    searchInfoRow: {
+    searchInputRow: {
       flexDirection: "row",
       alignItems: "center",
-      flexWrap: "wrap",
     },
 
     searchQuery: {
-      fontSize: ms(14),
+      fontSize: ms(15),
       color: colors.text,
       fontWeight: "500",
       flex: 1,
     },
+
+    filterButton: {
+      padding: ms(12),
+      borderRadius: ms(12),
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.borderDark,
+      justifyContent: "center",
+      alignItems: "center",
+      shadowColor: colors.tertiary[200],
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.08,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+
+    filterButtonContent: {
+      position: "relative",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+
+    filterBadge: {
+      position: "absolute",
+      top: ms(-8),
+      right: ms(-8),
+      backgroundColor: colors.secondary[500],
+      borderWidth: 2,
+      borderColor: colors.surface,
+      borderRadius: ms(10),
+      minWidth: ms(20),
+      height: ms(20),
+      justifyContent: "center",
+      alignItems: "center",
+      paddingHorizontal: ms(4),
+      shadowColor: colors.secondary[400],
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.2,
+      shadowRadius: 3,
+      elevation: 4,
+    },
+
+    filterBadgeText: {
+      color: colors.surface,
+      fontSize: ms(11),
+      fontWeight: "700",
+      textAlign: "center",
+    },
+
+    headerRow: {
+      flexDirection: "row",
+      alignItems: "center",
+    },
+
     filterChip: {
-      backgroundColor: colors.primary[100],
-      paddingHorizontal: ms(12),
-      paddingVertical: ms(6),
-      borderRadius: ms(16),
+      backgroundColor: colors.surface,
+      paddingHorizontal: ms(14),
+      paddingVertical: ms(8),
+      borderRadius: ms(20),
       marginLeft: ms(8),
       borderWidth: 1,
-      borderColor: colors.primary[300],
+      borderColor: colors.border,
+      shadowColor: colors.tertiary[200],
+      shadowOffset: {
+        width: 0,
+        height: 1,
+      },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 1,
     },
     filterText: {
-      fontSize: ms(11),
-      color: colors.primary[700],
+      fontSize: ms(12),
+      color: colors.secondary[600],
       fontWeight: "600",
     },
+
     resultsContainer: {
       flex: 1,
     },
@@ -288,49 +367,9 @@ const OnSearchSectionPresenter: React.FC<OnSearchSectionPresenterProps> = ({
       paddingVertical: ms(8),
     },
     clearSearchIcon: {
-      padding: ms(6),
-      borderRadius: ms(12),
-      backgroundColor: colors.primary[100],
-    },
-    filterButton: {
-      marginLeft: ms(12),
-      padding: ms(12),
-      borderRadius: ms(12),
+      padding: ms(8),
+      borderRadius: ms(16),
       backgroundColor: colors.primary[50],
-      borderWidth: 1,
-      borderColor: colors.primary[300],
-      justifyContent: "center",
-      alignItems: "center",
-    },
-    filterButtonContent: {
-      position: "relative",
-      justifyContent: "center",
-      alignItems: "center",
-    },
-    filterBadge: {
-      position: "absolute",
-      top: ms(-6),
-      right: ms(-6),
-      backgroundColor: colors.primary[600],
-      borderRadius: ms(8),
-      minWidth: ms(16),
-      height: ms(16),
-      justifyContent: "center",
-      alignItems: "center",
-      paddingHorizontal: ms(4),
-    },
-    filterBadgeText: {
-      color: colors.surface,
-      fontSize: ms(10),
-      fontWeight: "600",
-      textAlign: "center",
-    },
-    headerRow: {
-      flexDirection: "row",
-      alignItems: "center",
-    },
-    searchInfoContainer: {
-      flex: 1,
     },
   });
 
@@ -460,39 +499,35 @@ const OnSearchSectionPresenter: React.FC<OnSearchSectionPresenterProps> = ({
       {/* Header */}
       <View style={dynamicStyles.header}>
         <View style={dynamicStyles.headerRow}>
-          <View style={dynamicStyles.searchInfoContainer}>
-            <Pressable
-              style={({ pressed }) => [
-                dynamicStyles.searchInfo,
-                pressed && { backgroundColor: colors.primary[100] },
-              ]}
-              onPress={onBackToTyping}
-            >
-              <View style={dynamicStyles.searchInfoRow}>
-                <FontAwesome6
-                  name="magnifying-glass"
-                  size={ms(16)}
-                  color={colors.primary[600]}
-                  style={{ marginRight: ms(10) }}
-                />
-                <Text style={dynamicStyles.searchQuery}>{searchQuery}</Text>
-              </View>
-            </Pressable>
-          </View>
+          {/* Search Input Container - Clickable to go back to typing mode */}
+          <Pressable
+            style={dynamicStyles.searchInputContainer}
+            onPress={onBackToTyping}
+          >
+            <View style={dynamicStyles.searchInputRow}>
+              <FontAwesome6
+                name="magnifying-glass"
+                size={ms(16)}
+                color={colors.secondary[500]}
+                style={{ marginRight: ms(10) }}
+              />
+              <Text style={dynamicStyles.searchQuery}>{searchQuery}</Text>
+            </View>
+          </Pressable>
 
-          {/* Filter Button (3 dots) */}
+          {/* Filter Button */}
           <Pressable
             style={({ pressed }) => [
               dynamicStyles.filterButton,
-              pressed && { backgroundColor: colors.primary[100] },
+              pressed && { backgroundColor: colors.primary[50] }, // Using react-native-size-matters - elegant pressed state
             ]}
             onPress={onFilterPress}
           >
             <View style={dynamicStyles.filterButtonContent}>
               <FontAwesome6
-                name="ellipsis-vertical"
-                size={ms(18)}
-                color={colors.primary[600]}
+                name="sliders"
+                size={ms(16)} // Using react-native-size-matters - filter icon instead of dots
+                color={colors.secondary[500]}
               />
               {activeFilterCount > 0 && (
                 <View style={dynamicStyles.filterBadge}>

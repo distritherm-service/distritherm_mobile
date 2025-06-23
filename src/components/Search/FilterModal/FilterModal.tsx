@@ -200,24 +200,22 @@ const FilterModal: React.FC<FilterModalProps> = ({
   const categoryOptions = categories.map(category => ({
     label: category.name,
     value: category.id.toString(),
-    id: category.id,
   }));
 
   // Find selected category
   const selectedCategory = tempFilter.categoryId 
-    ? categoryOptions.find(option => option.id === tempFilter.categoryId)
+    ? categoryOptions.find(option => parseInt(option.value) === tempFilter.categoryId)
     : undefined;
 
   // Generate mark options for the UI
   const markOptions = marks.map(mark => ({
     label: mark.name,
     value: mark.id.toString(),
-    id: mark.id,
   }));
 
   // Find selected mark
   const selectedMark = tempFilter.markId 
-    ? markOptions.find(option => option.id === tempFilter.markId)
+    ? markOptions.find(option => parseInt(option.value) === tempFilter.markId)
     : undefined;
 
   return (

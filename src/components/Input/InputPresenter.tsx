@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, View, Text, Pressable, Modal, FlatList, NativeSyntheticEvent, TextInputFocusEventData } from 'react-native';
+import { StyleSheet, TextInput, View, Text, Pressable, Modal, FlatList, NativeSyntheticEvent, TextInputFocusEventData, ViewStyle, TextStyle } from 'react-native';
 import { useColors } from "src/hooks/useColors";
 import { ms } from 'react-native-size-matters';
 import { InputType } from "src/types/InputType";
@@ -24,6 +24,11 @@ type InputPresenterProps = {
   onSelectOption?: (option: SelectOption) => void;
   selectedOption?: SelectOption;
   searchPlaceholder?: string;
+  // Custom style props - these will override default styles
+  containerStyle?: ViewStyle;
+  inputStyle?: TextStyle;
+  labelStyle?: TextStyle;
+  selectStyle?: ViewStyle;
 };
 
 const InputPresenter = ({
@@ -42,6 +47,10 @@ const InputPresenter = ({
   onSelectOption,
   selectedOption,
   searchPlaceholder,
+  containerStyle,
+  inputStyle,
+  labelStyle,
+  selectStyle,
 }: InputPresenterProps) => {
   const [isSelectOpen, setIsSelectOpen] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -51,7 +60,7 @@ const InputPresenter = ({
   // Dynamic styles using colors from useColors hook
   const dynamicStyles = StyleSheet.create({
     label: {
-      fontSize: ms(14), // Using react-native-size-matters for responsive font size
+      fontSize: ms(15), // Using react-native-size-matters - slightly reduced from 16 to 15
       fontWeight: "600",
       color: colors.tertiary[500],
       marginBottom: ms(3), // Using react-native-size-matters for responsive margin
@@ -66,7 +75,7 @@ const InputPresenter = ({
       borderColor: colors.border,
       borderRadius: ms(6), // Using react-native-size-matters for responsive border radius
       paddingHorizontal: ms(10), // Using react-native-size-matters for responsive padding
-      fontSize: ms(14), // Using react-native-size-matters for responsive font size
+      fontSize: ms(15), // Using react-native-size-matters - slightly reduced from 16 to 15
       color: colors.tertiary[500],
       backgroundColor: colors.primary[50],
       shadowColor: colors.tertiary[500],
@@ -127,7 +136,7 @@ const InputPresenter = ({
       elevation: 1,
     },
     selectText: {
-      fontSize: ms(14), // Using react-native-size-matters for responsive font size
+      fontSize: ms(15), // Using react-native-size-matters - slightly reduced from 16 to 15
       color: colors.tertiary[500],
       flex: 1,
       textAlign: 'left',
@@ -165,7 +174,7 @@ const InputPresenter = ({
       backgroundColor: colors.secondary[50],
     },
     optionText: {
-      fontSize: ms(16), // Using react-native-size-matters for responsive font size
+      fontSize: ms(16), // Using react-native-size-matters - slightly reduced from 17 to 16
       color: colors.tertiary[500],
     },
     selectedOptionText: {
@@ -261,7 +270,7 @@ const InputPresenter = ({
                   borderRadius: ms(8),
                   paddingHorizontal: ms(12),
                   paddingVertical: ms(10),
-                  fontSize: ms(14),
+                  fontSize: ms(15), // Slightly reduced from 16 to 15
                   color: colors.text,
                 }}
                 placeholder={searchPlaceholder || "Rechercher..."}
@@ -306,7 +315,7 @@ const InputPresenter = ({
             ListEmptyComponent={
               type === InputType.SEARCHABLE_SELECT && searchQuery.trim() ? (
                 <View style={{ padding: ms(20), alignItems: 'center' }}>
-                  <Text style={{ color: colors.textSecondary, fontSize: ms(14) }}>
+                  <Text style={{ color: colors.textSecondary, fontSize: ms(15) }}>
                     Aucun résultat trouvé
                   </Text>
                 </View>
@@ -320,14 +329,15 @@ const InputPresenter = ({
 
   if (type === InputType.SELECT || type === InputType.SEARCHABLE_SELECT) {
     return (
-      <View>
-        {label && <Text style={dynamicStyles.label}>{label}</Text>}
+      <View style={containerStyle}>
+        {label && <Text style={[dynamicStyles.label, labelStyle]}>{label}</Text>}
         <Pressable
           style={({ pressed }) => [
             dynamicStyles.selectContainer,
             error && dynamicStyles.inputError,
             leftLogo && dynamicStyles.inputWithLeftLogo,
-            pressed && { opacity: 0.8 }
+            pressed && { opacity: 0.8 },
+            selectStyle // Custom select style takes priority
           ]}
           onPress={() => setIsSelectOpen(true)}
         >
@@ -362,8 +372,8 @@ const InputPresenter = ({
   }
 
   return (
-    <View>
-      {label && <Text style={dynamicStyles.label}>{label}</Text>}
+    <View style={containerStyle}>
+      {label && <Text style={[dynamicStyles.label, labelStyle]}>{label}</Text>}
       <View style={dynamicStyles.inputContainer}>
         {leftLogo && (
           <View style={dynamicStyles.leftLogoContainer}>
@@ -381,6 +391,7 @@ const InputPresenter = ({
             isPasswordField && dynamicStyles.inputWithRightIcon,
             error && dynamicStyles.inputError,
             type === InputType.TEXTAREA && dynamicStyles.textareaInput,
+            inputStyle // Custom input style takes priority
           ]}
           value={value}
           onChangeText={onChangeText}

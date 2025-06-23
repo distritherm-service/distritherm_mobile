@@ -78,7 +78,7 @@ const GoogleSignInPresenter = memo<GoogleSignInPresenterProps>(
         elevation: 6,
       },
       gradient: {
-        paddingVertical: ms(14), // Using react-native-size-matters for responsive padding
+        paddingVertical: ms(12), // Using react-native-size-matters - reduced from 14 to 12
         paddingHorizontal: ms(24), // Using react-native-size-matters for responsive padding
         borderWidth: ms(1), // Using react-native-size-matters for responsive border
         borderColor: colors.secondary[200],

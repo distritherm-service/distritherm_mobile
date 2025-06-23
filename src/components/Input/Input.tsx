@@ -1,5 +1,5 @@
 import React from "react";
-import { TextInputProps } from "react-native";
+import { TextInputProps, ViewStyle, TextStyle } from "react-native";
 import InputPresenter from "./InputPresenter";
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import { InputType } from "src/types/InputType";
@@ -8,7 +8,6 @@ import { Control, Controller, FieldValues, Path } from "react-hook-form";
 export interface SelectOption {
   label: string;
   value: string;
-  id?: number; // For API compatibility
 }
 
 type InputProps<T extends FieldValues> = {
@@ -30,6 +29,11 @@ type InputProps<T extends FieldValues> = {
   onSelectOption?: (option: SelectOption) => void; // Callback when option is selected
   selectedOption?: SelectOption; // Currently selected option for searchable select
   searchPlaceholder?: string; // Placeholder for search input
+  // Custom style props - these will override default styles
+  containerStyle?: ViewStyle; // Style for the main container
+  inputStyle?: TextStyle; // Style for the TextInput
+  labelStyle?: TextStyle; // Style for the label
+  selectStyle?: ViewStyle; // Style for select container
 } & Omit<TextInputProps, 'value' | 'onChangeText'>;
 
 const Input = <T extends FieldValues>({
@@ -50,6 +54,10 @@ const Input = <T extends FieldValues>({
   onSelectOption,
   selectedOption,
   searchPlaceholder,
+  containerStyle,
+  inputStyle,
+  labelStyle,
+  selectStyle,
   ...props
 }: InputProps<T>) => {
   // If control is provided, use Controller from react-hook-form
@@ -76,6 +84,10 @@ const Input = <T extends FieldValues>({
             onSelectOption={onSelectOption}
             selectedOption={selectedOption}
             searchPlaceholder={searchPlaceholder}
+            containerStyle={containerStyle}
+            inputStyle={inputStyle}
+            labelStyle={labelStyle}
+            selectStyle={selectStyle}
             {...props}
           />
         )}
@@ -100,6 +112,10 @@ const Input = <T extends FieldValues>({
       onSelectOption={onSelectOption}
       selectedOption={selectedOption}
       searchPlaceholder={searchPlaceholder}
+      containerStyle={containerStyle}
+      inputStyle={inputStyle}
+      labelStyle={labelStyle}
+      selectStyle={selectStyle}
       {...props}
     />
   );
