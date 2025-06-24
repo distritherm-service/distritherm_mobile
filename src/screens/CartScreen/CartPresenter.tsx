@@ -27,6 +27,7 @@ import PageContainer from "src/components/PageContainer/PageContainer";
 import SectionHeader from "src/components/SectionHeader/SectionHeader";
 import ErrorState from "src/components/ErrorState/ErrorState";
 import UnauthenticatedState from "src/components/UnauthenticatedState/UnauthenticatedState";
+import EmptyState from "src/components/EmptyState/EmptyState";
 import { useColors } from "src/hooks/useColors";
 import { Cart } from "src/types/Cart";
 import { ProductBasicDto } from "src/types/Product";
@@ -589,17 +590,13 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
     return (
       <PageContainer headerBack={false} bottomBar={true} style={dynamicStyles.container}>
         {renderHeader()}
-        <View style={dynamicStyles.loadingContainer}>
-          <FontAwesomeIcon 
-            icon={faShoppingBag} 
-            size={ms(60)} 
-            color={colors.tertiary[300]}
-          />
-          <Text style={dynamicStyles.loadingText}>Votre panier est vide</Text>
-          <Text style={[dynamicStyles.loadingText, { fontSize: ms(12), marginTop: ms(8) }]}>
-            Découvrez nos produits et commencez vos achats !
-          </Text>
-        </View>
+        <EmptyState
+          icon={faShoppingBag}
+          title="Votre panier est vide"
+          description="Découvrez nos produits et commencez vos achats dès maintenant !"
+          iconColor="tertiary"
+          variant="minimal"
+        />
       </PageContainer>
     );
   }

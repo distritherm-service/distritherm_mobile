@@ -10,10 +10,12 @@ import {
 import { ms } from "react-native-size-matters";
 import { useColors } from "src/hooks/useColors";
 import { FontAwesome6 } from "@expo/vector-icons";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { ProductBasicDto } from "src/types/Product";
 import { SearchFilter } from "src/navigation/types";
 import ProductItem from "src/components/ProductItem/ProductItem";
 import FilterModal from "src/components/Search/FilterModal/FilterModal";
+import EmptyState from "src/components/EmptyState/EmptyState";
 
 interface Category {
   id: number;
@@ -330,33 +332,7 @@ const OnSearchSectionPresenter: React.FC<OnSearchSectionPresenterProps> = ({
       color: colors.error[50],
       fontWeight: "700",
     },
-    emptyState: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-      paddingHorizontal: ms(40),
-      paddingVertical: ms(80),
-    },
-    emptyIcon: {
-      backgroundColor: colors.primary[100],
-      padding: ms(24),
-      borderRadius: ms(35),
-      marginBottom: ms(24),
-    },
-    emptyText: {
-      fontSize: ms(18),
-      color: colors.text,
-      textAlign: "center",
-      marginBottom: ms(8),
-      fontWeight: "700",
-    },
-    emptySubtext: {
-      fontSize: ms(14),
-      color: colors.textSecondary,
-      textAlign: "center",
-      lineHeight: ms(20),
-      fontWeight: "500",
-    },
+
     clearSearchBtn: {
       position: "absolute",
       top: 0,
@@ -440,20 +416,13 @@ const OnSearchSectionPresenter: React.FC<OnSearchSectionPresenterProps> = ({
   );
 
   const renderEmptyState = () => (
-    <View style={dynamicStyles.emptyState}>
-      <View style={dynamicStyles.emptyIcon}>
-        <FontAwesome6
-          name="magnifying-glass"
-          size={ms(28)}
-          color={colors.primary[600]}
-        />
-      </View>
-      <Text style={dynamicStyles.emptyText}>Aucun résultat trouvé</Text>
-      <Text style={dynamicStyles.emptySubtext}>
-        Essayez avec d'autres mots-clés ou{"\n"}modifiez vos filtres de
-        recherche
-      </Text>
-    </View>
+    <EmptyState
+      icon={faMagnifyingGlass}
+      title="Aucun résultat trouvé"
+      description="Essayez avec d'autres mots-clés ou modifiez vos filtres de recherche"
+      iconColor="primary"
+      variant="default"
+    />
   );
 
   const renderContent = () => {

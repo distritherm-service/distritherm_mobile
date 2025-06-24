@@ -1,6 +1,6 @@
 import React from "react";
-import ErrorStatePresenter from "./ErrorStatePresenter";
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import ErrorStatePresenter from "./ErrorStatePresenter";
 
 export interface ErrorStateProps {
   icon?: IconDefinition;

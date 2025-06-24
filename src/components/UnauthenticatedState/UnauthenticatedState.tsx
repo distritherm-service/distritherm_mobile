@@ -1,6 +1,6 @@
 import React from "react";
-import UnauthenticatedStatePresenter from "./UnauthenticatedStatePresenter";
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import UnauthenticatedStatePresenter from "./UnauthenticatedStatePresenter";
 
 export interface UnauthenticatedStateProps {
   icon: IconDefinition;

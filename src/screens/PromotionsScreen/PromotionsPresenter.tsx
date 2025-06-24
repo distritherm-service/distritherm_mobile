@@ -16,6 +16,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import PageContainer from "src/components/PageContainer/PageContainer";
 import ProductItem from "src/components/ProductItem/ProductItem";
 import Input from "src/components/Input/Input";
+import EmptyState from "src/components/EmptyState/EmptyState";
 import { InputType } from "src/types/InputType";
 import { useColors } from "src/hooks/useColors";
 import { PromotionDto } from "src/services/promotionsService";
@@ -23,6 +24,7 @@ import { ProductBasicDto } from "src/types/Product";
 import { Category } from "src/types/Category";
 import { SelectOption } from "src/components/Input/Input";
 import { Dimensions } from "react-native";
+import { faTags } from "@fortawesome/free-solid-svg-icons";
 
 interface PromotionsPresenterProps {
   promotions: PromotionDto[];
@@ -230,38 +232,7 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
       fontSize: ms(16),
       fontWeight: "600",
     },
-    // Empty state styles with gradient and enhanced design
-    emptyContainer: {
-      backgroundColor: "rgba(255, 255, 255, 0.95)",
-      borderColor: colors.primary[200],
-      shadowColor: colors.primary[500],
-      borderRadius: ms(24), // Using react-native-size-matters - increased border radius for modern look
-      padding: ms(40), // Using react-native-size-matters - increased padding for better visual appeal
-      alignItems: "center",
-      borderWidth: 1.5,
-      shadowOffset: {
-        width: 0,
-        height: 8,
-      },
-      shadowOpacity: 0.15,
-      shadowRadius: 16,
-      elevation: 12,
-      maxWidth: ms(360), // Using react-native-size-matters - increased width for better content display
-    },
-    emptyTitle: {
-      color: colors.text,
-      fontSize: ms(18), // Using react-native-size-matters - reduced from ms(20) for consistency
-      fontWeight: "700",
-      textAlign: "center",
-      marginTop: ms(16),
-      marginBottom: ms(8),
-    },
-    emptyDescription: {
-      color: colors.textSecondary,
-      fontSize: ms(16),
-      textAlign: "center",
-      lineHeight: ms(24),
-    },
+
     // Enhanced list styles for better UI/UX
     listContent: {
       paddingHorizontal: ms(10), // Using react-native-size-matters - optimized padding
@@ -493,25 +464,23 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
     </View>
   );
 
-  // Render empty state
+  // Render empty state using shared EmptyState component
   const renderEmptyState = () => (
-    <View style={[dynamicStyles.centeredContainer, { flex: 1 }]}>
-      <View style={dynamicStyles.emptyContainer}>
-        <FontAwesome6 name="tags" size={ms(64)} color={colors.primary[300]} />
-
-        <Text style={dynamicStyles.emptyTitle}>
-          {selectedCategoryId
-            ? "Aucune promotion dans cette catégorie"
-            : "Aucune promotion disponible"}
-        </Text>
-
-        <Text style={dynamicStyles.emptyDescription}>
-          {selectedCategoryId
-            ? "Essayez de sélectionner une autre catégorie ou consultez toutes les promotions."
-            : "Les nouvelles promotions apparaîtront ici dès qu'elles seront disponibles !"}
-        </Text>
-      </View>
-    </View>
+    <EmptyState
+      icon={faTags}
+      title={
+        selectedCategoryId
+          ? "Aucune promotion dans cette catégorie"
+          : "Aucune promotion disponible"
+      }
+      description={
+        selectedCategoryId
+          ? "Essayez de sélectionner une autre catégorie ou consultez toutes les promotions."
+          : "Les nouvelles promotions apparaîtront ici dès qu'elles seront disponibles !"
+      }
+      iconColor="primary"
+      variant="gradient"
+    />
   );
 
   // Render product item

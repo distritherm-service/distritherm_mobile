@@ -24,6 +24,7 @@ import ProductItem from "src/components/ProductItem/ProductItem";
 import SectionHeader from "src/components/SectionHeader/SectionHeader";
 import ErrorState from "src/components/ErrorState/ErrorState";
 import UnauthenticatedState from "src/components/UnauthenticatedState/UnauthenticatedState";
+import EmptyState from "src/components/EmptyState/EmptyState";
 import { useColors } from "src/hooks/useColors";
 import { ProductBasicDto } from "src/types/Product";
 
@@ -175,21 +176,15 @@ const FavoritePresenter: React.FC<FavoritePresenterProps> = ({
     />
   );
 
-  // Enhanced empty state
+  // Enhanced empty state using shared EmptyState component
   const renderEmptyState = () => (
-    <View style={dynamicStyles.loadingContainer}>
-      <FontAwesomeIcon 
-        icon={faGem} 
-        size={ms(60)}
-        color={colors.danger[400]}
-      />
-      <Text style={dynamicStyles.loadingText}>
-        Aucun favori pour le moment
-      </Text>
-      <Text style={[dynamicStyles.loadingText, { fontSize: ms(12), marginTop: ms(8) }]}>
-        Commencez à explorer nos produits !
-      </Text>
-    </View>
+    <EmptyState
+      icon={faGem}
+      title="Aucun favori pour le moment"
+      description="Commencez à explorer nos produits et ajoutez vos préférés à cette liste !"
+      iconColor="danger"
+      variant="default"
+    />
   );
 
   // Enhanced product item with better styling
