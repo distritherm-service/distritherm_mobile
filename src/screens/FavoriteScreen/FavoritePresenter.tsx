@@ -10,11 +10,22 @@ import {
 } from "react-native";
 import { ms } from "react-native-size-matters";
 import { FontAwesome6 } from "@expo/vector-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import {
+  faHeart,
+  faHeartCrack,
+  faExclamationTriangle,
+  faRefresh,
+  faStar,
+  faGem,
+} from "@fortawesome/free-solid-svg-icons";
 import PageContainer from "src/components/PageContainer/PageContainer";
 import ProductItem from "src/components/ProductItem/ProductItem";
+import SectionHeader from "src/components/SectionHeader/SectionHeader";
+import ErrorState from "src/components/ErrorState/ErrorState";
+import UnauthenticatedState from "src/components/UnauthenticatedState/UnauthenticatedState";
 import { useColors } from "src/hooks/useColors";
 import { ProductBasicDto } from "src/types/Product";
-import { Dimensions } from "react-native";
 
 interface FavoritePresenterProps {
   isAuthenticated: boolean;
@@ -49,370 +60,141 @@ const FavoritePresenter: React.FC<FavoritePresenterProps> = ({
 }) => {
   const colors = useColors();
 
-
   // Dynamic styles using colors from useColors hook and react-native-size-matters for responsiveness
   const dynamicStyles = StyleSheet.create({
     container: {
       backgroundColor: colors.background,
     },
-    // Header styles
-    headerContainer: {
-      backgroundColor: colors.surface,
-      borderBottomColor: colors.border,
-      shadowColor: colors.text,
-      paddingHorizontal: ms(10),
-      paddingVertical: ms(16),
-      borderBottomWidth: 1,
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-      shadowOpacity: 0.1,
-      shadowRadius: 3.84,
-      elevation: 5,
-    },
-    headerContent: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: ms(12),
-    },
-    headerTitle: {
-      color: colors.text,
-      fontSize: ms(18), // Using react-native-size-matters - reduced from ms(20)
-      fontWeight: "700",
+
+    // Content area
+    contentContainer: {
       flex: 1,
+      paddingTop: ms(16), // Smaller than CartScreen (was 24)
     },
-    headerCount: {
-      backgroundColor: colors.secondary[500],
-      color: colors.surface,
-      minWidth: ms(32),
-      height: ms(32),
-      borderRadius: ms(16),
-      justifyContent: "center",
-      alignItems: "center",
-      paddingHorizontal: ms(8),
-    },
-    headerCountText: {
-      fontSize: ms(14),
-      fontWeight: "600",
-    },
-    // Common styles
-    centeredContainer: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-      paddingHorizontal: ms(20),
-    },
-    // Unauthenticated state styles
-    unauthCard: {
-      backgroundColor: colors.surface,
-      borderColor: colors.border,
-      shadowColor: colors.text,
-      borderRadius: ms(16),
-      padding: ms(32),
-      alignItems: "center",
-      borderWidth: 1,
-      shadowOffset: {
-        width: 0,
-        height: 4,
-      },
-      shadowOpacity: 0.1,
-      shadowRadius: 8,
-      elevation: 8,
-      maxWidth: ms(320),
-    },
-    unauthIconContainer: {
-      backgroundColor: colors.primary[50],
-      borderColor: colors.primary[200],
-      width: ms(96),
-      height: ms(96),
-      borderRadius: ms(48),
-      justifyContent: "center",
-      alignItems: "center",
-      marginBottom: ms(24),
-      borderWidth: 2,
-    },
-    unauthTitle: {
-      color: colors.text,
-      fontSize: ms(18), // Using react-native-size-matters - reduced from ms(22)
-      fontWeight: "700",
-      textAlign: "center",
-      marginBottom: ms(12),
-    },
-    unauthDescription: {
-      color: colors.textSecondary,
-      fontSize: ms(16),
-      textAlign: "center",
-      lineHeight: ms(24),
-      marginBottom: ms(32),
-    },
-    loginButton: {
-      backgroundColor: colors.secondary[500],
-      shadowColor: colors.text,
-      paddingHorizontal: ms(32),
-      paddingVertical: ms(16),
-      borderRadius: ms(12),
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-      shadowOpacity: 0.2,
-      shadowRadius: 4,
-      elevation: 4,
-    },
-    loginButtonPressed: {
-      backgroundColor: colors.secondary[600],
-    },
-    loginButtonText: {
-      color: colors.surface,
-      fontSize: ms(16),
-      fontWeight: "600",
-    },
-    // Loading state styles
+
+    // Loading state
     loadingContainer: {
-      backgroundColor: colors.primary[50],
       flex: 1,
       justifyContent: "center",
       alignItems: "center",
-      paddingHorizontal: ms(20),
+      paddingHorizontal: ms(24),
     },
     loadingText: {
+      fontSize: ms(16),
       color: colors.textSecondary,
-      fontSize: ms(16),
       marginTop: ms(16),
-    },
-    // Error state styles
-    errorContainer: {
-      backgroundColor: colors.surface,
-      borderColor: colors.danger[200],
-      shadowColor: colors.text,
-      borderRadius: ms(16),
-      padding: ms(32),
-      alignItems: "center",
-      borderWidth: 1,
-      shadowOffset: {
-        width: 0,
-        height: 4,
-      },
-      shadowOpacity: 0.1,
-      shadowRadius: 8,
-      elevation: 8,
-      maxWidth: ms(320),
-    },
-    errorTitle: {
-      color: colors.danger[600],
-      fontSize: ms(18), // Using react-native-size-matters - reduced from ms(20)
-      fontWeight: "700",
-      textAlign: "center",
-      marginTop: ms(16),
-      marginBottom: ms(8),
-    },
-    errorDescription: {
-      color: colors.danger[500],
-      fontSize: ms(16),
-      textAlign: "center",
-      lineHeight: ms(24),
-      marginBottom: ms(14),
-    },
-    retryButton: {
-      backgroundColor: colors.danger[500],
-      shadowColor: colors.text,
-      paddingHorizontal: ms(24),
-      paddingVertical: ms(12),
-      borderRadius: ms(8),
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-      shadowOpacity: 0.2,
-      shadowRadius: 4,
-      elevation: 4,
-    },
-    retryButtonPressed: {
-      backgroundColor: colors.danger[600],
-    },
-    retryButtonText: {
-      color: colors.surface,
-      fontSize: ms(16),
       fontWeight: "600",
     },
-    // Empty state styles
-    emptyContainer: {
-      backgroundColor: colors.surface,
-      borderColor: colors.border,
-      shadowColor: colors.text,
-      borderRadius: ms(16),
-      padding: ms(32),
-      alignItems: "center",
-      borderWidth: 1,
-      shadowOffset: {
-        width: 0,
-        height: 4,
-      },
-      shadowOpacity: 0.1,
-      shadowRadius: 8,
-      elevation: 8,
-      maxWidth: ms(320),
-    },
-    emptyTitle: {
-      color: colors.text,
-      fontSize: ms(18), // Using react-native-size-matters - reduced from ms(20)
-      fontWeight: "700",
-      textAlign: "center",
-      marginTop: ms(16),
-      marginBottom: ms(8),
-    },
-    emptyDescription: {
-      color: colors.textSecondary,
-      fontSize: ms(16),
-      textAlign: "center",
-      lineHeight: ms(24),
-    },
-    // List styles
+    // Enhanced list styles
     listContent: {
       paddingHorizontal: ms(16),
-      paddingTop: ms(16),
+      paddingTop: ms(8), // Smaller than before (was 16)
       paddingBottom: ms(20),
     },
-    productItemStyle: {
+    productItemContainer: {
       flex: 1,
-      marginHorizontal: ms(8),
-      marginBottom: ms(16),
+      marginHorizontal: ms(6), // Smaller margins for tighter spacing
+      marginBottom: ms(12), // Smaller than before (was 16)
       borderRadius: ms(16),
       overflow: "hidden",
+      backgroundColor: colors.surface,
+      shadowColor: colors.tertiary[300],
+      shadowOffset: { width: 0, height: ms(2) },
+      shadowOpacity: 0.08,
+      shadowRadius: ms(8),
+      elevation: 3,
     },
-    // Load more styles
+    // Enhanced load more styles
     loadMoreContainer: {
-      backgroundColor: colors.background,
+      backgroundColor: colors.surface,
+      marginHorizontal: ms(16),
+      marginVertical: ms(12),
+      borderRadius: ms(16),
       flexDirection: "row",
       justifyContent: "center",
       alignItems: "center",
       paddingVertical: ms(16),
       gap: ms(8),
+      shadowColor: colors.tertiary[300],
+      shadowOffset: { width: 0, height: ms(2) },
+      shadowOpacity: 0.06,
+      shadowRadius: ms(6),
+      elevation: 2,
     },
     loadMoreText: {
-      color: colors.primary[500],
+      color: colors.tertiary[500],
       fontSize: ms(14),
-      fontWeight: "500",
+      fontWeight: "600",
     },
+    // Special empty state for favorites
+
   });
 
-  // Custom header component
+  // Modern header component using shared SectionHeader
   const renderHeader = () => (
-    <View style={dynamicStyles.headerContainer}>
-      <View style={dynamicStyles.headerContent}>
-        <FontAwesome6
-          name="heart"
-          size={ms(24)}
-          color={colors.danger[500]}
-          solid
-        />
-        <Text style={dynamicStyles.headerTitle}>Mes Favoris</Text>
-        {isAuthenticated && (
-          <View style={dynamicStyles.headerCount}>
-            <Text
-              style={[dynamicStyles.headerCountText, { color: colors.surface }]}
-            >
-              {favoritesCount}
-            </Text>
-          </View>
-        )}
-      </View>
-    </View>
+    <SectionHeader
+      icon={faHeart}
+      title="Mes Favoris"
+      subtitle={
+        isAuthenticated && favoritesCount > 0
+          ? `${favoritesCount} produit${favoritesCount > 1 ? 's' : ''} aimé${favoritesCount > 1 ? 's' : ''}`
+          : undefined
+      }
+      badgeCount={isAuthenticated ? favoritesCount : undefined}
+      badgeColor="danger" // Heart-themed red color
+      showBadge={isAuthenticated && favoritesCount > 0}
+    />
   );
 
-  // Render unauthenticated state
-  const renderUnauthenticatedState = () => (
-    <View style={dynamicStyles.centeredContainer}>
-      <View style={dynamicStyles.unauthCard}>
-        <View style={dynamicStyles.unauthIconContainer}>
-          <FontAwesome6
-            name="heart-crack"
-            size={ms(48)}
-            color={colors.primary[400]}
-          />
-        </View>
-
-        <Text style={dynamicStyles.unauthTitle}>
-          Connectez-vous pour voir vos favoris
-        </Text>
-
-        <Text style={dynamicStyles.unauthDescription}>
-          Découvrez et sauvegardez vos produits préférés en vous connectant à
-          votre compte.
-        </Text>
-
-        <Pressable
-          style={({ pressed }) => [
-            dynamicStyles.loginButton,
-            pressed && dynamicStyles.loginButtonPressed,
-          ]}
-          onPress={onNavigateToLogin}
-        >
-          <Text style={dynamicStyles.loginButtonText}>Se connecter</Text>
-        </Pressable>
-      </View>
-    </View>
-  );
-
-  // Render loading state
+  // Enhanced loading state
   const renderLoadingState = () => (
     <View style={dynamicStyles.loadingContainer}>
-      <ActivityIndicator size="large" color={colors.primary[500]} />
+      <ActivityIndicator size="large" color={colors.tertiary[500]} />
       <Text style={dynamicStyles.loadingText}>
         Chargement de vos favoris...
       </Text>
     </View>
   );
 
-  // Render error state
+  // Enhanced error state using shared ErrorState component
   const renderErrorState = () => (
-    <View style={dynamicStyles.centeredContainer}>
-      <View style={dynamicStyles.errorContainer}>
-        <FontAwesome6
-          name="triangle-exclamation"
-          size={ms(48)}
-          color={colors.danger[500]}
-        />
-
-        <Text style={dynamicStyles.errorTitle}>Erreur de chargement</Text>
-
-        <Text style={dynamicStyles.errorDescription}>{error}</Text>
-
-        <Pressable
-          style={({ pressed }) => [
-            dynamicStyles.retryButton,
-            pressed && dynamicStyles.retryButtonPressed,
-          ]}
-          onPress={onRetry}
-        >
-          <Text style={dynamicStyles.retryButtonText}>Réessayer</Text>
-        </Pressable>
-      </View>
-    </View>
+    <ErrorState
+      description={error || "Une erreur est survenue"}
+      onRetry={onRetry}
+    />
   );
 
-  // Render empty state
+  // Enhanced unauthenticated state using shared UnauthenticatedState component
+  const renderUnauthenticatedState = () => (
+    <UnauthenticatedState
+      icon={faHeartCrack}
+      title="Connectez-vous pour voir vos favoris"
+      description="Découvrez et sauvegardez vos produits préférés en vous connectant à votre compte."
+      onNavigateToLogin={onNavigateToLogin}
+      iconColor="danger"
+    />
+  );
+
+  // Enhanced empty state
   const renderEmptyState = () => (
-    <View style={dynamicStyles.centeredContainer}>
-      <View style={dynamicStyles.emptyContainer}>
-        <FontAwesome6 name="heart" size={ms(64)} color={colors.primary[300]} />
-
-        <Text style={dynamicStyles.emptyTitle}>
-          Aucun favori pour le moment
-        </Text>
-
-        <Text style={dynamicStyles.emptyDescription}>
-          Commencez à explorer nos produits et ajoutez vos préférés à cette
-          liste !
-        </Text>
-      </View>
+    <View style={dynamicStyles.loadingContainer}>
+      <FontAwesomeIcon 
+        icon={faGem} 
+        size={ms(60)}
+        color={colors.danger[400]}
+      />
+      <Text style={dynamicStyles.loadingText}>
+        Aucun favori pour le moment
+      </Text>
+      <Text style={[dynamicStyles.loadingText, { fontSize: ms(12), marginTop: ms(8) }]}>
+        Commencez à explorer nos produits !
+      </Text>
     </View>
   );
 
-  // Render product item with equal spacing and onRemoveFavorite handler
+  // Enhanced product item with better styling
   const renderProductItem = ({ item }: { item: ProductBasicDto }) => (
-    <View style={dynamicStyles.productItemStyle}>
+    <View style={dynamicStyles.productItemContainer}>
       <ProductItem
         product={item}
         onPressFavoriteRemove={() => onRemoveFavorite(item.id)}
@@ -420,19 +202,19 @@ const FavoritePresenter: React.FC<FavoritePresenterProps> = ({
     </View>
   );
 
-  // Render load more footer
+  // Enhanced load more footer
   const renderLoadMoreFooter = () => {
     if (!isLoadingMore || !hasMorePages || favorites.length === 0) return null;
 
     return (
       <View style={dynamicStyles.loadMoreContainer}>
-        <ActivityIndicator size="small" color={colors.primary[500]} />
+        <ActivityIndicator size="small" color={colors.tertiary[500]} />
         <Text style={dynamicStyles.loadMoreText}>Chargement...</Text>
       </View>
     );
   };
 
-  // Render content based on state
+  // Enhanced content rendering
   const renderContent = () => {
     if (!isAuthenticated) {
       return renderUnauthenticatedState();
@@ -451,28 +233,31 @@ const FavoritePresenter: React.FC<FavoritePresenterProps> = ({
     }
 
     return (
-      <FlatList
-        data={favorites.filter(item => item && item.id)} // Filter out invalid items
-        renderItem={renderProductItem}
-        keyExtractor={(item) => item.id.toString()}
-        numColumns={2}
-        contentContainerStyle={dynamicStyles.listContent}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={isRefreshing}
-            onRefresh={onRefresh}
-            colors={[colors.primary[500]]}
-            tintColor={colors.primary[500]}
-          />
-        }
-        onEndReached={onLoadMore}
-        onEndReachedThreshold={0.1}
-        ListFooterComponent={renderLoadMoreFooter}
-        removeClippedSubviews={true} // Improve performance
-        maxToRenderPerBatch={10} // Render in smaller batches
-        windowSize={10} // Keep fewer items in memory
-      />
+      <View style={dynamicStyles.contentContainer}>
+        <FlatList
+          data={favorites.filter(item => item && item.id)} // Filter out invalid items
+          renderItem={renderProductItem}
+          keyExtractor={(item) => item.id.toString()}
+          numColumns={2}
+          contentContainerStyle={dynamicStyles.listContent}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={onRefresh}
+              colors={[colors.tertiary[500]]}
+              tintColor={colors.tertiary[500]}
+            />
+          }
+          onEndReached={onLoadMore}
+          onEndReachedThreshold={0.1}
+          ListFooterComponent={renderLoadMoreFooter}
+          removeClippedSubviews={true} // Improve performance
+          maxToRenderPerBatch={10} // Render in smaller batches
+          windowSize={10} // Keep fewer items in memory
+          columnWrapperStyle={{ justifyContent: 'space-between' }} // Better column spacing
+        />
+      </View>
     );
   };
 

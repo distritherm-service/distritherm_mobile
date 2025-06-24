@@ -27,8 +27,17 @@ export interface CartItem {
   id: number;
   cartId: number;
   quantity: number;
-  price: number;
+  priceTtc: number;
+  priceHt: number;
   productId: number;
   createdAt: Date;
   updatedAt: Date;
+}
+
+/**
+ * Interface pour un élément du panier avec les détails du produit
+ * (utilisé quand l'API retourne les données du produit)
+ */
+export interface CartItemWithProduct extends CartItem {
+  product: any; // ProductBasicDto but avoiding circular imports
 } 

@@ -44,16 +44,15 @@ const ProductImagesPresenter: React.FC<ProductImagesPresenterProps> = memo(({
   const flatListRef = useRef<FlatList>(null);
   const colors = useColors();
 
-  // Dynamic styles using colors from useColors hook
   const dynamicStyles = {
     indicatorWrapper: {
-      backgroundColor: colors.tertiary[800] + '99', // Semi-transparent dark background
+      backgroundColor: colors.tertiary[800] + '99',
     },
     indicator: {
-      backgroundColor: colors.surface + '80', // Semi-transparent white
+      backgroundColor: colors.surface + '80', 
     },
     counterContainer: {
-      backgroundColor: colors.tertiary[800] + 'B3', // Semi-transparent dark background
+      backgroundColor: colors.tertiary[800] + 'B3',
     },
   };
 
@@ -173,14 +172,13 @@ const ProductImagesPresenter: React.FC<ProductImagesPresenterProps> = memo(({
           offset: screenWidth * index,
           index,
         })}
-        // Performance optimizations for smooth pagination
         removeClippedSubviews={true}
-        maxToRenderPerBatch={2} // Reduced for better pagination performance
-        windowSize={3} // Smaller window for pagination
+        maxToRenderPerBatch={2}
+        windowSize={3}
         initialNumToRender={1}
-        snapToInterval={screenWidth} // Ensures perfect snapping to each image
-        snapToAlignment="start" // Aligns to start of each item
-        disableIntervalMomentum={true} // Prevents multiple page scrolling
+        snapToInterval={screenWidth}
+        snapToAlignment="start" 
+        disableIntervalMomentum={true} 
       />
       
       {/* Indicators */}

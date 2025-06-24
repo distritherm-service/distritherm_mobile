@@ -77,11 +77,13 @@ const ProductItem: React.FC<ProductItemProps> = ({
   };
 
   const getImageSource = () => {
-    // if (imageError || !currentProduct.imagesUrl?.[0]) {
-    //   return { uri: DEFAULT_IMAGE_URL };
-    // }
-    return { uri: NO_IMAGE_URL };
-    // return { uri: currentProduct.imagesUrl[0] };
+
+    console.log(currentProduct.imagesUrl);
+
+    if (imageError || !currentProduct.imagesUrl?.[0]) {
+      return { uri: NO_IMAGE_URL };
+    }
+    return { uri: currentProduct.imagesUrl[0] };
   };
 
   // Handlers pour les actions

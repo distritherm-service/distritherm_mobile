@@ -33,9 +33,11 @@ api.interceptors.response.use(
   async (error: any) => {
     const originalRequest = error.config;
     if (
-      error.response?.status === 401 &&
-      !originalRequest._retry &&
-      error.response?.data?.message === "Token invalide ou expiré"
+      (error.response?.status === 401 &&
+        !originalRequest._retry &&
+        error.response?.data?.message === "Token invalide ou expiré") ||
+      error.response?.data?.message ==
+        "Erreur lors de la récupération de l'utilisateur à partir du token: jwt expired"
     ) {
       originalRequest._retry = true;
 

@@ -6,6 +6,7 @@ import ProductImages from "src/components/Product/ProductImages/ProductImages";
 import ProductMainInfo from "src/components/Product/ProductMainInfo/ProductMainInfo";
 import ProductDescription from "src/components/Product/ProductDescription/ProductDescription";
 import ProductSimilar from "src/components/Product/ProductSimilar/ProductSimilar";
+import AuthRequiredModal from "src/components/AuthRequiredModal/AuthRequiredModal";
 import { useColors } from "src/hooks/useColors";
 import { ProductDetailDto } from "src/types/Product";
 
@@ -14,6 +15,10 @@ interface ProductPresenterProps {
   loading: boolean;
   onBack: () => void;
   onSimilarProductSelect: (productId: number) => Promise<void>;
+  onAddToCart: (quantity: number) => Promise<void>;
+  addToCartLoading: boolean;
+  showAuthModal: boolean;
+  onCloseAuthModal: () => void;
 }
 
 const fakeImages = [
@@ -28,6 +33,10 @@ const ProductPresenter: React.FC<ProductPresenterProps> = ({
   loading,
   onBack,
   onSimilarProductSelect,
+  onAddToCart,
+  addToCartLoading,
+  showAuthModal,
+  onCloseAuthModal,
 }) => {
   const colors = useColors();
 
@@ -95,8 +104,14 @@ const ProductPresenter: React.FC<ProductPresenterProps> = ({
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         {/* Enhanced content wrapper with subtle tertiary styling */}
         <View style={styles.contentWrapper}>
-          <ProductImages images={fakeImages} />
-          {product && <ProductMainInfo product={product} />}
+          <ProductImages images={product?.imagesUrl} />
+          {product && (
+            <ProductMainInfo 
+              product={product} 
+              onAddToCart={onAddToCart}
+              addToCartLoading={addToCartLoading}
+            />
+          )}
           {product && <ProductDescription product={product} />}
           {product && (
             <ProductSimilar
@@ -113,6 +128,14 @@ const ProductPresenter: React.FC<ProductPresenterProps> = ({
           style={[styles.bottomSpacer, { backgroundColor: colors.background }]}
         />
       </View>
+
+      {/* Authentication Required Modal */}
+      <AuthRequiredModal
+        visible={showAuthModal}
+        onClose={onCloseAuthModal}
+        title="Connexion requise"
+        message="Vous devez être connecté pour ajouter des produits au panier."
+      />
     </PageContainer>
   );
 };

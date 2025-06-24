@@ -4,9 +4,15 @@ import ProductMainInfoPresenter from './ProductMainInfoPresenter';
 
 interface ProductMainInfoProps {
   product: ProductDetailDto;
+  onAddToCart?: (quantity: number) => Promise<void>;
+  addToCartLoading?: boolean;
 }
 
-const ProductMainInfo: React.FC<ProductMainInfoProps> = ({ product }) => {
+const ProductMainInfo: React.FC<ProductMainInfoProps> = ({ 
+  product, 
+  onAddToCart,
+  addToCartLoading = false 
+}) => {
   const [quantity, setQuantity] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -29,16 +35,20 @@ const ProductMainInfo: React.FC<ProductMainInfoProps> = ({ product }) => {
   };
 
   const handleAddToCart = async () => {
-    setIsLoading(true);
-    try {
-      // TODO: Implement add to cart logic
-      console.log(`Adding ${quantity} of product ${product.id} to cart`);
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    } catch (error) {
-      console.error('Error adding to cart:', error);
-    } finally {
-      setIsLoading(false);
+    if (onAddToCart) {
+      await onAddToCart(quantity);
+    } else {
+      // Fallback behavior if no onAddToCart prop is provided
+      setIsLoading(true);
+      try {
+        console.log(`Adding ${quantity} of product ${product.id} to cart`);
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      } catch (error) {
+        console.error('Error adding to cart:', error);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -59,7 +69,7 @@ const ProductMainInfo: React.FC<ProductMainInfoProps> = ({ product }) => {
     <ProductMainInfoPresenter
       product={product}
       quantity={quantity}
-      isLoading={isLoading}
+      isLoading={onAddToCart ? addToCartLoading : isLoading}
       hasStock={hasStock}
       isOutOfStock={isOutOfStock}
       isLowStock={isLowStock}

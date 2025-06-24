@@ -2,7 +2,7 @@ import api from "../interceptors/api";
 import { PaginationDto } from "../types/paginationDto";
 
 // DTOs et interfaces pour les devis
-interface CreateDeviDto {
+export interface CreateDeviDto {
   cartId: number;
   commercialId: number;
 }
@@ -18,6 +18,16 @@ interface PostDeviDto {
 type DevisStatus = "SENDED" | "PROGRESS" | "CONSULTED" | "EXPIRED";
 
 const devisService = {
+  // POST /devis - Créer un nouveau devis
+  createDevis: async (createDeviDto: CreateDeviDto): Promise<any> => {
+    try {
+      const response = await api.post("/devis", createDeviDto);
+      return await response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   // GET /devis/by-client/:id - Récupérer les devis d'un client
   getDevisByClient: async (
     clientId: number,
