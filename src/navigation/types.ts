@@ -27,6 +27,7 @@ export type RootStackParamList = {
   Product: { productId: number };
   Search: SearchParams | undefined;
   Promotions: undefined;
+  MesDevis: undefined;
 };
 
 declare global {

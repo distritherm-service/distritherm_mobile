@@ -53,10 +53,10 @@ const ProductMainInfo: React.FC<ProductMainInfoProps> = ({
   };
 
   const calculateTotalPrice = () => {
-    const basePrice = product.priceTtc;
-    // Check if product is in promotion
+    const basePrice = product.priceHt;
+    // Check if product is in promotion - calculate HT price from promotion TTC price
     const finalPrice = product.isInPromotion && product.promotionPrice 
-      ? product.promotionPrice 
+      ? product.promotionPrice / 1.20  // Convert promotion TTC to HT (assuming 20% VAT)
       : basePrice;
     return finalPrice * quantity;
   };

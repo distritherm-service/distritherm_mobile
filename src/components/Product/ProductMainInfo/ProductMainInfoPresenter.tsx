@@ -154,21 +154,21 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
           {product.isInPromotion && product.promotionPrice ? (
             <View style={styles.promotionPriceContainer}>
               <Text style={[styles.originalPrice, { color: colors.textSecondary }]}>
-                {formatPrice(product.priceTtc)}
+                {formatPrice(product.priceHt)}
               </Text>
               <View style={styles.currentPriceContainer}>
                 <Text style={[styles.currentPrice, { color: colors.accent[500] }]}>
-                  {formatPrice(product.promotionPrice)}
+                  {formatPrice(product.promotionPrice / 1.20)}
                 </Text>
-                <Text style={[styles.priceLabel, { color: colors.textSecondary }]}>TTC</Text>
+                <Text style={[styles.priceLabel, { color: colors.textSecondary }]}>HT</Text>
               </View>
             </View>
           ) : (
             <View style={styles.currentPriceContainer}>
               <Text style={[styles.currentPrice, { color: colors.text }]}>
-                {formatPrice(product.priceTtc)}
+                {formatPrice(product.priceHt)}
               </Text>
-              <Text style={[styles.priceLabel, { color: colors.textSecondary }]}>TTC</Text>
+              <Text style={[styles.priceLabel, { color: colors.textSecondary }]}>HT</Text>
             </View>
           )}
         </View>

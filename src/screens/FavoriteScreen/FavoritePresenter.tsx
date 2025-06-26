@@ -25,6 +25,7 @@ import SectionHeader from "src/components/SectionHeader/SectionHeader";
 import ErrorState from "src/components/ErrorState/ErrorState";
 import UnauthenticatedState from "src/components/UnauthenticatedState/UnauthenticatedState";
 import EmptyState from "src/components/EmptyState/EmptyState";
+import LoadingState from "src/components/LoadingState/LoadingState";
 import { useColors } from "src/hooks/useColors";
 import { ProductBasicDto } from "src/types/Product";
 
@@ -73,19 +74,7 @@ const FavoritePresenter: React.FC<FavoritePresenterProps> = ({
       paddingTop: ms(16), // Smaller than CartScreen (was 24)
     },
 
-    // Loading state
-    loadingContainer: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-      paddingHorizontal: ms(24),
-    },
-    loadingText: {
-      fontSize: ms(16),
-      color: colors.textSecondary,
-      marginTop: ms(16),
-      fontWeight: "600",
-    },
+
     // Enhanced list styles
     listContent: {
       paddingHorizontal: ms(16),
@@ -149,12 +138,10 @@ const FavoritePresenter: React.FC<FavoritePresenterProps> = ({
 
   // Enhanced loading state
   const renderLoadingState = () => (
-    <View style={dynamicStyles.loadingContainer}>
-      <ActivityIndicator size="large" color={colors.tertiary[500]} />
-      <Text style={dynamicStyles.loadingText}>
-        Chargement de vos favoris...
-      </Text>
-    </View>
+    <LoadingState
+      message="Chargement de vos favoris..."
+      size="large"
+    />
   );
 
   // Enhanced error state using shared ErrorState component

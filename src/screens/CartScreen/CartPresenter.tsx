@@ -20,7 +20,6 @@ import {
   faExclamationTriangle,
   faRefresh,
   faCheckCircle,
-  faHeart,
   faArrowRight,
 } from "@fortawesome/free-solid-svg-icons";
 import PageContainer from "src/components/PageContainer/PageContainer";
@@ -28,6 +27,7 @@ import SectionHeader from "src/components/SectionHeader/SectionHeader";
 import ErrorState from "src/components/ErrorState/ErrorState";
 import UnauthenticatedState from "src/components/UnauthenticatedState/UnauthenticatedState";
 import EmptyState from "src/components/EmptyState/EmptyState";
+import LoadingState from "src/components/LoadingState/LoadingState";
 import { useColors } from "src/hooks/useColors";
 import { Cart } from "src/types/Cart";
 import { ProductBasicDto } from "src/types/Product";
@@ -119,22 +119,7 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
       borderRadius: ms(16),
       backgroundColor: colors.tertiary[50],
     },
-    favoriteButton: {
-      position: "absolute",
-      top: ms(-8),
-      right: ms(-8),
-      backgroundColor: colors.primary[50],
-      width: ms(28),
-      height: ms(28),
-      borderRadius: ms(14),
-      justifyContent: "center",
-      alignItems: "center",
-      shadowColor: colors.tertiary[400],
-      shadowOffset: { width: 0, height: ms(2) },
-      shadowOpacity: 0.15,
-      shadowRadius: ms(4),
-      elevation: 3,
-    },
+
     productInfo: {
       flex: 1,
       paddingRight: ms(12),
@@ -156,6 +141,7 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
       flexDirection: "row",
       alignItems: "center",
       marginBottom: ms(16),
+      flexWrap: "wrap",
     },
     currentPrice: {
       fontSize: ms(18),
@@ -168,13 +154,15 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
       color: colors.textSecondary,
       textDecorationLine: "line-through",
       fontWeight: "500",
+      marginRight: ms(8),
     },
     discountBadge: {
       backgroundColor: colors.success[500],
       paddingHorizontal: ms(8),
       paddingVertical: ms(4),
       borderRadius: ms(12),
-      marginLeft: ms(8),
+      marginLeft: ms(4),
+      alignSelf: "center",
     },
     discountText: {
       color: colors.primary[50],
@@ -340,18 +328,18 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
     },
     checkoutButton: {
       backgroundColor: colors.tertiary[500],
-      borderRadius: ms(20),
-      paddingVertical: ms(18),
-      paddingHorizontal: ms(28),
+      borderRadius: ms(16), // Using react-native-size-matters - slightly smaller border radius
+      paddingVertical: ms(14), // Using react-native-size-matters - reduced from 18 to 14
+      paddingHorizontal: ms(20), // Using react-native-size-matters - reduced from 28 to 20
       flexDirection: "row",
       justifyContent: "center",
       alignItems: "center",
-      gap: ms(12),
+      gap: ms(10), // Using react-native-size-matters - reduced gap from 12 to 10
       shadowColor: colors.tertiary[400],
-      shadowOffset: { width: 0, height: ms(6) },
-      shadowOpacity: 0.4,
-      shadowRadius: ms(12),
-      elevation: 8,
+      shadowOffset: { width: 0, height: ms(4) }, // Using react-native-size-matters - slightly smaller shadow
+      shadowOpacity: 0.3, // Reduced shadow opacity for cleaner look
+      shadowRadius: ms(8), // Using react-native-size-matters - smaller shadow radius
+      elevation: 6, // Reduced elevation
     },
     checkoutButtonDisabled: {
       backgroundColor: colors.tertiary[200],
@@ -359,10 +347,10 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
       elevation: 0,
     },
     checkoutButtonText: {
-      fontSize: ms(18),
-      fontWeight: "800",
+      fontSize: ms(16), // Using react-native-size-matters - reduced from 18 to 16 for better proportion
+      fontWeight: "700", // Slightly reduced font weight for cleaner look
       color: colors.primary[50],
-      letterSpacing: ms(0.5),
+      letterSpacing: ms(0.3), // Using react-native-size-matters - reduced letter spacing
     },
 
     loadingContainer: {
@@ -380,74 +368,82 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
   });
 
   // Enhanced cart item renderer
-  const renderCartItem = ({ item }: { item: CartItem & { product: ProductBasicDto } }) => {
+  const renderCartItem = ({
+    item,
+  }: {
+    item: CartItem & { product: ProductBasicDto };
+  }) => {
     const isItemLoading = loadingItems.has(item.id);
-    
-    // Handle price calculation with fallbacks
-    let currentPrice = item.priceTtc;
-    let originalPrice = null;
-    let discountPercentage = 0;
-    
-    if (item.product) {
-      if (item.product.isInPromotion && item.product.promotionPrice) {
-        currentPrice = item.product.promotionPrice;
-        originalPrice = item.product.priceTtc || item.priceTtc;
-        discountPercentage = Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
-      } else if (item.product.priceTtc) {
-        currentPrice = item.product.priceTtc;
-      }
-    }
+
+    // Calculs des prix pour affichage (en HT)
+    const isInPromotion = item.product && item.product.isInPromotion;
+    // Pour le prix original, on calcule le HT à partir du TTC du produit (en assumant TVA 20%)
+    const originalUnitPriceHt = item.product?.priceHt || 0; // Conversion TTC -> HT (TVA 20%)
+    const originalTotalPriceHt = originalUnitPriceHt * item.quantity; // Prix original HT * quantité
+    const cartItemTotalPriceHt = item.priceHt; // Prix total HT du cartItem (déjà calculé avec promo côté backend)
+
+    // Calculer le pourcentage de remise si en promotion
+    const discountPercentage = isInPromotion
+      ? item.product?.promotionPercentage || 0
+      : 0;
 
     return (
       <View style={dynamicStyles.cartItem}>
         <View style={dynamicStyles.cartItemContent}>
           <View style={dynamicStyles.productImageContainer}>
-            <Pressable onPress={() => item.product?.id && onProductPress(item.product.id)}>
+            <Pressable
+              onPress={() =>
+                item.product?.id && onProductPress(item.product.id)
+              }
+            >
               <Image
                 source={{
-                  uri: item.product?.imagesUrl?.[0]
+                  uri: item.product?.imagesUrl?.[0],
                 }}
                 style={dynamicStyles.productImage}
                 resizeMode="cover"
               />
             </Pressable>
-            <Pressable style={dynamicStyles.favoriteButton}>
-              <FontAwesomeIcon 
-                icon={faHeart} 
-                size={ms(12)} 
-                color={colors.danger[400]} 
-              />
-            </Pressable>
           </View>
-          
+
           <View style={dynamicStyles.productInfo}>
-            <Pressable onPress={() => item.product?.id && onProductPress(item.product.id)}>
+            <Pressable
+              onPress={() =>
+                item.product?.id && onProductPress(item.product.id)
+              }
+            >
               <Text style={dynamicStyles.productName} numberOfLines={2}>
                 {item.product?.name || `Produit #${item.productId}`}
               </Text>
             </Pressable>
-            
+
             <Text style={dynamicStyles.productDescription} numberOfLines={2}>
               {item.product?.description || "Description non disponible"}
             </Text>
-            
+
             <View style={dynamicStyles.priceRow}>
-              <Text style={dynamicStyles.currentPrice}>
-                ${currentPrice.toFixed(2)}
-              </Text>
-              {originalPrice && originalPrice !== currentPrice && (
+              {isInPromotion && discountPercentage > 0 ? (
                 <>
+                  {/* Prix barré (prix original HT * quantité) */}
                   <Text style={dynamicStyles.originalPrice}>
-                    ${originalPrice.toFixed(2)}
+                    {originalTotalPriceHt.toFixed(2)}€ HT
                   </Text>
-                  {discountPercentage > 0 && (
-                    <View style={dynamicStyles.discountBadge}>
-                      <Text style={dynamicStyles.discountText}>
-                        -{discountPercentage}%
-                      </Text>
-                    </View>
-                  )}
+                  {/* Prix promotionnel HT (prix total du cartItem) */}
+                  <Text style={dynamicStyles.currentPrice}>
+                    {cartItemTotalPriceHt.toFixed(2)}€ HT
+                  </Text>
+                  {/* Badge de remise */}
+                  <View style={dynamicStyles.discountBadge}>
+                    <Text style={dynamicStyles.discountText}>
+                      -{discountPercentage}%
+                    </Text>
+                  </View>
                 </>
+              ) : (
+                /* Prix normal HT (prix total du cartItem) */
+                <Text style={dynamicStyles.currentPrice}>
+                  {cartItemTotalPriceHt.toFixed(2)}€ HT
+                </Text>
               )}
             </View>
           </View>
@@ -458,40 +454,45 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
             <Pressable
               style={[
                 dynamicStyles.quantityButton,
-                (item.quantity <= 1 || isItemLoading) && dynamicStyles.quantityButtonDisabled
+                (item.quantity <= 1 || isItemLoading) &&
+                  dynamicStyles.quantityButtonDisabled,
               ]}
-              onPress={() => !isItemLoading && onQuantityUpdate(item.id, item.quantity - 1)}
+              onPress={() =>
+                !isItemLoading && onQuantityUpdate(item.id, item.quantity - 1)
+              }
               disabled={item.quantity <= 1 || isItemLoading}
             >
-              <FontAwesomeIcon 
-                icon={faMinus} 
-                size={ms(14)} 
-                color={colors.primary[50]} 
+              <FontAwesomeIcon
+                icon={faMinus}
+                size={ms(14)}
+                color={colors.primary[50]}
               />
             </Pressable>
-            
+
             <Text style={dynamicStyles.quantityText}>{item.quantity}</Text>
-            
+
             <Pressable
               style={[
                 dynamicStyles.quantityButton,
-                isItemLoading && dynamicStyles.quantityButtonDisabled
+                isItemLoading && dynamicStyles.quantityButtonDisabled,
               ]}
-              onPress={() => !isItemLoading && onQuantityUpdate(item.id, item.quantity + 1)}
+              onPress={() =>
+                !isItemLoading && onQuantityUpdate(item.id, item.quantity + 1)
+              }
               disabled={isItemLoading}
             >
-              <FontAwesomeIcon 
-                icon={faPlus} 
-                size={ms(14)} 
-                color={colors.primary[50]} 
+              <FontAwesomeIcon
+                icon={faPlus}
+                size={ms(14)}
+                color={colors.primary[50]}
               />
             </Pressable>
           </View>
 
-                    <Pressable
+          <Pressable
             style={[
               dynamicStyles.removeButton,
-              isItemLoading && dynamicStyles.removeButtonDisabled
+              isItemLoading && dynamicStyles.removeButtonDisabled,
             ]}
             onPress={() => {
               if (isItemLoading) return;
@@ -500,23 +501,23 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
                 "Êtes-vous sûr de vouloir supprimer cet article de votre panier ?",
                 [
                   { text: "Annuler", style: "cancel" },
-                  { 
-                    text: "Supprimer", 
+                  {
+                    text: "Supprimer",
                     style: "destructive",
-                    onPress: () => onRemoveItem(item.id)
-                  }
+                    onPress: () => onRemoveItem(item.id),
+                  },
                 ]
               );
             }}
             disabled={isItemLoading}
           >
-            <FontAwesomeIcon 
-              icon={faTrash} 
-              size={ms(16)} 
-              color={colors.danger[500]} 
+            <FontAwesomeIcon
+              icon={faTrash}
+              size={ms(16)}
+              color={colors.danger[500]}
             />
           </Pressable>
-                </View>
+        </View>
 
         {isItemLoading && (
           <View style={dynamicStyles.loadingOverlay}>
@@ -534,24 +535,34 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
       title="Mon Panier"
       subtitle={
         isAuthenticated && cart && cart.cartItems && cart.cartItems.length > 0
-          ? `${totals.itemCount} article${totals.itemCount > 1 ? 's' : ''}`
+          ? `${totals.itemCount} article${totals.itemCount > 1 ? "s" : ""}`
           : undefined
       }
-      badgeCount={isAuthenticated && cart && cart.cartItems ? totals.itemCount : undefined}
+      badgeCount={
+        isAuthenticated && cart && cart.cartItems ? totals.itemCount : undefined
+      }
       badgeColor="secondary"
-      showBadge={!!(isAuthenticated && cart && cart.cartItems && cart.cartItems.length > 0)}
+      showBadge={
+        !!(
+          isAuthenticated &&
+          cart &&
+          cart.cartItems &&
+          cart.cartItems.length > 0
+        )
+      }
     />
   );
 
   // Loading state
   if (loading) {
     return (
-      <PageContainer headerBack={false} bottomBar={true} style={dynamicStyles.container}>
+      <PageContainer
+        headerBack={false}
+        bottomBar={true}
+        style={dynamicStyles.container}
+      >
         {renderHeader()}
-        <View style={dynamicStyles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.tertiary[500]} />
-          <Text style={dynamicStyles.loadingText}>Chargement de votre panier...</Text>
-        </View>
+        <LoadingState message="Chargement de votre panier..." size="large" />
       </PageContainer>
     );
   }
@@ -559,12 +570,13 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
   // Error state
   if (error) {
     return (
-      <PageContainer headerBack={false} bottomBar={true} style={dynamicStyles.container}>
+      <PageContainer
+        headerBack={false}
+        bottomBar={true}
+        style={dynamicStyles.container}
+      >
         {renderHeader()}
-        <ErrorState
-          description={error}
-          onRetry={onRetry}
-        />
+        <ErrorState description={error} onRetry={onRetry} />
       </PageContainer>
     );
   }
@@ -572,7 +584,11 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
   // Not authenticated state
   if (!isAuthenticated) {
     return (
-      <PageContainer headerBack={false} bottomBar={true} style={dynamicStyles.container}>
+      <PageContainer
+        headerBack={false}
+        bottomBar={true}
+        style={dynamicStyles.container}
+      >
         {renderHeader()}
         <UnauthenticatedState
           icon={faShoppingBag}
@@ -588,7 +604,11 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
   // Empty cart state
   if (!cart || !cart.cartItems || cart.cartItems.length === 0) {
     return (
-      <PageContainer headerBack={false} bottomBar={true} style={dynamicStyles.container}>
+      <PageContainer
+        headerBack={false}
+        bottomBar={true}
+        style={dynamicStyles.container}
+      >
         {renderHeader()}
         <EmptyState
           icon={faShoppingBag}
@@ -603,14 +623,14 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
 
   // Main cart content
   return (
-    <PageContainer 
-      headerBack={false} 
+    <PageContainer
+      headerBack={false}
       bottomBar={true}
       isScrollable={false}
       style={dynamicStyles.container}
     >
       {renderHeader()}
-      <ScrollView 
+      <ScrollView
         style={dynamicStyles.contentContainer}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: ms(32) }}
@@ -624,52 +644,101 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
           showsVerticalScrollIndicator={false}
         />
 
-
-
         {/* Summary Section */}
         <View style={dynamicStyles.summarySection}>
           <View style={dynamicStyles.summaryHeader}>
             <View style={dynamicStyles.summaryHeaderIcon}>
-              <FontAwesomeIcon icon={faCheckCircle} size={ms(20)} color={colors.secondary[500]} />
+              <FontAwesomeIcon
+                icon={faCheckCircle}
+                size={ms(20)}
+                color={colors.secondary[500]}
+              />
             </View>
             <Text style={dynamicStyles.summaryHeaderText}>Résumé</Text>
           </View>
-          
-          <View style={dynamicStyles.summaryRow}>
-            <Text style={dynamicStyles.summaryLabel}>Sous-total HT</Text>
-            <Text style={dynamicStyles.summaryValue}>${(totals.subTotal / 1.2).toFixed(2)}</Text>
-          </View>
-          
-          <View style={dynamicStyles.summaryRow}>
-            <Text style={dynamicStyles.summaryLabel}>TVA (20%)</Text>
-            <Text style={dynamicStyles.summaryValue}>
-              ${(totals.subTotal - (totals.subTotal / 1.2)).toFixed(2)}
-            </Text>
-          </View>
-          
-          <View style={dynamicStyles.summaryDivider} />
-          
-          <View style={dynamicStyles.totalRow}>
-            <Text style={dynamicStyles.totalLabel}>Total TTC</Text>
-            <Text style={dynamicStyles.totalValue}>${totals.finalTotal.toFixed(2)}</Text>
-          </View>
+
+          {/* Show loading state when any cart item is being modified */}
+          {loadingItems.size > 0 ? (
+            <View style={{ paddingVertical: ms(20), alignItems: "center" }}>
+              <ActivityIndicator size="small" color={colors.tertiary[500]} />
+              <Text
+                style={[
+                  dynamicStyles.summaryLabel,
+                  { marginTop: ms(8), textAlign: "center" },
+                ]}
+              >
+                Mise à jour du résumé...
+              </Text>
+            </View>
+          ) : (
+            /* Calculer les totaux réels à partir des cartItems */
+            (() => {
+              const subTotalHt = cart.cartItems.reduce(
+                (sum, item) => sum + (item.priceHt || 0),
+                0
+              );
+              const subTotalTtc = cart.cartItems.reduce(
+                (sum, item) => sum + (item.priceTtc || 0),
+                0
+              );
+              const tvaAmount = subTotalTtc - subTotalHt;
+
+              return (
+                <>
+                  <View style={dynamicStyles.summaryRow}>
+                    <Text style={dynamicStyles.summaryLabel}>
+                      Sous-total HT
+                    </Text>
+                    <Text style={dynamicStyles.summaryValue}>
+                      {subTotalHt.toFixed(2)}€
+                    </Text>
+                  </View>
+
+                  <View style={dynamicStyles.summaryRow}>
+                    <Text style={dynamicStyles.summaryLabel}>TVA</Text>
+                    <Text style={dynamicStyles.summaryValue}>
+                      {tvaAmount.toFixed(2)}€
+                    </Text>
+                  </View>
+
+                  <View style={dynamicStyles.summaryDivider} />
+
+                  <View style={dynamicStyles.totalRow}>
+                    <Text style={dynamicStyles.totalLabel}>Total TTC</Text>
+                    <Text style={dynamicStyles.totalValue}>
+                      {subTotalTtc.toFixed(2)}€
+                    </Text>
+                  </View>
+                </>
+              );
+            })()
+          )}
         </View>
 
         {/* Checkout Section */}
         <View style={dynamicStyles.checkoutSection}>
-          <Pressable 
+          <Pressable
             style={[
               dynamicStyles.checkoutButton,
-              ((!cart.cartItems || cart.cartItems.length === 0) || isCreatingDevis) && dynamicStyles.checkoutButtonDisabled
+              (!cart.cartItems ||
+                cart.cartItems.length === 0 ||
+                isCreatingDevis) &&
+                dynamicStyles.checkoutButtonDisabled,
             ]}
             onPress={onCreateDevis}
-            disabled={(!cart.cartItems || cart.cartItems.length === 0) || isCreatingDevis}
+            disabled={
+              !cart.cartItems || cart.cartItems.length === 0 || isCreatingDevis
+            }
           >
             {isCreatingDevis ? (
               <ActivityIndicator size="small" color={colors.primary[50]} />
             ) : (
               <>
-                <FontAwesomeIcon icon={faArrowRight} size={ms(18)} color={colors.primary[50]} />
+                <FontAwesomeIcon
+                  icon={faArrowRight}
+                  size={ms(18)}
+                  color={colors.primary[50]}
+                />
                 <Text style={dynamicStyles.checkoutButtonText}>
                   Demander un devis
                 </Text>
@@ -682,4 +751,4 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
   );
 };
 
-export default CartPresenter; 
+export default CartPresenter;

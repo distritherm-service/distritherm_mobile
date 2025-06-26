@@ -32,44 +32,27 @@ const Cart = () => {
   const [isCreatingDevis, setIsCreatingDevis] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Calculate cart totals (no delivery charges)
+  // Calculate cart totals using the actual cartItem prices (already calculated with promotions on backend)
   const calculateTotals = useCallback(() => {
     if (!cart?.cartItems || cart.cartItems.length === 0) {
       return {
         subTotal: 0,
-        discount: 0,
         finalTotal: 0,
         itemCount: 0,
       };
     }
 
+    // Use the priceHt from cartItems for subtotal (HT prices)
     const subTotal = cart.cartItems.reduce((total, item) => {
-      // Use the price from the cart item if available, otherwise use product price
-      let price = item.priceTtc;
-
-      // If we have product details and it's in promotion, use promotion price
-      if (
-        item.product &&
-        item.product.isInPromotion &&
-        item.product.promotionPrice
-      ) {
-        price = item.product.promotionPrice;
-      } else if (item.product && item.product.priceTtc) {
-        price = item.product.priceTtc;
-      }
-
-      return total + price * item.quantity;
+      return total + (item.priceHt || 0);
     }, 0);
 
-    const itemCount = cart.cartItems.reduce(
-      (count, item) => count + item.quantity,
-      0
-    );
-    const finalTotal = subTotal;
+    // Count unique products instead of total quantity
+    const itemCount = cart.cartItems.length;
 
     return {
       subTotal,
-      finalTotal,
+      finalTotal: subTotal,
       itemCount,
     };
   }, [cart]);
@@ -97,14 +80,15 @@ const Cart = () => {
             ...item,
             createdAt: new Date(item.createdAt),
             updatedAt: new Date(item.updatedAt),
-          })) || [],
+          }))
+          // Sort cart items by creation date - most recent first
+          .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) || [],
       };
 
       setCart(cartData);
     } catch (err: any) {
       console.error("Error loading cart:", err);
       if (err?.response?.status === 404) {
-        // No active cart found - this is normal, set empty cart
         setCart(null);
       } else {
         setError("Impossible de charger votre panier");
@@ -131,38 +115,14 @@ const Cart = () => {
 
         await cartsService.updateCartItem(updateDto);
 
-              // Update local cart state with new quantity and recalculated price
-      setCart((prevCart) => {
-        if (!prevCart) return prevCart;
-        return {
-          ...prevCart,
-          cartItems: prevCart.cartItems.map((item) => {
-            if (item.id === cartItemId) {
-              // Calculate the new price based on the updated quantity
-              let unitPrice = item.priceTtc;
-              
-              // Use promotion price if available, otherwise use regular price
-              if (item.product && item.product.isInPromotion && item.product.promotionPrice) {
-                unitPrice = item.product.promotionPrice;
-              } else if (item.product && item.product.priceTtc) {
-                unitPrice = item.product.priceTtc;
-              }
-              
-              return { 
-                ...item, 
-                quantity: newQuantity,
-                priceTtc: unitPrice // Keep the unit price, total will be calculated in UI
-              };
-            }
-            return item;
-          }),
-        };
-      });
+        // Reload the cart to get fresh data with updated prices from backend
+        await loadCart();
       } catch (err: any) {
         console.error("Error updating quantity:", err);
         Alert.alert("Erreur", "Impossible de mettre à jour la quantité");
+        // Reload cart to restore correct state on error
+        await loadCart();
       } finally {
-        // Remove item from loading state
         setLoadingItems((prev) => {
           const newSet = new Set(prev);
           newSet.delete(cartItemId);
@@ -189,36 +149,19 @@ const Cart = () => {
 
         await cartsService.removeCartItem(removeDto);
 
-        // Immediately remove the item from local state for better UX
-        setCart((prevCart) => {
-          if (!prevCart) return prevCart;
-          return {
-            ...prevCart,
-            cartItems: prevCart.cartItems.filter(
-              (item) => item.id !== cartItemId
-            ),
-          };
-        });
-
-        // Remove item from loading state since it's now removed from the cart
-        setLoadingItems((prev) => {
-          const newSet = new Set(prev);
-          newSet.delete(cartItemId);
-          return newSet;
-        });
+        // Reload the cart to get fresh data
+        await loadCart();
       } catch (err: any) {
         console.error("Error removing item:", err);
         Alert.alert("Erreur", "Impossible de supprimer l'article");
-
-        // Remove item from loading state on error
+        // Reload cart to restore correct state on error
+        await loadCart();
+      } finally {
         setLoadingItems((prev) => {
           const newSet = new Set(prev);
           newSet.delete(cartItemId);
           return newSet;
         });
-
-        // Reload cart to restore the correct state on error
-        await loadCart();
       }
     },
     [cart, loadCart]
@@ -234,10 +177,9 @@ const Cart = () => {
       // In a real app, you might want to let the user select a commercial or assign one automatically
       const createDeviDto: CreateDeviDto = {
         cartId: cart.id,
-        commercialId: 1,
       };
 
-      const devisResponse = await devisService.createDevis(createDeviDto);
+     await devisService.createDevis(createDeviDto);
 
       // Update cart status to devis
       await cartsService.updateCartStatus(cart.id, {
@@ -251,8 +193,8 @@ const Cart = () => {
           {
             text: "OK",
             onPress: () => {
-              // Navigate back to home
-              (navigation as any).navigate("Home");
+              // Navigate back to home tab in bottom bar
+              (navigation as any).navigate("Main", { initialTab: "Home" });
               // Reload cart for next session
               loadCart();
             },

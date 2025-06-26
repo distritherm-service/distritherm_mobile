@@ -22,6 +22,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import PageContainer from "src/components/PageContainer/PageContainer";
 import Input from "src/components/Input/Input";
+import LoadingState from "src/components/LoadingState/LoadingState";
 import { InputType } from "src/types/InputType";
 import { useColors } from "src/hooks/useColors";
 import { PersonalInformationFormData } from "./PersonalInformation";
@@ -263,55 +264,35 @@ const PersonalInformationPresenter: React.FC<
 
   if (isLoadingUserData) {
     return (
-      <View style={dynamicStyles.loadingContainer}>
-        <LinearGradient
-          colors={[colors.primary[50], colors.secondary[200]]}
-          style={dynamicStyles.loadingGradient}
-        >
-          <View style={dynamicStyles.loadingContent}>
-            <View style={dynamicStyles.loadingIcon}>
-              <FontAwesome6
-                name="user"
-                size={ms(40)}
-                color={colors.secondary[500]}
-              />
-            </View>
-            <ActivityIndicator size="large" color={colors.secondary[500]} />
-            <Text style={dynamicStyles.loadingText}>
-              Chargement de vos informations...
-            </Text>
-          </View>
-        </LinearGradient>
-      </View>
+      <PageContainer
+        headerBack={true}
+        headerTitle="Informations personnelles"
+        onCustomBack={onBack}
+        bottomBar={false}
+        titleLeft={true}
+      >
+        <LoadingState
+          message="Chargement de vos informations..."
+          size="large"
+        />
+      </PageContainer>
     );
   }
 
   if (isSubmitting) {
     return (
-      <View style={dynamicStyles.isSubmittingContainer}>
-        <LinearGradient
-          style={dynamicStyles.isSubmittingContent}
-          colors={[colors.primary[50], colors.secondary[200]]}
-        >
-          <View style={dynamicStyles.isSubmittingContent}>
-            <FontAwesome6
-              name="user-pen"
-              size={ms(40)}
-              color={colors.secondary[500]}
-            />
-
-            <ActivityIndicator
-              size={"large"}
-              color={colors.secondary[400]}
-              style={{ marginTop: ms(20) }}
-            />
-
-            <Text style={dynamicStyles.isSubmittingText}>
-              Modification des informations en cours...
-            </Text>
-          </View>
-        </LinearGradient>
-      </View>
+      <PageContainer
+        headerBack={true}
+        headerTitle="Informations personnelles"
+        onCustomBack={onBack}
+        bottomBar={false}
+        titleLeft={true}
+      >
+        <LoadingState
+          message="Modification des informations en cours..."
+          size="large"
+        />
+      </PageContainer>
     );
   }
 

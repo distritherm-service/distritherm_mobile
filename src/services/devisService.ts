@@ -4,7 +4,7 @@ import { PaginationDto } from "../types/paginationDto";
 // DTOs et interfaces pour les devis
 export interface CreateDeviDto {
   cartId: number;
-  commercialId: number;
+  commercialId?: number;
 }
 
 interface PostDeviDto {
@@ -15,7 +15,7 @@ interface PostDeviDto {
 
 
 
-type DevisStatus = "SENDED" | "PROGRESS" | "CONSULTED" | "EXPIRED";
+export type DevisStatus = "SENDED" | "PROGRESS" | "CONSULTED" | "EXPIRED";
 
 const devisService = {
   // POST /devis - Créer un nouveau devis
@@ -70,6 +70,16 @@ const devisService = {
   getDevisById: async (id: number): Promise<any> => {
     try {
       const response = await api.get(`/devis/${id}`);
+      return await response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // DELETE /devis/:id - Supprimer un devis par son ID
+  deleteDevis: async (id: number): Promise<any> => {
+    try {
+      const response = await api.delete(`/devis/${id}`);
       return await response.data;
     } catch (error) {
       throw error;

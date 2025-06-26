@@ -114,96 +114,111 @@ const GoogleSignInPresenter = memo<GoogleSignInPresenterProps>(
       },
       modalBackdrop: {
         flex: 1,
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        backgroundColor: "rgba(0, 0, 0, 0.4)", // Lighter backdrop for minimalistic feel
         justifyContent: "center",
         alignItems: "center",
         padding: ms(20), // Using react-native-size-matters for responsive padding
       },
       modalContainer: {
-        backgroundColor: colors.primary[50],
-        borderRadius: ms(16), // Using react-native-size-matters for responsive border radius
-        maxWidth: ms(400), // Using react-native-size-matters for responsive max width
-        width: "100%",
-        shadowColor: colors.tertiary[900],
+        backgroundColor: colors.background,
+        borderRadius: ms(16), // Using react-native-size-matters - clean rounded corners
+        width: "95%",
+        maxHeight: "85%", // Prevent modal from being too tall
+        shadowColor: colors.tertiary[500],
         shadowOffset: {
           width: 0,
-          height: ms(8), // Using react-native-size-matters for responsive shadow
+          height: ms(8), // Using react-native-size-matters
         },
-        shadowOpacity: 0.25,
-        shadowRadius: ms(16), // Using react-native-size-matters for responsive shadow
-        elevation: 10,
+        shadowOpacity: 0.1,
+        shadowRadius: ms(16), // Using react-native-size-matters
+        elevation: 8,
+        borderWidth: ms(1), // Using react-native-size-matters
+        borderColor: colors.border,
+        overflow: "visible", // Allow content to be visible if it expands
       },
       modalHeader: {
-        flexDirection: "row",
-        justifyContent: "space-between",
         alignItems: "center",
-        padding: ms(24), // Using react-native-size-matters for responsive padding
-        borderBottomWidth: 1,
+        paddingTop: ms(24), // Using react-native-size-matters
+        paddingHorizontal: ms(24), // Using react-native-size-matters
+        paddingBottom: ms(16), // Using react-native-size-matters
+        borderBottomWidth: ms(1), // Using react-native-size-matters
         borderBottomColor: colors.border,
       },
-      modalTitle: {
-        fontSize: ms(18), // Using react-native-size-matters for responsive font size
-        fontWeight: "700",
-        color: colors.tertiary[500],
-      },
       closeButton: {
-        width: ms(32), // Using react-native-size-matters for responsive width
-        height: ms(32), // Using react-native-size-matters for responsive height
-        borderRadius: ms(16), // Using react-native-size-matters for responsive border radius
+        position: "absolute",
+        top: ms(12), // Using react-native-size-matters
+        right: ms(12), // Using react-native-size-matters
+        width: ms(32), // Using react-native-size-matters
+        height: ms(32), // Using react-native-size-matters
+        borderRadius: ms(16), // Using react-native-size-matters
         backgroundColor: colors.surface,
         alignItems: "center",
         justifyContent: "center",
-        borderWidth: 1,
+        borderWidth: ms(1), // Using react-native-size-matters
         borderColor: colors.border,
       },
-      modalBody: {
-        padding: ms(24), // Using react-native-size-matters for responsive padding
-      },
       iconWrapper: {
-        alignSelf: "center",
-        width: ms(64), // Using react-native-size-matters for responsive width
-        height: ms(64), // Using react-native-size-matters for responsive height
-        borderRadius: ms(32), // Using react-native-size-matters for responsive border radius
+        width: ms(56), // Using react-native-size-matters - smaller, more minimalistic
+        height: ms(56), // Using react-native-size-matters
+        borderRadius: ms(28), // Using react-native-size-matters
         backgroundColor: colors.secondary[50],
         alignItems: "center",
         justifyContent: "center",
-        marginBottom: ms(16), // Using react-native-size-matters for responsive margin
-        borderWidth: ms(2), // Using react-native-size-matters for responsive border
+        marginBottom: ms(12), // Using react-native-size-matters
+        borderWidth: ms(2), // Using react-native-size-matters
         borderColor: colors.secondary[200],
       },
-      modalDescription: {
-        fontSize: ms(14), // Using react-native-size-matters for responsive font size
+      modalTitle: {
+        fontSize: ms(18), // Using react-native-size-matters - smaller, cleaner
+        fontWeight: "700",
+        color: colors.text,
+        textAlign: "center",
+        marginBottom: ms(4), // Using react-native-size-matters
+      },
+      modalSubtitle: {
+        fontSize: ms(14), // Using react-native-size-matters
+        fontWeight: "400",
         color: colors.textSecondary,
         textAlign: "center",
-        lineHeight: ms(20), // Using react-native-size-matters for responsive line height
-        marginBottom: ms(24), // Using react-native-size-matters for responsive margin
+        lineHeight: ms(20), // Using react-native-size-matters
+      },
+      modalBody: {
+        padding: ms(24), // Using react-native-size-matters
       },
       formContainer: {
-        gap: ms(16), // Using react-native-size-matters for responsive gap
+        gap: ms(18), // Using react-native-size-matters - tighter spacing
+      },
+      // Custom Input Container Style for Modal
+      modalInputContainer: {
+        marginBottom: ms(16), // Using react-native-size-matters
+      },
+      modalInputStyle: {
+        minHeight: ms(48), // Using react-native-size-matters - fixed minimum height
+        flex: 0, // Remove flex to prevent layout issues in modal
       },
       modalFooter: {
         flexDirection: "row",
-        justifyContent: "space-between",
-        gap: ms(12), // Using react-native-size-matters for responsive gap
-        padding: ms(24), // Using react-native-size-matters for responsive padding
-        borderTopWidth: 1,
+        padding: ms(24), // Using react-native-size-matters
+        paddingTop: ms(16), // Using react-native-size-matters
+        borderTopWidth: ms(1), // Using react-native-size-matters
         borderTopColor: colors.border,
+        gap: ms(12), // Using react-native-size-matters
       },
       modalButton: {
         flex: 1,
-        paddingVertical: ms(12), // Using react-native-size-matters for responsive padding
-        borderRadius: ms(8), // Using react-native-size-matters for responsive border radius
+        paddingVertical: ms(14), // Using react-native-size-matters
+        borderRadius: ms(8), // Using react-native-size-matters
         alignItems: "center",
         justifyContent: "center",
-        minHeight: ms(44), // Using react-native-size-matters for responsive height
+        minHeight: ms(48), // Using react-native-size-matters
       },
       cancelButton: {
         backgroundColor: colors.surface,
-        borderWidth: 1,
+        borderWidth: ms(1), // Using react-native-size-matters
         borderColor: colors.border,
       },
       cancelButtonText: {
-        fontSize: ms(16), // Using react-native-size-matters for responsive font size
+        fontSize: ms(15), // Using react-native-size-matters
         fontWeight: "600",
         color: colors.textSecondary,
       },
@@ -212,16 +227,20 @@ const GoogleSignInPresenter = memo<GoogleSignInPresenterProps>(
         shadowColor: colors.secondary[600],
         shadowOffset: {
           width: 0,
-          height: ms(4), // Using react-native-size-matters for responsive shadow
+          height: ms(3), // Using react-native-size-matters
         },
-        shadowOpacity: 0.3,
-        shadowRadius: ms(8), // Using react-native-size-matters for responsive shadow
-        elevation: 6,
+        shadowOpacity: 0.25,
+        shadowRadius: ms(6), // Using react-native-size-matters
+        elevation: 5,
+        borderWidth: ms(1), // Using react-native-size-matters
+        borderColor: colors.secondary[500],
       },
       confirmButtonText: {
-        fontSize: ms(16), // Using react-native-size-matters for responsive font size
+        fontSize: ms(15), // Using react-native-size-matters
         fontWeight: "700",
-        color: colors.primary[50],
+        color: "#FFFFFF", // Explicit white color for better contrast
+        textAlign: "center",
+        letterSpacing: ms(0.3), // Using react-native-size-matters
       },
     });
 
@@ -236,7 +255,10 @@ const GoogleSignInPresenter = memo<GoogleSignInPresenterProps>(
           >
             <View style={dynamicStyles.content}>
               {isLoading ? (
-                <ActivityIndicator size={ms(25)} color={colors.secondary[400]} />
+                <ActivityIndicator
+                  size={ms(25)}
+                  color={colors.secondary[400]}
+                />
               ) : (
                 <>
                   <View style={dynamicStyles.iconContainer}>
@@ -257,43 +279,46 @@ const GoogleSignInPresenter = memo<GoogleSignInPresenterProps>(
           visible={completeInformation}
           onRequestClose={onModalClose}
           transparent={true}
+          animationType="fade"
         >
           <TouchableWithoutFeedback onPress={onModalClose}>
             <View style={dynamicStyles.modalBackdrop}>
               <TouchableWithoutFeedback onPress={() => {}}>
                 <View style={dynamicStyles.modalContainer}>
-                  {/* Modal Header */}
-                  <View style={dynamicStyles.modalHeader}>
-                    <Text style={dynamicStyles.modalTitle}>
-                      Compléter votre profil
-                    </Text>
-                    <Pressable
-                      style={dynamicStyles.closeButton}
-                      onPress={onModalClose}
-                    >
-                      <FontAwesome6
-                        name="xmark"
-                        size={ms(16)} // Using react-native-size-matters for responsive icon size
-                        color={colors.secondary[600]}
-                      />
-                    </Pressable>
-                  </View>
+                  {/* Close Button */}
+                  <Pressable
+                    style={dynamicStyles.closeButton}
+                    onPress={onModalClose}
+                  >
+                    <FontAwesome6
+                      name="xmark"
+                      size={ms(16)} // Using react-native-size-matters for responsive icon size
+                      color={colors.textSecondary}
+                    />
+                  </Pressable>
 
-                  {/* Modal Body */}
-                  <View style={dynamicStyles.modalBody}>
+                  {/* Header */}
+                  <View style={dynamicStyles.modalHeader}>
                     <View style={dynamicStyles.iconWrapper}>
                       <FontAwesome6
                         name="building"
-                        size={ms(32)} // Using react-native-size-matters for responsive icon size
-                        color={colors.primary[500]}
+                        size={ms(24)} // Using react-native-size-matters for responsive icon size
+                        color={colors.secondary[400]}
                       />
                     </View>
-                    <Text style={dynamicStyles.modalDescription}>
-                      Veuillez compléter les informations de votre entreprise
-                      pour finaliser votre inscription.
-                    </Text>
 
-                    {/* Form Fields using Input component with validation rules (errors shown only on submit) */}
+                    <Text style={dynamicStyles.modalTitle}>
+                      Compléter votre profil
+                    </Text>
+                    <Text style={dynamicStyles.modalSubtitle}>
+                      Informations sur votre entreprise pour finaliser votre
+                      inscription
+                    </Text>
+                  </View>
+
+                  {/* Body */}
+                  <View style={dynamicStyles.modalBody}>
+                    {/* Form Fields using Input component with modal-specific styling */}
                     <View style={dynamicStyles.formContainer}>
                       <Input<FormData>
                         name="companyName"
@@ -329,21 +354,32 @@ const GoogleSignInPresenter = memo<GoogleSignInPresenterProps>(
                     </View>
                   </View>
 
-                  {/* Modal Footer */}
+                  {/* Footer */}
                   <View style={dynamicStyles.modalFooter}>
                     <Pressable
-                      style={[dynamicStyles.modalButton, dynamicStyles.cancelButton]}
+                      style={[
+                        dynamicStyles.modalButton,
+                        dynamicStyles.cancelButton,
+                      ]}
                       onPress={onModalClose}
                     >
-                      <Text style={dynamicStyles.cancelButtonText}>Annuler</Text>
+                      <Text style={dynamicStyles.cancelButtonText}>
+                        Annuler
+                      </Text>
                     </Pressable>
                     <Pressable
-                      style={[dynamicStyles.modalButton, dynamicStyles.confirmButton]}
+                      style={[
+                        dynamicStyles.modalButton,
+                        dynamicStyles.confirmButton,
+                      ]}
                       onPress={onSubmit}
                       disabled={isLoading}
                     >
                       {isLoading ? (
-                        <ActivityIndicator size={ms(16)} color={colors.primary[50]} />
+                        <ActivityIndicator
+                          size={ms(16)}
+                          color={colors.primary[50]}
+                        />
                       ) : (
                         <Text style={dynamicStyles.confirmButtonText}>
                           Créer mon compte

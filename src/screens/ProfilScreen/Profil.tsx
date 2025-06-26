@@ -24,7 +24,7 @@ const Profil = () => {
         navigation.navigate("Auth", { screen: "Register" });
         break;
       case "Quotes":
-        console.log("Navigate to Quotes screen");
+        navigation.navigate("MesDevis");
         break;
       case "PersonalInfo":
         navigation.navigate("PersonalInformation");

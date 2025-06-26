@@ -35,6 +35,7 @@ const ProductItem: React.FC<ProductItemProps> = ({
   const defaultProduct: ProductBasicDto = {
     id: 1,
     name: "Plaque de plâtre BA13 standard",
+    priceHt: 7.08, // 8.5 / 1.20 (TTC to HT conversion)
     priceTtc: 8.5,
     quantity: 10,
     imagesUrl: [],
@@ -77,8 +78,6 @@ const ProductItem: React.FC<ProductItemProps> = ({
   };
 
   const getImageSource = () => {
-
-    console.log(currentProduct.imagesUrl);
 
     if (imageError || !currentProduct.imagesUrl?.[0]) {
       return { uri: NO_IMAGE_URL };
@@ -149,7 +148,7 @@ const ProductItem: React.FC<ProductItemProps> = ({
     <ProductItemPresenter
       name={currentProduct.name}
       category={currentProduct.category?.name || "Construction"}
-      price={currentProduct.promotionPrice || currentProduct.priceTtc}
+      price={currentProduct.promotionPrice ? (currentProduct.promotionPrice / 1.20) : currentProduct.priceHt}
       unit="unité"
       imageSource={getImageSource()}
       inStock={currentProduct.quantity > 0}

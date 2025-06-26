@@ -17,6 +17,7 @@ import PageContainer from "src/components/PageContainer/PageContainer";
 import ProductItem from "src/components/ProductItem/ProductItem";
 import Input from "src/components/Input/Input";
 import EmptyState from "src/components/EmptyState/EmptyState";
+import LoadingState from "src/components/LoadingState/LoadingState";
 import { InputType } from "src/types/InputType";
 import { useColors } from "src/hooks/useColors";
 import { PromotionDto } from "src/services/promotionsService";
@@ -142,41 +143,7 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
       alignItems: "center",
       paddingHorizontal: ms(20),
     },
-    // Loading state styles with gradient background
-    loadingContainer: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-      paddingHorizontal: ms(20),
-    },
-    loadingGradient: {
-      position: "absolute",
-      left: 0,
-      right: 0,
-      top: 0,
-      bottom: 0,
-    },
-    loadingContent: {
-      alignItems: "center",
-      backgroundColor: "rgba(255, 255, 255, 0.9)",
-      borderRadius: ms(20),
-      padding: ms(32),
-      shadowColor: colors.primary[500],
-      shadowOffset: {
-        width: 0,
-        height: 4,
-      },
-      shadowOpacity: 0.15,
-      shadowRadius: 8,
-      elevation: 8,
-    },
-    loadingText: {
-      color: colors.text,
-      fontSize: ms(16),
-      fontWeight: "600",
-      marginTop: ms(16),
-      textAlign: "center",
-    },
+
     // Error state styles with enhanced visual design
     errorContainer: {
       backgroundColor: "rgba(255, 255, 255, 0.95)",
@@ -429,12 +396,10 @@ const PromotionsPresenter: React.FC<PromotionsPresenterProps> = ({
 
   // Render loading state
   const renderLoadingState = () => (
-    <View style={[dynamicStyles.loadingContainer, { flex: 1 }]}>
-      <ActivityIndicator size="large" color={colors.primary[500]} />
-      <Text style={dynamicStyles.loadingText}>
-        Chargement des promotions...
-      </Text>
-    </View>
+    <LoadingState
+      message="Chargement des promotions..."
+      size="large"
+    />
   );
 
   // Render error state

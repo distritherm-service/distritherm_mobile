@@ -44,6 +44,7 @@ export interface ProductDetail extends Product {
 export interface ProductBasicDto {
   id: number;
   name: string;
+  priceHt: number;
   priceTtc: number;
   quantity: number;
   imagesUrl: string[];

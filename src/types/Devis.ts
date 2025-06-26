@@ -16,8 +16,18 @@ export interface Devis {
   status: DevisStatus;
   fileUrl: string;
   endDate: Date;
-  commercialId: number;
+  commercialId: number | null;
   createdAt: Date;
   updatedAt: Date;
   cartId: number;
+  cart?: {
+    id: number;
+    cartItems?: any[];
+    [key: string]: any;
+  };
+  commercial?: {
+    id: number;
+    user?: any;
+    [key: string]: any;
+  };
 } 

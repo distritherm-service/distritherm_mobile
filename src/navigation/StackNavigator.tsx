@@ -6,6 +6,7 @@ import PersonalInformation from "../screens/PersonalInformationScreen/PersonalIn
 import ForgotPassword from "../screens/ForgotPasswordScreen/ForgotPassword";
 import Product from "src/screens/ProductScreen/Product";
 import Promotions from "src/screens/PromotionsScreen/Promotions";
+import MesDevis from "src/screens/MesDevisScreen/MesDevis";
 import { RootStackParamList } from "./types";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -29,6 +30,11 @@ const StackNavigator = () => {
       <Stack.Screen 
         name="Promotions" 
         component={Promotions}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="MesDevis" 
+        component={MesDevis}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
