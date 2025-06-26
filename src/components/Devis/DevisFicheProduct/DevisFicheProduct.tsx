@@ -23,10 +23,6 @@ const DevisFicheProduct: React.FC<DevisFicheProductProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   
-  // Product detail modal state
-  const [selectedProduct, setSelectedProduct] = useState<CartItemWithProduct | null>(null);
-  const [productDetailVisible, setProductDetailVisible] = useState(false);
-
   // Animation refs
   const slideAnim = useRef(new Animated.Value(screenHeight)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -121,10 +117,6 @@ const DevisFicheProduct: React.FC<DevisFicheProductProps> = ({
     fetchDevisDetails(false);
   }, [fetchDevisDetails]);
 
-  const handleProductDetailClose = useCallback(() => {
-    setProductDetailVisible(false);
-    setSelectedProduct(null);
-  }, []);
 
   // Format price utility
   const formatPrice = useCallback((price: number) => {
