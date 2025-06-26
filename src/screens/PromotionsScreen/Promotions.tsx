@@ -124,7 +124,7 @@ const Promotions: React.FC = () => {
 
         setPromotionsCount(meta.total);
         setCurrentPage(page);
-        setHasMorePages(page < meta.lastPage);
+        setHasMorePages(page < meta.total);
       } else {
         // Handle case where response is successful but no promotions
         if (page === 1) {

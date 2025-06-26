@@ -62,7 +62,7 @@ const Favorite = () => {
           // Handle meta data if available
           if (response.meta) {
             totalCount = response.meta.total || 0;
-            hasMore = page < (response.meta.lastPage || 1);
+            hasMore = page < (response.meta.total || 1);
           } else {
             hasMore = favoriteProducts.length === 10;
           }

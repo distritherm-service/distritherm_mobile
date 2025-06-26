@@ -6,7 +6,7 @@ import {
   RefreshControl,
   ActivityIndicator,
 } from "react-native";
-import { ms, s, vs } from "react-native-size-matters";
+import { ms } from "react-native-size-matters";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
   faFileInvoiceDollar,
@@ -21,8 +21,9 @@ import { Devis, DevisStatus } from "src/types/Devis";
 import { DevisFilter } from "src/components/Devis/DevisFilters/DevisFilters";
 import DevisCard from "src/components/Devis/DevisCard/DevisCard";
 import DevisFilters from "src/components/Devis/DevisFilters/DevisFilters";
-import DevisSearchBar from "src/components/Devis/DevisSearchBar/DevisSearchBar";
-import DevisProductsModal from "src/components/Devis/DevisProductsModal/DevisProductsModal";
+// Search functionality disabled for regular clients
+// import DevisSearchBar from "src/components/Devis/DevisSearchBar/DevisSearchBar";
+import DevisFicheProduct from "src/components/Devis/DevisFicheProduct/DevisFicheProduct";
 
 interface MesDevisPresenterProps {
   devis: Devis[];
@@ -31,7 +32,6 @@ interface MesDevisPresenterProps {
   loadingMore: boolean;
   error: string | null;
   activeFilter: DevisFilter;
-  searchQuery: string;
   downloadingIds: Set<number>;
   deletingDevisId: number | null;
   isAuthenticated: boolean;
@@ -40,7 +40,6 @@ interface MesDevisPresenterProps {
   onRefresh: () => void;
   onLoadMore: () => void;
   onFilterChange: (filter: DevisFilter) => void;
-  onSearch: (query: string) => void;
   onDownload: (devisId: number) => void;
   onDelete: (devisId: number) => void;
   onViewProducts: (devis: Devis) => void;
@@ -58,7 +57,6 @@ const MesDevisPresenter: React.FC<MesDevisPresenterProps> = ({
   loadingMore,
   error,
   activeFilter,
-  searchQuery,
   downloadingIds,
   deletingDevisId,
   isAuthenticated,
@@ -67,15 +65,12 @@ const MesDevisPresenter: React.FC<MesDevisPresenterProps> = ({
   onRefresh,
   onLoadMore,
   onFilterChange,
-  onSearch,
   onDownload,
   onDelete,
   onViewProducts,
   onCloseModal,
   onBack,
   onNavigateToLogin,
-  getStatusText,
-  getStatusColor,
 }) => {
   const colors = useColors();
 
@@ -86,28 +81,28 @@ const MesDevisPresenter: React.FC<MesDevisPresenterProps> = ({
     },
     listContainer: {
       flex: 1,
-      paddingHorizontal: s(20),
+      paddingHorizontal: ms(20),
     },
     loadMoreContainer: {
-      paddingVertical: vs(20),
+      paddingVertical: ms(20),
       alignItems: "center" as const,
     },
     emptyContainer: {
       flex: 1,
       justifyContent: "center" as const,
       alignItems: "center" as const,
-      paddingVertical: vs(60),
-      paddingHorizontal: s(40),
+      paddingVertical: ms(60),
+      paddingHorizontal: ms(40),
     },
     emptyIcon: {
-      marginBottom: vs(20),
+      marginBottom: ms(20),
     },
     emptyTitle: {
       fontSize: ms(20),
       fontWeight: "700" as const,
       color: colors.text,
       textAlign: "center" as const,
-      marginBottom: vs(12),
+      marginBottom: ms(12),
     },
     emptySubtitle: {
       fontSize: ms(16),
@@ -190,13 +185,6 @@ const MesDevisPresenter: React.FC<MesDevisPresenterProps> = ({
         isScrollable={false}
       >
         <View style={dynamicStyles.container}>
-          {/* Search Bar */}
-          <DevisSearchBar
-            searchQuery={searchQuery}
-            onSearch={onSearch}
-            placeholder="Rechercher un devis..."
-          />
-
           {/* Filters */}
           <DevisFilters
             activeFilter={activeFilter}
@@ -214,9 +202,9 @@ const MesDevisPresenter: React.FC<MesDevisPresenterProps> = ({
               />
               <Text style={dynamicStyles.emptyTitle}>Aucun devis trouvé</Text>
               <Text style={dynamicStyles.emptySubtitle}>
-                {activeFilter === "ALL" && !searchQuery
+                {activeFilter === "ALL"
                   ? "Vous n'avez pas encore de devis. Ajoutez des produits à votre panier et demandez un devis !"
-                  : "Aucun devis ne correspond à vos critères de recherche."}
+                  : "Aucun devis ne correspond à vos critères de filtre."}
               </Text>
             </View>
           ) : (
@@ -249,7 +237,7 @@ const MesDevisPresenter: React.FC<MesDevisPresenterProps> = ({
       </PageContainer>
 
       {/* Products Modal */}
-      <DevisProductsModal
+      <DevisFicheProduct
         visible={modalVisible}
         devis={selectedDevisForProducts}
         onClose={onCloseModal}

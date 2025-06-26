@@ -120,6 +120,7 @@ const lightTheme = {
   error: "#E53E3E",
   border: "#E2E8F0",
   borderDark: "#CBD5E0",
+  modalBackground: "rgba(15, 23, 42, 0.85)",
 };
 
 const darkTheme = {
@@ -243,6 +244,7 @@ const darkTheme = {
   error: "#ff6b6b",
   border: "#2d2d2d",
   borderDark: "#404040",
+  modalBackground: "rgba(15, 23, 42, 0.85)",
 };
 
 export type ThemeColors = typeof lightTheme;

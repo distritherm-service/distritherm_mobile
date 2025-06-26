@@ -38,6 +38,7 @@ const devisService = {
     try {
       const params = new URLSearchParams();
       if (status) params.append("status", status);
+      // Note: search is ignored for regular clients - handled by backend
       if (search) params.append("s", search);
       if (paginationDto?.page)
         params.append("page", paginationDto.page.toString());
@@ -50,7 +51,7 @@ const devisService = {
         : `/devis/by-client/${clientId}`;
 
       const response = await api.get(url);
-      return await response.data;
+      return response.data;
     } catch (error) {
       throw error;
     }

@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   FlatList,
 } from "react-native";
-import { ms, s, vs } from "react-native-size-matters";
+import { ms } from "react-native-size-matters";
 import { useColors } from "src/hooks/useColors";
 import { DevisFilter } from "./DevisFilters";
 
@@ -24,23 +24,23 @@ const DevisFiltersPresenter: React.FC<DevisFiltersPresenterProps> = ({
 
   const dynamicStyles = {
     container: {
-      paddingHorizontal: s(20),
-      marginBottom: vs(20),
+      paddingHorizontal: ms(20), // Using ms for horizontal padding
+      marginVertical: ms(20), // Using ms for bottom margin
     },
     scrollContainer: {
       flexDirection: "row" as const,
     },
     filterButton: {
-      paddingHorizontal: s(18),
-      paddingVertical: vs(10),
-      borderRadius: ms(25), // More rounded for modern look
-      marginRight: s(12),
+      paddingHorizontal: ms(18), // Using ms for horizontal padding
+      paddingVertical: ms(10), // Using ms for vertical padding
+      borderRadius: ms(25),
+      marginRight: ms(12), // Using ms for right margin
       borderWidth: 2,
     },
     filterButtonActive: {
-      backgroundColor: colors.primary[500],
-      borderColor: colors.primary[500],
-      shadowColor: colors.primary[500],
+      backgroundColor: colors.secondary[500],
+      borderColor: colors.secondary[500],
+      shadowColor: colors.secondary[500],
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.25,
       shadowRadius: 4,

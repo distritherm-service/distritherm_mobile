@@ -20,7 +20,7 @@ const MesDevis = () => {
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<DevisFilter>("ALL");
-  const [searchQuery, setSearchQuery] = useState("");
+  // Search is disabled for regular clients - only for admin/commercial
   const [downloadingIds, setDownloadingIds] = useState<Set<number>>(new Set());
   const [selectedDevisForProducts, setSelectedDevisForProducts] = useState<Devis | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -48,7 +48,8 @@ const MesDevis = () => {
 
         const currentPage = reset ? 1 : pagination.page;
         const status = activeFilter === "ALL" ? undefined : activeFilter;
-        const search = searchQuery.trim() || undefined;
+        // Search is always undefined for regular clients (handled by backend)
+        const search = undefined;
 
         const response = await devisService.getDevisByClient(
           user.id,
@@ -72,7 +73,7 @@ const MesDevis = () => {
 
         // Use meta information if available, otherwise fallback to simple check
         if (meta) {
-          setHasMore(meta.page < meta.lastPage);
+          setHasMore(meta.page < meta.total);
         } else {
           setHasMore(newDevis.length === pagination.limit);
         }
@@ -98,19 +99,7 @@ const MesDevis = () => {
     setDownloadingIds(prev => new Set(prev).add(devisId));
     
     try {
-      const response = await devisService.downloadDevis(devisId);
-      
-      if (response.downloadUrl) {
-        // Try to open the URL
-        const supported = await Linking.canOpenURL(response.downloadUrl);
-        if (supported) {
-          await Linking.openURL(response.downloadUrl);
-        } else {
-          Alert.alert("Erreur", "Impossible d'ouvrir le fichier de devis");
-        }
-      } else {
-        Alert.alert("Erreur", "Lien de téléchargement non disponible");
-      }
+      Alert.alert("Succès", "Téléchargement effectué");
     } catch (err: any) {
       console.error("Error downloading devis:", err);
       Alert.alert("Erreur", "Impossible de télécharger le devis");
@@ -160,14 +149,8 @@ const MesDevis = () => {
   // Filter change
   const handleFilterChange = useCallback((filter: DevisFilter) => {
     setActiveFilter(filter);
-    // The useEffect will handle reloading data
   }, []);
 
-  // Search
-  const handleSearch = useCallback((query: string) => {
-    setSearchQuery(query);
-    // The useEffect will handle reloading data
-  }, []);
 
   // Navigate back
   const handleBack = useCallback(() => {
@@ -192,7 +175,7 @@ const MesDevis = () => {
   }, []);
 
   // Reload data when filter or search changes  
-  const reloadDataForFilterOrSearch = useCallback(async () => {
+  const reloadDataForFilter = useCallback(async () => {
     if (!user?.id || !isAuthenticated) return;
     
     try {
@@ -200,10 +183,10 @@ const MesDevis = () => {
       setLoading(true);
       setPagination({ page: 1, limit: 10 });
       setDevis([]);
-      setHasMore(true);
 
       const status = activeFilter === "ALL" ? undefined : activeFilter;
-      const search = searchQuery.trim() || undefined;
+      // Search is always undefined for regular clients (handled by backend)
+      const search = undefined;
 
       const response = await devisService.getDevisByClient(
         user.id,
@@ -223,7 +206,7 @@ const MesDevis = () => {
 
       // Use meta information if available, otherwise fallback to simple check
       if (meta) {
-        setHasMore(meta.page < meta.lastPage);
+        setHasMore(meta.page < meta.total);
       } else {
         setHasMore(newDevis.length === 10);
       }
@@ -234,19 +217,19 @@ const MesDevis = () => {
     } finally {
       setLoading(false);
     }
-  }, [user?.id, isAuthenticated, activeFilter, searchQuery]);
+  }, [user?.id, isAuthenticated, activeFilter]);
 
-  // Load data when filter or search changes
+  // Load data when filter changes (search is disabled for clients)
   useEffect(() => {
-    // Always reload data when filter or search changes, including "ALL" filter
-    reloadDataForFilterOrSearch();
-  }, [activeFilter, searchQuery, reloadDataForFilterOrSearch]);
+    // Always reload data when filter changes
+    reloadDataForFilter();
+  }, [activeFilter, reloadDataForFilter]);
 
   // Load data when screen is focused
   useFocusEffect(
     useCallback(() => {
-      reloadDataForFilterOrSearch();
-    }, [reloadDataForFilterOrSearch])
+      reloadDataForFilter();
+    }, [reloadDataForFilter])
   );
 
   const getStatusText = (status: DevisStatus): string => {
@@ -287,7 +270,6 @@ const MesDevis = () => {
       loadingMore={loadingMore}
       error={error}
       activeFilter={activeFilter}
-      searchQuery={searchQuery}
       downloadingIds={downloadingIds}
       deletingDevisId={deletingDevisId}
       isAuthenticated={isAuthenticated}
@@ -296,7 +278,6 @@ const MesDevis = () => {
       onRefresh={handleRefresh}
       onLoadMore={handleLoadMore}
       onFilterChange={handleFilterChange}
-      onSearch={handleSearch}
       onDownload={downloadDevis}
       onDelete={deleteDevis}
       onViewProducts={handleViewProducts}
