@@ -145,6 +145,21 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
       borderRadius: ms(56),
       backgroundColor: colors.primary[100],
     },
+    defaultProfileIcon: {
+      width: ms(120),
+      height: ms(120),
+      borderRadius: ms(56),
+      overflow: "hidden",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    defaultProfileIconGradient: {
+      width: "100%",
+      height: "100%",
+      justifyContent: "center",
+      alignItems: "center",
+      borderRadius: ms(56),
+    },
     cameraIconContainer: {
       position: "absolute",
       bottom: ms(4),
@@ -433,7 +448,8 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
                   {/* Photo de profil avec bordure élégante */}
                   <Pressable
                     style={dynamicStyles.profileImageContainer}
-                    onPress={onOpenModalImagePicker}
+                    // onPress={onOpenModalImagePicker}
+                    onPress={() => {}}
                   >
                     <LinearGradient
                       colors={[colors.primary[50], colors.primary[200]]}
@@ -441,16 +457,30 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
                       start={{ x: 0, y: 0 }}
                       end={{ x: 1, y: 1 }}
                     >
-                      <Image
+                      {/* <Image
                         source={{
                           uri: selectedImage || user.urlPicture || NO_IMAGE_URL,
                         }}
                         style={dynamicStyles.profileImage}
-                      />
+                      /> */}
+                      <View style={dynamicStyles.defaultProfileIcon}>
+                        <LinearGradient
+                          colors={[colors.tertiary[300], colors.tertiary[500]]}
+                          style={dynamicStyles.defaultProfileIconGradient}
+                          start={{ x: 0, y: 0 }}
+                          end={{ x: 1, y: 1 }}
+                        >
+                          <FontAwesome6
+                            name="user"
+                            size={ms(48)}
+                            color={colors.primary[50]}
+                          />
+                        </LinearGradient>
+                      </View>
                     </LinearGradient>
 
                     {/* Icône caméra positionnée au-dessus */}
-                    <View style={dynamicStyles.cameraIconContainer}>
+                    {/* <View style={dynamicStyles.cameraIconContainer}>
                       <LinearGradient
                         colors={[colors.tertiary[400], colors.tertiary[600]]}
                         style={dynamicStyles.cameraIconGradient}
@@ -463,14 +493,15 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
                           color={colors.primary[50]}
                         />
                       </LinearGradient>
-                    </View>
+                    </View> */}
                   </Pressable>
 
                   {/* Informations textuelles */}
                   <View style={dynamicStyles.userTextInfo}>
                     <Text style={dynamicStyles.userName}>
-                      {`${user.firstName || ""} ${user.lastName || ""}`.trim() ||
-                        "Utilisateur"}
+                      {`${user.firstName || ""} ${
+                        user.lastName || ""
+                      }`.trim() || "Utilisateur"}
                     </Text>
 
                     {/* Email non vérifié - minimaliste et explicite */}
@@ -534,17 +565,28 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
         transparent={true}
         onRequestClose={onCloseModaImagePicker}
       >
-        <Pressable style={dynamicStyles.modalOverlay} onPress={onCloseModaImagePicker}>
+        <Pressable
+          style={dynamicStyles.modalOverlay}
+          onPress={onCloseModaImagePicker}
+        >
           <Pressable
             style={dynamicStyles.modalContent}
             onPress={(e) => e.stopPropagation()}
           >
-            <TouchableOpacity style={dynamicStyles.modalButton} onPress={onGallery}>
+            <TouchableOpacity
+              style={dynamicStyles.modalButton}
+              onPress={onGallery}
+            >
               <FontAwesome6 name="image" size={20} color={colors.text} />
-              <Text style={dynamicStyles.modalButtonText}>Choose from Gallery</Text>
+              <Text style={dynamicStyles.modalButtonText}>
+                Choose from Gallery
+              </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={dynamicStyles.modalButton} onPress={onPhoto}>
+            <TouchableOpacity
+              style={dynamicStyles.modalButton}
+              onPress={onPhoto}
+            >
               <FontAwesome6 name="camera" size={20} color={colors.text} />
               <Text style={dynamicStyles.modalButtonText}>Take a Photo</Text>
             </TouchableOpacity>

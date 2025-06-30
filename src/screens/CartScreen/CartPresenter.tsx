@@ -88,7 +88,7 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
     // Content area with improved spacing
     contentContainer: {
       flex: 1,
-      paddingTop: ms(16), // Smaller than before (was 24)
+      paddingTop: ms(30), // Smaller than before (was 24)
     },
     // Modern cart item design
     cartItem: {
