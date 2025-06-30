@@ -6,9 +6,7 @@ export type AuthStackParamList = {
 
 export type SearchFilter = {
   categoryId?: number;
-  categoryName?: string;
   markId?: number;
-  markName?: string;
   minPrice?: number;
   maxPrice?: number;
   inPromotion?: boolean;

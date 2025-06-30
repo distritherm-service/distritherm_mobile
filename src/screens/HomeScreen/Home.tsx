@@ -7,8 +7,6 @@ interface HomeProps {
 }
 
 const Home = ({ onNavigateToSearch }: HomeProps) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   /**
@@ -16,17 +14,6 @@ const Home = ({ onNavigateToSearch }: HomeProps) => {
    */
   const handleSearch = useCallback((query: string) => {
     setSearchQuery(query);
-    
-    // TODO: Implémenter la logique de recherche
-    // Par exemple, filtrer les services, appeler une API, etc.
-    if (query.trim()) {
-      console.log('🔍 Recherche pour:', query);
-      // Ici vous pourriez appeler une API de recherche
-      // ou filtrer des données locales
-    } else {
-      console.log('🔍 Recherche effacée');
-      // Réinitialiser les résultats de recherche
-    }
   }, []);
 
   /**
@@ -45,8 +32,6 @@ const Home = ({ onNavigateToSearch }: HomeProps) => {
   
   return (
     <HomePresenter
-      isLoading={isLoading}
-      error={error}
       searchQuery={searchQuery}
       onSearch={handleSearch}
       onSearchBarPress={handleSearchBarPress}

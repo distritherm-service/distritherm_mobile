@@ -30,8 +30,8 @@ interface FilterModalPresenterProps {
   markOptions: Array<{label: string; value: string}>;
   selectedMark?: {label: string; value: string};
   onClose: () => void;
-  onCategorySelect: (categoryId: number, categoryName: string) => void;
-  onMarkSelect: (markId: number, markName: string) => void;
+  onCategorySelect: (categoryId: number) => void;
+  onMarkSelect: (markId: number) => void;
   onPriceChange: (minPrice?: number, maxPrice?: number) => void;
   onMinPriceChange: (text: string) => void;
   onMaxPriceChange: (text: string) => void;
@@ -394,7 +394,7 @@ const FilterModalPresenter: React.FC<FilterModalPresenterProps> = ({
             selectedOption={selectedCategory}
             onSelectOption={(option) => {
               const categoryId = parseInt(option.value);
-              onCategorySelect(categoryId, option.label);
+              onCategorySelect(categoryId);
             }}
             style={{
               backgroundColor: '#FFFFFF', // 60% - Neutral background
@@ -439,7 +439,7 @@ const FilterModalPresenter: React.FC<FilterModalPresenterProps> = ({
             selectedOption={selectedMark}
             onSelectOption={(option) => {
               const markId = parseInt(option.value);
-              onMarkSelect(markId, option.label);
+              onMarkSelect(markId);
             }}
             style={{
               backgroundColor: '#FFFFFF', // 60% - Neutral background

@@ -1,5 +1,5 @@
 import api from "../interceptors/api";
-import { PaginationDto, PaginatedResponse } from "../types/paginationDto";
+import { PaginationDto, PaginatedResponse } from "../types/PaginationDto";
 
 // Types et interfaces pour les DTOs
 export interface CreateProductDto {

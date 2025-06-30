@@ -59,82 +59,18 @@ const CategoryList = ({ onNavigateToSearch }: CategoryListProps) => {
       const errorMessage = 'Erreur lors du chargement des catégories';
       setError(errorMessage);
       console.error('Error fetching categories:', err);
-      
-      // For development: Add some mock data if API fails
-      if (__DEV__) {
-        setCategories([
-          {
-            id: 1,
-            name: 'Plâtrerie',
-            level: 1,
-            alias: 'platrerie',
-            haveParent: false,
-            haveChildren: true,
-            agenceId: 1,
-          },
-          {
-            id: 2,
-            name: 'Isolation',
-            level: 1,
-            alias: 'isolation',
-            haveParent: false,
-            haveChildren: true,
-            agenceId: 1,
-          },
-          {
-            id: 3,
-            name: 'Sanitaire',
-            level: 1,
-            alias: 'sanitaire',
-            haveParent: false,
-            haveChildren: true,
-            agenceId: 1,
-          },
-          {
-            id: 4,
-            name: 'Plomberie',
-            level: 1,
-            alias: 'plomberie',
-            haveParent: false,
-            haveChildren: true,
-            agenceId: 1,
-          },
-          {
-            id: 5,
-            name: 'Électricité',
-            level: 1,
-            alias: 'electricite',
-            haveParent: false,
-            haveChildren: true,
-            agenceId: 1,
-          },
-          {
-            id: 6,
-            name: 'Peinture',
-            level: 1,
-            alias: 'peinture',
-            haveParent: false,
-            haveChildren: true,
-            agenceId: 1,
-          },
-        ]);
-        setError(null);
-      }
     } finally {
       setLoading(false);
     }
   };
 
   const handleCategoryPress = (category: Category) => {
-    console.log('Category pressed:', category);
-    
     // Navigate to search with category filter
     if (onNavigateToSearch) {
       onNavigateToSearch({
         status: 'onSearch',
         filter: {
           categoryId: category.id,
-          categoryName: category.name,
         }
       });
     }

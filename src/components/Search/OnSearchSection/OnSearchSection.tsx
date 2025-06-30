@@ -306,11 +306,9 @@ const OnSearchSection: React.FC<OnSearchSectionProps> = ({
       switch (filterType) {
         case 'category':
           delete newFilter.categoryId;
-          delete newFilter.categoryName;
           break;
         case 'mark':
           delete newFilter.markId;
-          delete newFilter.markName;
           break;
         case 'price':
           delete newFilter.minPrice;

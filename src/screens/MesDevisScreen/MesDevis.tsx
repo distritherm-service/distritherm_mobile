@@ -4,7 +4,7 @@ import { Alert, Linking } from "react-native";
 import { useAuth } from "src/hooks/useAuth";
 import devisService from "src/services/devisService";
 import { Devis, DevisStatus } from "src/types/Devis";
-import { PaginationDto } from "src/types/paginationDto";
+import { PaginationDto } from "src/types/PaginationDto";
 import MesDevisPresenter from "./MesDevisPresenter";
 import { DevisFilter } from "src/components/Devis/DevisFilters/DevisFilters";
 

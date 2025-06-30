@@ -1,5 +1,5 @@
 import api from "../interceptors/api";
-import { PaginationDto } from "../types/paginationDto";
+import { PaginationDto } from "../types/PaginationDto";
 import { UserWithClientDto, UpdateUserDto } from "src/types/User";
 
 // DTOs et interfaces pour les utilisateurs

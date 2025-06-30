@@ -11,8 +11,6 @@ import { useColors } from "src/hooks/useColors";
 import { SearchParams } from "src/navigation/types";
 
 interface HomePresenterProps {
-  isLoading: boolean;
-  error: string | null;
   searchQuery: string;
   onSearch: (query: string) => void;
   onSearchBarPress: () => void;
@@ -20,8 +18,6 @@ interface HomePresenterProps {
 }
 
 const HomePresenter: React.FC<HomePresenterProps> = ({ 
-  isLoading, 
-  error, 
   searchQuery, 
   onSearch,
   onSearchBarPress,

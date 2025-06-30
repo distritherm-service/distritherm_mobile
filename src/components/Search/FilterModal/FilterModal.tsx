@@ -95,19 +95,17 @@ const FilterModal: React.FC<FilterModalProps> = ({
     ]).start();
   };
 
-  const handleCategorySelect = (categoryId: number, categoryName: string) => {
+  const handleCategorySelect = (categoryId: number) => {
     setTempFilter((prev) => ({
       ...prev,
       categoryId: prev.categoryId === categoryId ? undefined : categoryId,
-      categoryName: prev.categoryId === categoryId ? undefined : categoryName,
     }));
   };
 
-  const handleMarkSelect = (markId: number, markName: string) => {
+  const handleMarkSelect = (markId: number) => {
     setTempFilter((prev) => ({
       ...prev,
       markId: prev.markId === markId ? undefined : markId,
-      markName: prev.markId === markId ? undefined : markName,
     }));
   };
 
@@ -163,11 +161,9 @@ const FilterModal: React.FC<FilterModalProps> = ({
       switch (filterType) {
         case 'category':
           delete newTempFilter.categoryId;
-          delete newTempFilter.categoryName;
           break;
         case 'mark':
           delete newTempFilter.markId;
-          delete newTempFilter.markName;
           break;
         case 'price':
           delete newTempFilter.minPrice;
