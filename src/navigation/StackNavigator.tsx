@@ -7,6 +7,7 @@ import ForgotPassword from "../screens/ForgotPasswordScreen/ForgotPassword";
 import Product from "src/screens/ProductScreen/Product";
 import Promotions from "src/screens/PromotionsScreen/Promotions";
 import MesDevis from "src/screens/MesDevisScreen/MesDevis";
+import Categories from "src/screens/CategoriesScreen/Categories";
 import { RootStackParamList } from "./types";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -25,6 +26,11 @@ const StackNavigator = () => {
       <Stack.Screen 
         name="Product" 
         component={Product}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="Categories" 
+        component={Categories}
         options={{ headerShown: false }}
       />
       <Stack.Screen 

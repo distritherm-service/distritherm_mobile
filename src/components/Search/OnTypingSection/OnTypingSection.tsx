@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { TextInput } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { useAuth } from 'src/hooks/useAuth';
 import searchHistoryService from 'src/services/searchHistoryService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -17,6 +18,7 @@ interface OnTypingSectionProps {
   autoFocus?: boolean;
   isReturningFromSearch?: boolean;
   onSearch: (query: string) => void;
+  onGoBack?: () => void;
 }
 
 const STORAGE_KEY = 'local_search_history';
@@ -31,7 +33,9 @@ const OnTypingSection: React.FC<OnTypingSectionProps> = ({
   autoFocus = true,
   isReturningFromSearch,
   onSearch,
+  onGoBack,
 }) => {
+  const navigation = useNavigation();
   const { isAuthenticated, user } = useAuth();
   const [searchHistory, setSearchHistory] = useState<SearchHistoryItem[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
@@ -61,8 +65,6 @@ const OnTypingSection: React.FC<OnTypingSectionProps> = ({
       return () => clearTimeout(timer);
     }
   }, [autoFocus, isReturningFromSearch, currentSearchQuery]);
-
-
 
   // Load search history on component mount
   useEffect(() => {

@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { BackHandler, Platform } from 'react-native';
-import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useRoute, useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import BottomBarPresenter from './BottomBarPresenter';
 import Home from '../../screens/HomeScreen/Home';
 import Cart from '../../screens/CartScreen/Cart';
@@ -8,8 +9,9 @@ import Favorite from '../../screens/FavoriteScreen/Favorite';
 import Profil from '../../screens/ProfilScreen/Profil';
 import { useAuth } from '../../hooks/useAuth';
 import Search from 'src/screens/SearchScreen/Search';
-import { SearchParams } from 'src/navigation/types';
+import { SearchParams, RootStackParamList } from 'src/navigation/types';
 
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 /**
  * Container component for BottomBar
@@ -17,6 +19,7 @@ import { SearchParams } from 'src/navigation/types';
  */
 const BottomBar = () => {
   const route = useRoute();
+  const navigation = useNavigation<NavigationProp>();
   const params = route.params as { initialTab?: string; searchParams?: SearchParams } | undefined;
   const { isAuthenticated, user } = useAuth();
   
@@ -82,7 +85,11 @@ const BottomBar = () => {
   const renderScreen = (tabName: string) => {
     switch (tabName) {
       case 'Home':
-        return <Home onNavigateToSearch={navigateToSearch} />;
+        return (
+          <Home 
+            onNavigateToSearch={navigateToSearch} 
+          />
+        );
       case 'Search':
         return <Search route={{ params: searchParams } as any} />;
       case 'Favorite':
@@ -92,7 +99,11 @@ const BottomBar = () => {
       case 'Profil':
         return <Profil />;
       default:
-        return <Home onNavigateToSearch={navigateToSearch} />;
+        return (
+          <Home 
+            onNavigateToSearch={navigateToSearch} 
+          />
+        );
     }
   };
 

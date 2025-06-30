@@ -104,7 +104,7 @@ const OnSearchSectionPresenter: React.FC<OnSearchSectionPresenterProps> = ({
       backgroundColor: colors.tertiary[100],
       paddingHorizontal: ms(20),
       paddingTop: ms(16),
-      paddingBottom: ms(20),
+      paddingBottom: ms(16),
       borderBottomWidth: ms(3),
       borderBottomColor: colors.secondary[50],
       shadowColor: colors.tertiary[200],
@@ -115,6 +115,35 @@ const OnSearchSectionPresenter: React.FC<OnSearchSectionPresenterProps> = ({
       shadowOpacity: 0.06,
       shadowRadius: 6,
       elevation: 2,
+    },
+    headerTop: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: ms(16),
+    },
+    backButton: {
+      width: ms(40),
+      height: ms(40),
+      borderRadius: ms(20),
+      backgroundColor: colors.surface,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: ms(12),
+      borderWidth: 1,
+      borderColor: colors.borderDark,
+      shadowColor: colors.tertiary[200],
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.08,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    searchRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flex: 1,
     },
     searchInputContainer: {
       flex: 1,
@@ -198,7 +227,6 @@ const OnSearchSectionPresenter: React.FC<OnSearchSectionPresenterProps> = ({
       color: colors.surface,
       fontSize: ms(11),
       fontWeight: "700",
-      textAlign: "center",
     },
 
     headerRow: {
@@ -467,46 +495,58 @@ const OnSearchSectionPresenter: React.FC<OnSearchSectionPresenterProps> = ({
     <View style={dynamicStyles.container}>
       {/* Header */}
       <View style={dynamicStyles.header}>
-        <View style={dynamicStyles.headerRow}>
-          {/* Search Input Container - Clickable to go back to typing mode */}
+        <View style={dynamicStyles.headerTop}>
           <Pressable
-            style={dynamicStyles.searchInputContainer}
+            style={dynamicStyles.backButton}
             onPress={onBackToTyping}
           >
-            <View style={dynamicStyles.searchInputRow}>
-              <FontAwesome6
-                name="magnifying-glass"
-                size={ms(16)}
-                color={colors.secondary[500]}
-                style={{ marginRight: ms(10) }}
-              />
-              <Text style={dynamicStyles.searchQuery}>{searchQuery}</Text>
-            </View>
+            <FontAwesome6
+              name="arrow-left"
+              size={ms(18)}
+              color={colors.secondary[500]}
+            />
           </Pressable>
+          <View style={dynamicStyles.searchRow}>
+            {/* Search Input Container - Clickable to go back to typing mode */}
+            <Pressable
+              style={dynamicStyles.searchInputContainer}
+              onPress={onBackToTyping}
+            >
+              <View style={dynamicStyles.searchInputRow}>
+                <FontAwesome6
+                  name="magnifying-glass"
+                  size={ms(16)}
+                  color={colors.secondary[500]}
+                  style={{ marginRight: ms(10) }}
+                />
+                <Text style={dynamicStyles.searchQuery}>{searchQuery}</Text>
+              </View>
+            </Pressable>
 
-          {/* Filter Button */}
-          <Pressable
-            style={({ pressed }) => [
-              dynamicStyles.filterButton,
-              pressed && { backgroundColor: colors.primary[50] }, // Using react-native-size-matters - elegant pressed state
-            ]}
-            onPress={onFilterPress}
-          >
-            <View style={dynamicStyles.filterButtonContent}>
-              <FontAwesome6
-                name="sliders"
-                size={ms(16)} // Using react-native-size-matters - filter icon instead of dots
-                color={colors.secondary[500]}
-              />
-              {activeFilterCount > 0 && (
-                <View style={dynamicStyles.filterBadge}>
-                  <Text style={dynamicStyles.filterBadgeText}>
-                    {activeFilterCount}
-                  </Text>
-                </View>
-              )}
-            </View>
-          </Pressable>
+            {/* Filter Button */}
+            <Pressable
+              style={({ pressed }) => [
+                dynamicStyles.filterButton,
+                pressed && { backgroundColor: colors.primary[50] }, // Using react-native-size-matters - elegant pressed state
+              ]}
+              onPress={onFilterPress}
+            >
+              <View style={dynamicStyles.filterButtonContent}>
+                <FontAwesome6
+                  name="sliders"
+                  size={ms(16)} // Using react-native-size-matters - filter icon instead of dots
+                  color={colors.secondary[500]}
+                />
+                {activeFilterCount > 0 && (
+                  <View style={dynamicStyles.filterBadge}>
+                    <Text style={dynamicStyles.filterBadgeText}>
+                      {activeFilterCount}
+                    </Text>
+                  </View>
+                )}
+              </View>
+            </Pressable>
+          </View>
         </View>
       </View>
 

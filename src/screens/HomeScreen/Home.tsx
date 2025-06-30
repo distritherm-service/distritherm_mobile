@@ -1,20 +1,17 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import HomePresenter from './HomePresenter';
-import { SearchParams } from 'src/navigation/types';
+import { SearchParams, RootStackParamList } from 'src/navigation/types';
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 interface HomeProps {
   onNavigateToSearch?: (params: SearchParams) => void;
 }
 
 const Home = ({ onNavigateToSearch }: HomeProps) => {
-  const [searchQuery, setSearchQuery] = useState<string>('');
-
-  /**
-   * Handles search query changes
-   */
-  const handleSearch = useCallback((query: string) => {
-    setSearchQuery(query);
-  }, []);
+  const navigation = useNavigation<NavigationProp>();
 
   /**
    * Handles search bar press - navigate to SearchScreen
@@ -28,14 +25,20 @@ const Home = ({ onNavigateToSearch }: HomeProps) => {
     }
   }, [onNavigateToSearch]);
 
+  /**
+   * Navigate directly to Categories screen
+   */
+  const handleNavigateToCategories = useCallback(() => {
+    navigation.navigate('Categories');
+  }, [navigation]);
+
   // Any additional state management for the HomeScreen screen can be added here
   
   return (
     <HomePresenter
-      searchQuery={searchQuery}
-      onSearch={handleSearch}
       onSearchBarPress={handleSearchBarPress}
       onNavigateToSearch={onNavigateToSearch}
+      onNavigateToCategories={handleNavigateToCategories}
     />
   );
 };

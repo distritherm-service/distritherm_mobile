@@ -24,6 +24,7 @@ export type RootStackParamList = {
   ForgotPassword: undefined;
   Product: { productId: number };
   Search: SearchParams | undefined;
+  Categories: undefined;
   Promotions: undefined;
   MesDevis: undefined;
 };

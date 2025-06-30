@@ -19,9 +19,10 @@ export interface Category {
 
 interface CategoryListProps {
   onNavigateToSearch?: (params: SearchParams) => void;
+  onViewAll?: () => void;
 }
 
-const CategoryList = ({ onNavigateToSearch }: CategoryListProps) => {
+const CategoryList = ({ onNavigateToSearch, onViewAll }: CategoryListProps) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -87,6 +88,7 @@ const CategoryList = ({ onNavigateToSearch }: CategoryListProps) => {
       error={error}
       onCategoryPress={handleCategoryPress}
       onRefresh={handleRefresh}
+      onViewAll={onViewAll}
       skeleton={generateSkeleton()}
     />
   );

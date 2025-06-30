@@ -350,6 +350,17 @@ const OnSearchSection: React.FC<OnSearchSectionProps> = ({
     }
   }, [user]);
 
+  /**
+   * Handle go back
+   */
+  const handleGoBack = useCallback(() => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    } else {
+      onBackToTyping();
+    }
+  }, [navigation, onBackToTyping]);
+
   return (
     <OnSearchSectionPresenter
       searchQuery={searchQuery}
@@ -363,10 +374,9 @@ const OnSearchSection: React.FC<OnSearchSectionProps> = ({
       categories={categories}
       marks={marks}
       isLoadingFilterData={isLoadingFilterData}
-
       onRetrySearch={handleRetrySearch}
       onClearSearch={handleClearSearch}
-      onBackToTyping={onBackToTyping}
+      onBackToTyping={handleGoBack}
       onFilterPress={handleFilterPress}
       onFilterModalClose={handleFilterModalClose}
       onApplyFilter={handleApplyFilter}

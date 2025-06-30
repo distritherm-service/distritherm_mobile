@@ -21,6 +21,7 @@ interface CategoryListPresenterProps {
   error: string | null;
   onCategoryPress: (category: Category) => void;
   onRefresh: () => void;
+  onViewAll?: () => void;
   skeleton: React.ReactElement;
 }
 
@@ -30,6 +31,7 @@ const CategoryListPresenter: React.FC<CategoryListPresenterProps> = ({
   error,
   onCategoryPress,
   onRefresh,
+  onViewAll,
   skeleton,
 }) => {
   const colors = useColors();
@@ -38,13 +40,32 @@ const CategoryListPresenter: React.FC<CategoryListPresenterProps> = ({
     container: {
       backgroundColor: colors.background,
     },
+    sectionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: ms(16),
+      paddingHorizontal: ms(20),
+    },
     sectionTitle: {
       fontSize: ms(22),
       fontWeight: '700',
       color: colors.text,
-      marginBottom: ms(16),
-      paddingHorizontal: ms(20),
       letterSpacing: -0.5,
+      flex: 1,
+    },
+    viewAllButton: {
+      paddingHorizontal: ms(12),
+      paddingVertical: ms(6),
+      borderRadius: ms(16),
+      backgroundColor: colors.primary[100],
+      borderWidth: 1,
+      borderColor: colors.primary[200],
+    },
+    viewAllText: {
+      fontSize: ms(12),
+      fontWeight: '600',
+      color: colors.primary[700],
     },
     flatListContent: {
       paddingHorizontal: ms(20),
@@ -198,7 +219,14 @@ const CategoryListPresenter: React.FC<CategoryListPresenterProps> = ({
 
   return (
     <View style={dynamicStyles.container}>
-      <Text style={dynamicStyles.sectionTitle}>Catégories</Text>
+      <View style={dynamicStyles.sectionHeader}>
+        <Text style={dynamicStyles.sectionTitle}>Catégories</Text>
+        {onViewAll && (
+          <Pressable style={dynamicStyles.viewAllButton} onPress={onViewAll}>
+            <Text style={dynamicStyles.viewAllText}>Voir tout</Text>
+          </Pressable>
+        )}
+      </View>
       {renderContent()}
     </View>
   );

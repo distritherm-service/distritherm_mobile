@@ -4,6 +4,7 @@ import {
   View,
   TouchableOpacity,
   Pressable,
+  Text,
 } from 'react-native';
 import { ms } from 'react-native-size-matters';
 import { FontAwesome6 } from '@expo/vector-icons';
@@ -85,6 +86,32 @@ const SearchBarPresenter: React.FC<SearchBarPresenterProps> = ({
       justifyContent: 'center',
     },
     searchButton: {
+      flex: 1,
+      backgroundColor: colors.primary[50],
+      borderRadius: ms(8), // Using react-native-size-matters for responsive border radius
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingHorizontal: ms(12), // Using react-native-size-matters for responsive padding
+      paddingVertical: ms(12), // Using react-native-size-matters for responsive padding
+      shadowColor: colors.tertiary[500],
+      shadowOffset: { width: 0, height: 1 }, // Using react-native-size-matters for responsive shadow
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    searchButtonContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    searchIcon: {
+      marginRight: ms(10), // Using react-native-size-matters for responsive margin
+    },
+    searchButtonText: {
+      fontSize: ms(15), // Using react-native-size-matters for responsive font size
+      color: colors.tertiary[400],
+      flex: 1,
+    },
+    submitButton: {
       borderRadius: ms(20), // Using react-native-size-matters for responsive border radius
       shadowColor: colors.tertiary[700],
       shadowOffset: { width: 0, height: ms(2) }, // Using react-native-size-matters for responsive shadow
@@ -92,7 +119,7 @@ const SearchBarPresenter: React.FC<SearchBarPresenterProps> = ({
       shadowRadius: ms(4), // Using react-native-size-matters for responsive shadow radius
       elevation: 4,
     },
-    searchButtonGradient: {
+    submitButtonGradient: {
       width: ms(32), // Using react-native-size-matters for responsive width
       height: ms(32), // Using react-native-size-matters for responsive height
       borderRadius: ms(16), // Using react-native-size-matters for responsive border radius
@@ -103,30 +130,24 @@ const SearchBarPresenter: React.FC<SearchBarPresenterProps> = ({
 
   const renderInputContainer = () => {
     if (!editable) {
-      // Render a pressable container when not editable
+      // Render a custom search button when not editable
       return (
-        <View style={dynamicStyles.pressableInputContainer}>
-          <Input
-            name="search" // Requis par Input mais pas utilisé ici
-            value={searchQuery}
-            onChangeText={onSearchChange}
-            onFocus={onFocus}
-            onBlur={onBlur}
-            placeholder={placeholder}
-            leftLogo={faMagnifyingGlass}
-            autoFocus={false} // Never auto focus when not editable
-            returnKeyType="search"
-            onSubmitEditing={onSubmit}
-            autoCapitalize="none"
-            autoCorrect={false}
-            editable={false}
-            pointerEvents="none"
-          />
-          <Pressable
-            style={dynamicStyles.pressableOverlay}
-            onPress={onPress}
-          />
-        </View>
+        <Pressable
+          style={dynamicStyles.searchButton}
+          onPress={onPress}
+        >
+          <View style={dynamicStyles.searchButtonContent}>
+            <FontAwesome6
+              name="magnifying-glass"
+              size={ms(16)} // Using react-native-size-matters for responsive icon size
+              color={colors.tertiary[400]}
+              style={dynamicStyles.searchIcon}
+            />
+            <Text style={dynamicStyles.searchButtonText}>
+              {placeholder}
+            </Text>
+          </View>
+        </Pressable>
       );
     }
 
@@ -181,12 +202,12 @@ const SearchBarPresenter: React.FC<SearchBarPresenterProps> = ({
             {/* Bouton de recherche (affiché quand focused et qu'il y a du texte) */}
             {isFocused && searchQuery.trim().length > 0 && (
               <Pressable
-                style={dynamicStyles.searchButton}
+                style={dynamicStyles.submitButton}
                 onPress={onSubmit}
               >
                 <LinearGradient
                   colors={[colors.tertiary[500], colors.tertiary[600]]}
-                  style={dynamicStyles.searchButtonGradient}
+                  style={dynamicStyles.submitButtonGradient}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                 >

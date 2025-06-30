@@ -75,7 +75,32 @@ const OnTypingSectionPresenter: React.FC<OnTypingSectionPresenterProps> = ({
       paddingTop: ms(20),
       paddingBottom: ms(10),
       paddingHorizontal: ms(24),
+      position: 'relative',
     },
+
+    backButton: {
+      position: 'absolute',
+      top: ms(20),
+      right: ms(24),
+      width: ms(40),
+      height: ms(40),
+      borderRadius: ms(20),
+      backgroundColor: colors.surface,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: colors.borderDark,
+      shadowColor: colors.tertiary[200],
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.08,
+      shadowRadius: 4,
+      elevation: 2,
+      zIndex: 1,
+    },
+
     welcomeText: {
       fontSize: ms(28),
       fontWeight: "700",

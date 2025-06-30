@@ -11,17 +11,15 @@ import { useColors } from "src/hooks/useColors";
 import { SearchParams } from "src/navigation/types";
 
 interface HomePresenterProps {
-  searchQuery: string;
-  onSearch: (query: string) => void;
   onSearchBarPress: () => void;
   onNavigateToSearch?: (params: SearchParams) => void;
+  onNavigateToCategories?: () => void;
 }
 
 const HomePresenter: React.FC<HomePresenterProps> = ({ 
-  searchQuery, 
-  onSearch,
   onSearchBarPress,
-  onNavigateToSearch
+  onNavigateToSearch,
+  onNavigateToCategories
 }) => {
   const colors = useColors();
 
@@ -38,13 +36,15 @@ const HomePresenter: React.FC<HomePresenterProps> = ({
     <PageContainer isScrollable={true}>
       <Header />
       <SearchBar 
-        onSearch={onSearch}
         onPress={onSearchBarPress}
         placeholder="Rechercher des produits..."
         editable={false} // Make it non-editable so it acts as a button
       />
       <View style={dynamicStyles.categorySection}>
-        <CategoryList onNavigateToSearch={onNavigateToSearch} />
+        <CategoryList 
+          onNavigateToSearch={onNavigateToSearch} 
+          onViewAll={onNavigateToCategories}
+        />
       </View>
       <PromotionsBanner />
       <Recommandation />
