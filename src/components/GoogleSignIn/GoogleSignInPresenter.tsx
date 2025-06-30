@@ -283,7 +283,7 @@ const GoogleSignInPresenter = memo<GoogleSignInPresenterProps>(
         >
           <TouchableWithoutFeedback onPress={onModalClose}>
             <View style={dynamicStyles.modalBackdrop}>
-              <TouchableWithoutFeedback onPress={() => {}}>
+              <TouchableWithoutFeedback onPress={onModalClose}>
                 <View style={dynamicStyles.modalContainer}>
                   {/* Close Button */}
                   <Pressable

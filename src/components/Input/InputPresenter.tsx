@@ -1,11 +1,23 @@
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, View, Text, Pressable, Modal, FlatList, NativeSyntheticEvent, TextInputFocusEventData, ViewStyle, TextStyle } from 'react-native';
-import { useColors } from "src/hooks/useColors";
+import {
+  StyleSheet,
+  TextInput,
+  View,
+  Text,
+  Pressable,
+  Modal,
+  FlatList,
+  NativeSyntheticEvent,
+  TextInputFocusEventData,
+  ViewStyle,
+  TextStyle,
+} from 'react-native';
+import { useColors } from 'src/hooks/useColors';
 import { ms } from 'react-native-size-matters';
-import { InputType } from "src/types/InputType";
-import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
-import { faChevronDown, faChevronUp, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { InputType } from 'src/types/InputType';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { faChevronDown, faChevronUp, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { SelectOption } from './Input';
 
 type InputPresenterProps = {
@@ -24,14 +36,13 @@ type InputPresenterProps = {
   onSelectOption?: (option: SelectOption) => void;
   selectedOption?: SelectOption;
   searchPlaceholder?: string;
-  // Custom style props - these will override default styles
   containerStyle?: ViewStyle;
   inputStyle?: TextStyle;
   labelStyle?: TextStyle;
   selectStyle?: ViewStyle;
 };
 
-const InputPresenter = ({
+const InputPresenter: React.FC<InputPresenterProps> = ({
   value,
   onChangeText,
   onBlur,
@@ -51,159 +62,217 @@ const InputPresenter = ({
   inputStyle,
   labelStyle,
   selectStyle,
-}: InputPresenterProps) => {
+}) => {
   const [isSelectOpen, setIsSelectOpen] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(''); // For searchable select
-  const colors = useColors(); // Using react-native-size-matters for responsive design
+  const [searchQuery, setSearchQuery] = useState('');
+  const colors = useColors();
 
-  // Dynamic styles using colors from useColors hook
-  const dynamicStyles = StyleSheet.create({
+  // Determine input behavior
+  const isPasswordField = type === InputType.PASSWORD;
+  const isSelectField = type === InputType.SELECT || type === InputType.SEARCHABLE_SELECT;
+  const isTextareaField = type === InputType.TEXTAREA || multiline;
+  const hasLeftIcon = !!leftLogo;
+  const hasRightIcon = isPasswordField;
+
+  // Create dynamic styles
+  const styles = StyleSheet.create({
+    // Main container
+    container: {
+      marginBottom: ms(4), // Using react-native-size-matters
+    },
+
+    // Label styles
     label: {
-      fontSize: ms(15), // Using react-native-size-matters - slightly reduced from 16 to 15
-      fontWeight: "600",
+      fontSize: ms(15), // Using react-native-size-matters
+      fontWeight: '600',
       color: colors.tertiary[500],
-      marginBottom: ms(3), // Using react-native-size-matters for responsive margin
+      marginBottom: ms(6), // Using react-native-size-matters
       letterSpacing: 0.3,
     },
-    inputContainer: {
-      position: "relative",
+
+    // Base input container
+    inputWrapper: {
+      position: 'relative',
+      flexDirection: 'row',
+      alignItems: 'center',
     },
-    input: {
-      paddingVertical: ms(13), // Using react-native-size-matters for responsive padding
-      borderWidth: 1,
-      borderColor: colors.border,
-      borderRadius: ms(6), // Using react-native-size-matters for responsive border radius
-      paddingHorizontal: ms(10), // Using react-native-size-matters for responsive padding
-      fontSize: ms(15), // Using react-native-size-matters - slightly reduced from 16 to 15
-      color: colors.tertiary[500],
-      backgroundColor: colors.primary[50],
-      shadowColor: colors.tertiary[500],
-      flex: 1,
-      shadowOffset: {
-        width: 0,
-        height: 1,
-      },
-      shadowOpacity: 0.05,
-      shadowRadius: 2,
-      elevation: 1,
-      overflow: "hidden",
-    },
-    textareaInput: {
-      height: ms(60), // Using react-native-size-matters for responsive height
-      paddingTop: ms(6), // Using react-native-size-matters for responsive padding
-      paddingBottom: ms(6), // Using react-native-size-matters for responsive padding
-    },
-    inputWithLeftLogo: {
-      paddingLeft: ms(33), // Using react-native-size-matters for responsive padding
-    },
+
+         // Base input styles
+     baseInput: {
+       flex: 1,
+       borderWidth: 1,
+       borderColor: colors.border,
+       borderRadius: ms(8), // Using react-native-size-matters
+       backgroundColor: colors.primary[50],
+       fontSize: ms(15), // Using react-native-size-matters
+       color: colors.tertiary[500],
+       paddingHorizontal: ms(14), // Using react-native-size-matters
+       minHeight: ms(46), // Using react-native-size-matters - reduced from 50 to 46
+       shadowColor: colors.tertiary[500],
+       shadowOffset: { width: 0, height: 1 },
+       shadowOpacity: 0.05,
+       shadowRadius: 2,
+       elevation: 1,
+     },
+
+         // Input variations
+     inputWithLeftIcon: {
+       paddingLeft: ms(40), // Using react-native-size-matters - reduced from 50 to 45
+     },
+
+     inputWithRightIcon: {
+       paddingRight: ms(45), // Using react-native-size-matters - reduced from 50 to 45
+     },
+
+         textareaInput: {
+       minHeight: ms(90), // Using react-native-size-matters - reduced from 100 to 90
+       paddingTop: ms(12), // Using react-native-size-matters - reduced from 15 to 12
+       textAlignVertical: 'top',
+     },
+
+    // Error state
     inputError: {
       borderColor: colors.error,
       borderWidth: 1.5,
     },
-    leftLogoContainer: {
-      position: "absolute",
-      left: ms(12), // Using react-native-size-matters for responsive positioning
-      top: 0,
-      bottom: 0,
-      display: "flex",
-      flexDirection: "row",
-      alignItems: "center",
-      zIndex: 1,
-    },
-    errorText: {
-      color: colors.error,
-      fontSize: ms(12), // Using react-native-size-matters for responsive font size
-      marginTop: ms(4), // Using react-native-size-matters for responsive margin
-      fontWeight: "500",
-    },
-    selectContainer: {
-      height: ms(40), // Using react-native-size-matters for responsive height
-      borderWidth: 1,
-      borderColor: colors.border,
-      borderRadius: ms(8), // Using react-native-size-matters for responsive border radius
-      paddingHorizontal: ms(12), // Using react-native-size-matters for responsive padding
-      backgroundColor: colors.primary[50],
-      flexDirection: 'row',
-      alignItems: 'center',
-      shadowColor: colors.tertiary[500],
-      shadowOffset: {
-        width: 0,
-        height: 1,
-      },
-      shadowOpacity: 0.05,
-      shadowRadius: 2,
-      elevation: 1,
-    },
+
+         // Icon containers
+     leftIconContainer: {
+       position: 'absolute',
+       left: ms(12), // Using react-native-size-matters - reduced from 15 to 12
+       top: 0,
+       bottom: 0,
+       justifyContent: 'center',
+       alignItems: 'center',
+       zIndex: 1,
+       width: ms(20), // Using react-native-size-matters
+     },
+
+     rightIconContainer: {
+       position: 'absolute',
+       right: ms(12), // Using react-native-size-matters - reduced from 15 to 12
+       top: 0,
+       bottom: 0,
+       justifyContent: 'center',
+       alignItems: 'center',
+       zIndex: 1,
+       width: ms(20), // Using react-native-size-matters
+     },
+
+         // Select styles
+     selectContainer: {
+       flexDirection: 'row',
+       alignItems: 'center',
+       borderWidth: 1,
+       borderColor: colors.border,
+       borderRadius: ms(8), // Using react-native-size-matters
+       backgroundColor: colors.primary[50],
+       paddingHorizontal: ms(14), // Using react-native-size-matters
+       paddingVertical: ms(12), // Using react-native-size-matters - reduced from 15 to 12
+       minHeight: ms(46), // Using react-native-size-matters - reduced from 50 to 46
+       shadowColor: colors.tertiary[500],
+       shadowOffset: { width: 0, height: 1 },
+       shadowOpacity: 0.05,
+       shadowRadius: 2,
+       elevation: 1,
+     },
+
     selectText: {
-      fontSize: ms(15), // Using react-native-size-matters - slightly reduced from 16 to 15
-      color: colors.tertiary[500],
       flex: 1,
-      textAlign: 'left',
+      fontSize: ms(16), // Using react-native-size-matters
+      color: colors.tertiary[500],
     },
-    placeholderText: {
+
+    selectPlaceholder: {
       color: colors.tertiary[400],
     },
+
+    chevronContainer: {
+      marginLeft: ms(10), // Using react-native-size-matters
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+
+    // Modal styles
     modalOverlay: {
       flex: 1,
       backgroundColor: 'rgba(0, 0, 0, 0.5)',
       justifyContent: 'center',
       alignItems: 'center',
     },
+
     modalContent: {
       backgroundColor: colors.primary[50],
-      borderRadius: ms(12), // Using react-native-size-matters for responsive border radius
-      maxHeight: ms(300), // Using react-native-size-matters for responsive height
-      width: '80%',
+      borderRadius: ms(12), // Using react-native-size-matters
+      maxHeight: ms(400), // Using react-native-size-matters
+      width: '85%',
+      maxWidth: ms(300), // Using react-native-size-matters
       shadowColor: colors.tertiary[500],
-      shadowOffset: {
-        width: 0,
-        height: 4,
-      },
+      shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.25,
       shadowRadius: 8,
       elevation: 8,
     },
-    optionItem: {
-      paddingVertical: ms(16), // Using react-native-size-matters for responsive padding
-      paddingHorizontal: ms(20), // Using react-native-size-matters for responsive padding
+
+    searchInputContainer: {
+      padding: ms(16), // Using react-native-size-matters
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
-    selectedOption: {
-      backgroundColor: colors.secondary[50],
-    },
-    optionText: {
-      fontSize: ms(16), // Using react-native-size-matters - slightly reduced from 17 to 16
+
+    modalSearchInput: {
+      backgroundColor: '#FFFFFF',
+      borderWidth: 1,
+      borderColor: colors.primary[300],
+      borderRadius: ms(8), // Using react-native-size-matters
+      paddingHorizontal: ms(12), // Using react-native-size-matters
+      paddingVertical: ms(10), // Using react-native-size-matters
+      fontSize: ms(15), // Using react-native-size-matters
       color: colors.tertiary[500],
     },
+
+    optionItem: {
+      paddingVertical: ms(16), // Using react-native-size-matters
+      paddingHorizontal: ms(20), // Using react-native-size-matters
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+
+    selectedOptionItem: {
+      backgroundColor: colors.secondary[50],
+    },
+
+    optionText: {
+      fontSize: ms(16), // Using react-native-size-matters
+      color: colors.tertiary[500],
+    },
+
     selectedOptionText: {
       color: colors.secondary[500],
       fontWeight: '600',
     },
-    chevronContainer: {
-      marginLeft: ms(8), // Using react-native-size-matters for responsive margin
+
+    emptyState: {
+      padding: ms(20), // Using react-native-size-matters
+      alignItems: 'center',
     },
-    passwordToggle: {
-      position: "absolute",
-      right: ms(12), // Using react-native-size-matters for responsive positioning
-      top: 0,
-      bottom: 0,
-      display: "flex",
-      flexDirection: "row",
-      alignItems: "center",
-      zIndex: 1,
+
+    emptyStateText: {
+      color: colors.tertiary[400],
+      fontSize: ms(15), // Using react-native-size-matters
     },
-    inputWithRightIcon: {
-      paddingRight: ms(32), // Using react-native-size-matters for responsive padding
+
+    // Error text
+    errorText: {
+      color: colors.error,
+      fontSize: ms(13), // Using react-native-size-matters
+      marginTop: ms(6), // Using react-native-size-matters
+      fontWeight: '500',
     },
   });
 
-  // Determine if we should show the password toggle
-  const isPasswordField = type === InputType.PASSWORD;
-  const shouldShowPassword = isPasswordField && isPasswordVisible;
-  const actualSecureTextEntry = isPasswordField ? !isPasswordVisible : secureTextEntry;
-
+  // Helper functions
   const getKeyboardType = () => {
     switch (type) {
       case InputType.EMAIL_ADDRESS:
@@ -215,13 +284,12 @@ const InputPresenter = ({
     }
   };
 
-  // Filter options based on search query for searchable select
   const getFilteredOptions = () => {
     if (!options) return [];
     if (type !== InputType.SEARCHABLE_SELECT || !searchQuery.trim()) {
       return options;
     }
-    return options.filter(option => 
+    return options.filter(option =>
       option.label.toLowerCase().includes(searchQuery.toLowerCase())
     );
   };
@@ -229,12 +297,60 @@ const InputPresenter = ({
   const getSelectedLabel = () => {
     if (type === InputType.SELECT && options) {
       const selectedOption = options.find(option => option.value === value);
-      return selectedOption ? selectedOption.label : placeholder || 'Select an option';
+      return selectedOption ? selectedOption.label : placeholder || 'Sélectionnez une option';
     }
     if (type === InputType.SEARCHABLE_SELECT) {
-      return selectedOption ? selectedOption.label : placeholder || 'Select an option';
+      return selectedOption ? selectedOption.label : placeholder || 'Sélectionnez une option';
     }
     return value;
+  };
+
+  const handleSelectOption = (option: SelectOption) => {
+    if (type === InputType.SELECT) {
+      onChangeText(option.value);
+    } else if (type === InputType.SEARCHABLE_SELECT && onSelectOption) {
+      onSelectOption(option);
+    }
+    setIsSelectOpen(false);
+    setSearchQuery('');
+  };
+
+  const closeModal = () => {
+    setIsSelectOpen(false);
+    setSearchQuery('');
+  };
+
+  // Render functions
+  const renderLeftIcon = () => {
+    if (!hasLeftIcon) return null;
+    
+    return (
+      <View style={styles.leftIconContainer}>
+        <FontAwesomeIcon
+          icon={leftLogo!}
+          size={ms(18)} // Using react-native-size-matters
+          color={colors.tertiary[500]}
+        />
+      </View>
+    );
+  };
+
+  const renderRightIcon = () => {
+    if (!hasRightIcon) return null;
+
+    return (
+      <Pressable
+        style={styles.rightIconContainer}
+        onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      >
+        <FontAwesomeIcon
+          icon={isPasswordVisible ? faEye : faEyeSlash}
+          size={ms(18)} // Using react-native-size-matters
+          color={colors.tertiary[500]}
+        />
+      </Pressable>
+    );
   };
 
   const renderSelectModal = () => (
@@ -242,39 +358,16 @@ const InputPresenter = ({
       visible={isSelectOpen}
       transparent={true}
       animationType="fade"
-      onRequestClose={() => {
-        setIsSelectOpen(false);
-        setSearchQuery(''); // Clear search when closing
-      }}
+      onRequestClose={closeModal}
     >
-      <Pressable 
-        style={dynamicStyles.modalOverlay}
-        onPress={() => {
-          setIsSelectOpen(false);
-          setSearchQuery(''); // Clear search when closing
-        }}
-      >
-        <View style={dynamicStyles.modalContent}>
-          {/* Search input for searchable select */}
+      <Pressable style={styles.modalOverlay} onPress={closeModal}>
+        <View style={styles.modalContent}>
           {type === InputType.SEARCHABLE_SELECT && (
-            <View style={{
-              padding: ms(16),
-              borderBottomWidth: 1,
-              borderBottomColor: colors.border,
-            }}>
+            <View style={styles.searchInputContainer}>
               <TextInput
-                style={{
-                  backgroundColor: '#FFFFFF',
-                  borderWidth: 1,
-                  borderColor: colors.primary[300],
-                  borderRadius: ms(8),
-                  paddingHorizontal: ms(12),
-                  paddingVertical: ms(10),
-                  fontSize: ms(15), // Slightly reduced from 16 to 15
-                  color: colors.text,
-                }}
-                placeholder={searchPlaceholder || "Rechercher..."}
-                placeholderTextColor={colors.textSecondary}
+                style={styles.modalSearchInput}
+                placeholder={searchPlaceholder || 'Rechercher...'}
+                placeholderTextColor={colors.tertiary[400]}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
                 autoFocus={true}
@@ -284,38 +377,34 @@ const InputPresenter = ({
           <FlatList
             data={getFilteredOptions()}
             keyExtractor={(item) => item.value}
-            renderItem={({ item }) => (
-              <Pressable
-                style={[
-                  dynamicStyles.optionItem,
-                  (type === InputType.SELECT && item.value === value) ||
-                  (type === InputType.SEARCHABLE_SELECT && selectedOption?.value === item.value)
-                    ? dynamicStyles.selectedOption : {}
-                ]}
-                onPress={() => {
-                  if (type === InputType.SELECT) {
-                  onChangeText(item.value);
-                  } else if (type === InputType.SEARCHABLE_SELECT && onSelectOption) {
-                    onSelectOption(item);
-                  }
-                  setIsSelectOpen(false);
-                  setSearchQuery('');
-                }}
-              >
-                <Text style={[
-                  dynamicStyles.optionText,
-                  ((type === InputType.SELECT && item.value === value) ||
-                   (type === InputType.SEARCHABLE_SELECT && selectedOption?.value === item.value))
-                    ? dynamicStyles.selectedOptionText : {}
-                ]}>
-                  {item.label}
-                </Text>
-              </Pressable>
-            )}
+            renderItem={({ item }) => {
+              const isSelected = 
+                (type === InputType.SELECT && item.value === value) ||
+                (type === InputType.SEARCHABLE_SELECT && selectedOption?.value === item.value);
+
+              return (
+                <Pressable
+                  style={[
+                    styles.optionItem,
+                    isSelected && styles.selectedOptionItem,
+                  ]}
+                  onPress={() => handleSelectOption(item)}
+                >
+                  <Text
+                    style={[
+                      styles.optionText,
+                      isSelected && styles.selectedOptionText,
+                    ]}
+                  >
+                    {item.label}
+                  </Text>
+                </Pressable>
+              );
+            }}
             ListEmptyComponent={
               type === InputType.SEARCHABLE_SELECT && searchQuery.trim() ? (
-                <View style={{ padding: ms(20), alignItems: 'center' }}>
-                  <Text style={{ color: colors.textSecondary, fontSize: ms(15) }}>
+                <View style={styles.emptyState}>
+                  <Text style={styles.emptyStateText}>
                     Aucun résultat trouvé
                   </Text>
                 </View>
@@ -327,100 +416,94 @@ const InputPresenter = ({
     </Modal>
   );
 
-  if (type === InputType.SELECT || type === InputType.SEARCHABLE_SELECT) {
-    return (
-      <View style={containerStyle}>
-        {label && <Text style={[dynamicStyles.label, labelStyle]}>{label}</Text>}
-        <Pressable
-          style={({ pressed }) => [
-            dynamicStyles.selectContainer,
-            error && dynamicStyles.inputError,
-            leftLogo && dynamicStyles.inputWithLeftLogo,
-            pressed && { opacity: 0.8 },
-            selectStyle // Custom select style takes priority
-          ]}
-          onPress={() => setIsSelectOpen(true)}
-        >
-          {leftLogo && (
-            <View style={dynamicStyles.leftLogoContainer}>
-              <FontAwesomeIcon 
-                icon={leftLogo} 
-                size={ms(16)} // Using react-native-size-matters for responsive icon size
-                color={colors.tertiary[500]} 
-              />
-            </View>
-          )}
-          <Text style={[
-            dynamicStyles.selectText,
-            ((type === InputType.SELECT && !value) || 
-             (type === InputType.SEARCHABLE_SELECT && !selectedOption)) && dynamicStyles.placeholderText,
-          ]}>
-            {getSelectedLabel()}
-          </Text>
-          <View style={dynamicStyles.chevronContainer}>
-            <FontAwesomeIcon 
-              icon={isSelectOpen ? faChevronUp : faChevronDown} 
-              size={ms(14)} // Using react-native-size-matters for responsive icon size
-              color={colors.tertiary[500]} 
-            />
-          </View>
-        </Pressable>
-        {error && <Text style={dynamicStyles.errorText}>{error}</Text>}
-        {renderSelectModal()}
-      </View>
-    );
-  }
+  const renderTextInput = () => {
+    const inputStyles = [
+      styles.baseInput,
+      hasLeftIcon && styles.inputWithLeftIcon,
+      hasRightIcon && styles.inputWithRightIcon,
+      isTextareaField && styles.textareaInput,
+      error && styles.inputError,
+      inputStyle, // Custom styles override
+    ];
 
-  return (
-    <View style={containerStyle}>
-      {label && <Text style={[dynamicStyles.label, labelStyle]}>{label}</Text>}
-      <View style={dynamicStyles.inputContainer}>
-        {leftLogo && (
-          <View style={dynamicStyles.leftLogoContainer}>
-            <FontAwesomeIcon 
-              icon={leftLogo} 
-              size={ms(16)} // Using react-native-size-matters for responsive icon size
-              color={colors.tertiary[500]} 
-            />
-          </View>
-        )}
+    return (
+      <View style={styles.inputWrapper}>
+        {renderLeftIcon()}
         <TextInput
-          style={[
-            dynamicStyles.input,
-            leftLogo && dynamicStyles.inputWithLeftLogo,
-            isPasswordField && dynamicStyles.inputWithRightIcon,
-            error && dynamicStyles.inputError,
-            type === InputType.TEXTAREA && dynamicStyles.textareaInput,
-            inputStyle // Custom input style takes priority
-          ]}
+          style={inputStyles}
           value={value}
           onChangeText={onChangeText}
           onBlur={onBlur}
           placeholder={placeholder}
-          secureTextEntry={actualSecureTextEntry}
-          keyboardType={getKeyboardType()}
           placeholderTextColor={colors.tertiary[400]}
-          multiline={type === InputType.TEXTAREA || multiline}
-          numberOfLines={type === InputType.TEXTAREA ? numberOfLines : 1}
-          textAlignVertical={type === InputType.TEXTAREA ? 'top' : 'center'}
-          textAlign="left"
+          secureTextEntry={isPasswordField ? !isPasswordVisible : secureTextEntry}
+          keyboardType={getKeyboardType()}
+          multiline={isTextareaField}
+          numberOfLines={isTextareaField ? numberOfLines : 1}
+          textAlignVertical={isTextareaField ? 'top' : 'center'}
         />
-        {isPasswordField && (
-          <Pressable
-            style={dynamicStyles.passwordToggle}
-            onPress={() => setIsPasswordVisible(!isPasswordVisible)}
-          >
-            <FontAwesomeIcon 
-              icon={shouldShowPassword ? faEye : faEyeSlash} 
-              size={ms(16)} // Using react-native-size-matters for responsive icon size
-              color={colors.tertiary[500]} 
-            />
-          </Pressable>
-        )}
+        {renderRightIcon()}
       </View>
-      {error && <Text style={dynamicStyles.errorText}>{error}</Text>}
+    );
+  };
+
+  const renderSelect = () => {
+    const displayText = getSelectedLabel();
+    const isPlaceholder = displayText === placeholder || 
+      (type === InputType.SELECT && !value) ||
+      (type === InputType.SEARCHABLE_SELECT && !selectedOption);
+
+    return (
+      <>
+        <Pressable
+          style={[
+            styles.selectContainer,
+            hasLeftIcon && styles.inputWithLeftIcon,
+            error && styles.inputError,
+            selectStyle, // Custom styles override
+          ]}
+          onPress={() => setIsSelectOpen(true)}
+        >
+          {renderLeftIcon()}
+          <Text
+            style={[
+              styles.selectText,
+              isPlaceholder && styles.selectPlaceholder,
+            ]}
+          >
+            {displayText}
+          </Text>
+          <View style={styles.chevronContainer}>
+            <FontAwesomeIcon
+              icon={isSelectOpen ? faChevronUp : faChevronDown}
+              size={ms(16)} // Using react-native-size-matters
+              color={colors.tertiary[500]}
+            />
+          </View>
+        </Pressable>
+        {renderSelectModal()}
+      </>
+    );
+  };
+
+  // Main render
+  return (
+    <View style={[styles.container, containerStyle]}>
+      {label && (
+        <Text style={[styles.label, labelStyle]}>
+          {label}
+        </Text>
+      )}
+      
+      {isSelectField ? renderSelect() : renderTextInput()}
+      
+      {error && (
+        <Text style={styles.errorText}>
+          {error}
+        </Text>
+      )}
     </View>
   );
 };
 
-export default InputPresenter;
+export default InputPresenter; 

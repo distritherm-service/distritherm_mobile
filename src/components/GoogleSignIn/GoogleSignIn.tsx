@@ -265,6 +265,7 @@ const GoogleSignIn: React.FC<GoogleSignInProps> = ({ onSignInError }) => {
   );
 
   const handleModalClose = useCallback(() => {
+    console.log("loup");
     setCompleteInformation(false);
     reset();
     clearErrors(); // Clear validation errors when closing modal
