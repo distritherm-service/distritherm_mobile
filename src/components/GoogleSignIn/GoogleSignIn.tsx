@@ -128,10 +128,20 @@ const GoogleSignIn: React.FC<GoogleSignInProps> = ({ onSignInError }) => {
       }
 
       // Sign in with Google
-      await GoogleSignin.signIn();
+      const userInfo = await GoogleSignin.signIn();
+      
+      // Vérifier explicitement que l'utilisateur s'est bien connecté
+      if (!userInfo || !userInfo.data) {
+        console.log("mami");
+        return; // Sortie silencieuse
+      }
 
-      // Get tokens
+      // Get tokens pour double vérification
       const tokens = await GoogleSignin.getTokens();
+      
+      if (!tokens || !tokens.idToken) {
+        return; // Sortie silencieuse
+      }
 
       setIdToken(tokens.idToken);
 
@@ -156,44 +166,31 @@ const GoogleSignIn: React.FC<GoogleSignInProps> = ({ onSignInError }) => {
         ],
       });
     } catch (error: any) {
+      // 1. TOUTE erreur Google Sign-In = ANNULATION (sauf erreurs techniques)
+      if (!error.response) {
+        // Pas de réponse du backend = erreur côté Google Sign-In
+        return; // Sortie silencieuse pour toutes les erreurs Google
+      }
+
+      // 2. Erreur 404 du backend = utilisateur connecté Google mais pas inscrit
       if (error.response?.status === 404) {
         setCompleteInformation(true);
         setTimeout(() => {
           reset();
-          clearErrors(); // Clear any previous validation errors
+          clearErrors();
         }, 200);
         return;
       }
 
-      let errorText =
-        "Une erreur est survenue lors de la connexion avec Google.";
+      // 3. Autres erreurs backend
+      let errorText = "Une erreur est survenue lors de la connexion avec Google.";
 
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        errorText = "Vous avez annulé la connexion avec Google.";
-      } else if (error.code === statusCodes.IN_PROGRESS) {
-        errorText = "Une connexion est déjà en cours.";
-      } else if (
-        Platform.OS === "android" &&
-        error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE
-      ) {
-        errorText =
-          "Les services Google Play ne sont pas disponibles ou sont obsolètes.";
-      } else if (error.message && error.message.includes("DEVELOPER_ERROR")) {
-        errorText =
-          "Erreur de configuration Google Sign-In. Veuillez vérifier la configuration dans Google Console.";
-      } else if (Platform.OS === "ios") {
-        // iOS specific error handling
-        if (
-          error.message &&
-          error.message.includes("The operation couldn't be completed")
-        ) {
-          errorText =
-            "Erreur de configuration iOS. Vérifiez que le schéma d'URL est correctement configuré.";
-        } else if (error.message && error.message.includes("network")) {
-          errorText = "Problème de connexion réseau. Veuillez réessayer.";
-        }
+      if (error.response?.data?.message) {
+        errorText = error.response.data.message;
+      } else if (error.message) {
+        errorText = error.message;
       }
-
+      
       if (onSignInError) {
         onSignInError(errorText);
       } else {
@@ -265,7 +262,6 @@ const GoogleSignIn: React.FC<GoogleSignInProps> = ({ onSignInError }) => {
   );
 
   const handleModalClose = useCallback(() => {
-    console.log("loup");
     setCompleteInformation(false);
     reset();
     clearErrors(); // Clear validation errors when closing modal
