@@ -26,17 +26,7 @@
     <array>
       <dict>
         <key>CFBundleURLName</key>
-        <string>com.anonymous.DS</string>
-        <key>CFBundleURLSchemes</key>
-        <array>
-          <string>com.anonymous.DS</string>
-        </array>
-      </dict>
-      <dict>
-        <key>CFBundleURLName</key>
         <string>GoogleSignIn</string>
-        <key>CFBundleTypeRole</key>
-        <string>Editor</string>
         <key>CFBundleURLSchemes</key>
         <array>
           <string>com.googleusercontent.apps.592794634648-ljt0hu46l9i41aovkqq90m9lto4r4ohd</string>
@@ -56,6 +46,14 @@
       <key>NSAllowsLocalNetworking</key>
       <true/>
     </dict>
+    <key>NSCameraUsageDescription</key>
+    <string>Allow $(PRODUCT_NAME) to access your camera</string>
+    <key>NSFaceIDUsageDescription</key>
+    <string>Allow $(PRODUCT_NAME) to access your Face ID biometric data.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Allow $(PRODUCT_NAME) to access your microphone</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Allow $(PRODUCT_NAME) to access your photos</string>
     <key>UILaunchStoryboardName</key>
     <string>SplashScreen</string>
     <key>UIRequiredDeviceCapabilities</key>
@@ -82,11 +80,5 @@
     <string>Light</string>
     <key>UIViewControllerBasedStatusBarAppearance</key>
     <false/>
-    <key>NSCameraUsageDescription</key>
-    <string>This app needs access to camera to take profile pictures</string>
-    <key>NSPhotoLibraryUsageDescription</key>
-    <string>This app needs access to photo library to select profile pictures</string>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>This app needs access to microphone for video recording</string>
   </dict>
 </plist>

@@ -448,8 +448,7 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
                   {/* Photo de profil avec bordure élégante */}
                   <Pressable
                     style={dynamicStyles.profileImageContainer}
-                    // onPress={onOpenModalImagePicker}
-                    onPress={() => {}}
+                    onPress={onOpenModalImagePicker}
                   >
                     <LinearGradient
                       colors={[colors.primary[50], colors.primary[200]]}
@@ -457,30 +456,16 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
                       start={{ x: 0, y: 0 }}
                       end={{ x: 1, y: 1 }}
                     >
-                      {/* <Image
+                      <Image
                         source={{
                           uri: selectedImage || user.urlPicture || NO_IMAGE_URL,
                         }}
                         style={dynamicStyles.profileImage}
-                      /> */}
-                      <View style={dynamicStyles.defaultProfileIcon}>
-                        <LinearGradient
-                          colors={[colors.tertiary[300], colors.tertiary[500]]}
-                          style={dynamicStyles.defaultProfileIconGradient}
-                          start={{ x: 0, y: 0 }}
-                          end={{ x: 1, y: 1 }}
-                        >
-                          <FontAwesome6
-                            name="user"
-                            size={ms(48)}
-                            color={colors.primary[50]}
-                          />
-                        </LinearGradient>
-                      </View>
+                      />
                     </LinearGradient>
 
                     {/* Icône caméra positionnée au-dessus */}
-                    {/* <View style={dynamicStyles.cameraIconContainer}>
+                    <View style={dynamicStyles.cameraIconContainer}>
                       <LinearGradient
                         colors={[colors.tertiary[400], colors.tertiary[600]]}
                         style={dynamicStyles.cameraIconGradient}
@@ -493,7 +478,7 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
                           color={colors.primary[50]}
                         />
                       </LinearGradient>
-                    </View> */}
+                    </View>
                   </Pressable>
 
                   {/* Informations textuelles */}
