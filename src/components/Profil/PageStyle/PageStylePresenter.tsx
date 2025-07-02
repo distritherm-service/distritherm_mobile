@@ -41,6 +41,7 @@ interface PageStylePresenterProps {
   isEmailUnverified?: boolean;
   onResendVerificationEmail?: () => void;
   isResendingEmail?: boolean;
+  isUploadingPicture?: boolean;
 }
 
 const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
@@ -58,6 +59,7 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
   isEmailUnverified = false,
   onResendVerificationEmail,
   isResendingEmail = false,
+  isUploadingPicture = false,
 }) => {
   const colors = useColors();
 
@@ -399,6 +401,32 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
       fontWeight: "600",
       textAlign: "center",
     },
+    uploadOverlay: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: "rgba(0,0,0,0.5)",
+    },
+    uploadIndicatorContainer: {
+      backgroundColor: colors.surface,
+      padding: ms(16),
+      borderRadius: ms(12),
+      shadowColor: colors.tertiary[800],
+      shadowOffset: { width: 0, height: ms(4) },
+      shadowOpacity: 0.1,
+      shadowRadius: ms(8),
+      elevation: 5,
+    },
+    uploadText: {
+      fontSize: ms(16),
+      color: colors.text,
+      fontWeight: "500",
+      marginTop: ms(8),
+    },
   });
 
   return (
@@ -449,6 +477,7 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
                   <Pressable
                     style={dynamicStyles.profileImageContainer}
                     onPress={onOpenModalImagePicker}
+                    disabled={isUploadingPicture}
                   >
                     <LinearGradient
                       colors={[colors.primary[50], colors.primary[200]]}
@@ -458,11 +487,26 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
                     >
                       <Image
                         source={{
-                          uri: selectedImage || user.urlPicture || NO_IMAGE_URL,
+                          uri: selectedImage || (user.urlPicture && user.urlPicture.trim() !== "" ? user.urlPicture : NO_IMAGE_URL),
                         }}
                         style={dynamicStyles.profileImage}
                       />
                     </LinearGradient>
+
+                    {/* Loading indicator for picture upload */}
+                    {isUploadingPicture && (
+                      <View style={dynamicStyles.uploadOverlay}>
+                        <View style={dynamicStyles.uploadIndicatorContainer}>
+                          <ActivityIndicator 
+                            size="large" 
+                            color={colors.primary[600]} 
+                          />
+                          <Text style={dynamicStyles.uploadText}>
+                            Upload en cours...
+                          </Text>
+                        </View>
+                      </View>
+                    )}
 
                     {/* Icône caméra positionnée au-dessus */}
                     <View style={dynamicStyles.cameraIconContainer}>

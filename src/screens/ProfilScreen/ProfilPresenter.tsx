@@ -13,6 +13,7 @@ interface ProfilPresenterProps {
   isAuthenticated: boolean;
   user: UserWithClientDto | null;
   deconnectionLoading?: boolean;
+  onUserUpdate?: (updatedUser: UserWithClientDto) => void;
 }
 
 const ProfilPresenter: React.FC<ProfilPresenterProps> = ({ 
@@ -20,6 +21,7 @@ const ProfilPresenter: React.FC<ProfilPresenterProps> = ({
   isAuthenticated, 
   user,
   deconnectionLoading = false,
+  onUserUpdate,
 }) => {
   const colors = useColors();
 
@@ -28,6 +30,7 @@ const ProfilPresenter: React.FC<ProfilPresenterProps> = ({
       user={user}
       isAuthenticated={isAuthenticated}
       deconnectionLoading={deconnectionLoading}
+      onUserUpdate={onUserUpdate}
     >
         <ProfileLinks 
           onNavigate={onNavigate} 

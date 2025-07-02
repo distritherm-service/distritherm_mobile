@@ -1,5 +1,4 @@
 import api from "../interceptors/api";
-import { PaginationDto } from "../types/PaginationDto";
 import { UserWithClientDto, UpdateUserDto } from "src/types/User";
 
 // DTOs et interfaces pour les utilisateurs
@@ -132,6 +131,34 @@ const usersService = {
     try {
       const response = await api.post("/users/remind-me", remindData);
       return await response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // POST /users/:id/change-picture - Changer la photo de profil
+  changePicture: async (userId: number, imageUri: string): Promise<UserWithClientDto> => {
+    try {
+      const formData = new FormData();
+      
+      // Create file object from image URI
+      const filename = imageUri.split('/').pop() || 'profile-picture.jpg';
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1]}` : 'image/jpeg';
+      
+      formData.append('profilePicture', {
+        uri: imageUri,
+        name: filename,
+        type: type,
+      } as any);
+
+      const response = await api.post(`/users/${userId}/change-picture`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+      return response.data as UserWithClientDto;
     } catch (error) {
       throw error;
     }

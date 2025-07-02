@@ -11,6 +11,7 @@ interface PageStyleProps {
   user?: UserWithClientDto | null;
   isAuthenticated?: boolean;
   deconnectionLoading?: boolean;
+  onUserUpdate?: (updatedUser: UserWithClientDto) => void;
 }
 
 const PageStyle: React.FC<PageStyleProps> = ({
@@ -18,10 +19,12 @@ const PageStyle: React.FC<PageStyleProps> = ({
   user,
   isAuthenticated,
   deconnectionLoading = false,
+  onUserUpdate,
 }) => {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isResendingEmail, setIsResendingEmail] = useState<boolean>(false);
+  const [isUploadingPicture, setIsUploadingPicture] = useState<boolean>(false);
 
   // Check if user is authenticated and email is not verified
   const isEmailUnverified = !!(
@@ -115,7 +118,11 @@ const PageStyle: React.FC<PageStyleProps> = ({
 
       if (!result.canceled && result.assets[0]) {
         setSelectedImage(result.assets[0].uri);
-        console.log("Photo taken:", result.assets[0].uri);
+        
+        // Auto-upload the taken photo
+        if (user?.id) {
+          await uploadPicture(result.assets[0].uri);
+        }
       }
     } catch (error) {
       console.error("Error taking photo:", error);
@@ -164,7 +171,11 @@ const PageStyle: React.FC<PageStyleProps> = ({
 
       if (!result.canceled && result.assets[0]) {
         setSelectedImage(result.assets[0].uri);
-        console.log("Image selected:", result.assets[0].uri);
+        
+        // Auto-upload the selected image
+        if (user?.id) {
+          await uploadPicture(result.assets[0].uri);
+        }
       }
     } catch (error) {
       console.error("Error selecting image:", error);
@@ -172,6 +183,44 @@ const PageStyle: React.FC<PageStyleProps> = ({
         "Erreur",
         "Une erreur est survenue lors de la sélection de l'image."
       );
+    }
+  };
+
+  // Function to upload picture to backend
+  const uploadPicture = async (imageUri: string) => {
+    if (!user?.id) {
+      Alert.alert("Erreur", "Utilisateur non identifié");
+      return;
+    }
+
+    try {
+      setIsUploadingPicture(true);
+      
+      const updatedUser = await usersService.changePicture(user.id, imageUri);
+      
+      // Update user data in parent component
+      if (onUserUpdate) {
+        onUserUpdate(updatedUser);
+      }
+      
+      Alert.alert(
+        "Succès",
+        "Votre photo de profil a été mise à jour avec succès !",
+        [{ text: "OK" }]
+      );
+      
+      // Clear selected image after successful upload
+      setSelectedImage(null);
+      
+    } catch (error: any) {
+      console.error("Error uploading picture:", error);
+      Alert.alert(
+        "Erreur",
+        error.response?.data?.message || 
+        "Impossible de mettre à jour votre photo de profil. Veuillez réessayer."
+      );
+    } finally {
+      setIsUploadingPicture(false);
     }
   };
 
@@ -217,6 +266,7 @@ const PageStyle: React.FC<PageStyleProps> = ({
       isEmailUnverified={isEmailUnverified}
       onResendVerificationEmail={handleResendVerificationEmail}
       isResendingEmail={isResendingEmail}
+      isUploadingPicture={isUploadingPicture}
     >
       {children}
     </PageStylePresenter>

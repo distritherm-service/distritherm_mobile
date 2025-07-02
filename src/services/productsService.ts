@@ -7,7 +7,7 @@ export interface CreateProductDto {
   priceHt: number;
   priceTtc: number;
   quantity: number;
-  imagesUrl: string[];
+  images: any[]; // Images as files, not URLs
   description: string;
   categoryId: number;
   markId: number;
@@ -21,7 +21,7 @@ export interface CreateProductDto {
   packagingType?: string;
   submissionFgaz?: string;
   fgazFile?: string;
-  isActive: boolean;
+  active: boolean; // Changed from isActive to active
   label?: string;
   unity?: string;
   weight?: number;
@@ -35,7 +35,7 @@ export interface UpdateProductDto {
   priceHt?: number;
   priceTtc?: number;
   quantity?: number;
-  imagesUrl?: string[];
+  images?: any[]; // Images as files, not URLs
   description?: string;
   categoryId?: number;
   markId?: number;
@@ -49,7 +49,7 @@ export interface UpdateProductDto {
   packagingType?: string;
   submissionFgaz?: string;
   fgazFile?: string;
-  isActive?: boolean;
+  active?: boolean; // Changed from isActive to active
   label?: string;
   unity?: string;
   weight?: number;

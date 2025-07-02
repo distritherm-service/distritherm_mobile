@@ -4,9 +4,13 @@
   "main": "index.ts",
   "scripts": {
     "start": "expo start",
-    "android": "npx expo run:android",
-    "ios": "npx expo run:ios",
-    "web": "expo start --web"
+    "reset-project": "node ./scripts/reset-project.js",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "ios-clean": "./ios/filter-logs.sh expo run:ios",
+    "web": "expo start --web",
+    "test": "jest --watchAll",
+    "lint": "expo lint"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
@@ -31,7 +35,6 @@
     "expo-notifications": "~0.31.3",
     "expo-secure-store": "~14.2.3",
     "expo-status-bar": "~2.2.3",
-    "firebase": "^11.8.1",
     "react": "19.0.0",
     "react-hook-form": "^7.56.4",
     "react-native": "0.79.4",
