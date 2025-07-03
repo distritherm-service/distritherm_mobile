@@ -28,6 +28,6 @@ export { default as Promotions } from './PromotionsScreen/Promotions';
 export { default as MesDevis } from './MesDevisScreen/MesDevis';
 export { default as PersonalInformation } from './PersonalInformationScreen/PersonalInformation';
 export { default as ForgotPassword } from './ForgotPasswordScreen/ForgotPassword';
-export { default as Login } from './Login/Login';
+export { default as Login } from './LoginScreen/Login';
 export { default as Register } from './Register/Register';
 export { default as Categories } from './CategoriesScreen/Categories';
