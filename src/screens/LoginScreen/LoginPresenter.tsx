@@ -34,20 +34,20 @@ const LoginPresenter = ({
   onCloseForgotPasswordModal,
   onBack,
 }: LoginPresenterProps) => {
-  const colors = useColors(); // Using react-native-size-matters for responsive design
+  const colors = useColors(); 
 
   // Dynamic styles using colors from useColors hook
   const dynamicStyles = StyleSheet.create({
     forgotPasswordButton: {
       alignSelf: 'flex-end',
-      paddingVertical: ms(8), // Using react-native-size-matters for responsive padding
-      paddingHorizontal: ms(4), // Using react-native-size-matters for responsive padding
+      paddingVertical: ms(8),
+      paddingHorizontal: ms(4),
     },
     forgotPasswordText: {
       color: colors.secondary[500],
-      fontSize: ms(14), // Using react-native-size-matters for responsive font size
+      fontSize: ms(14),
       fontWeight: '600',
-      letterSpacing: ms(0.2), // Using react-native-size-matters for responsive letter spacing
+      letterSpacing: ms(0.2),
     },
   });
 
