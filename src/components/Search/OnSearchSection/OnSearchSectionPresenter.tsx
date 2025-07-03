@@ -119,7 +119,6 @@ const OnSearchSectionPresenter: React.FC<OnSearchSectionPresenterProps> = ({
     headerTop: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginBottom: ms(16),
     },
     backButton: {
       width: ms(40),
