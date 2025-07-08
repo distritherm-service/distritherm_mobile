@@ -79,7 +79,10 @@ const ProductDescription: React.FC<ProductDescriptionProps> = ({ product }) => {
     if (product.priceHt) {
       details.push({ label: 'Prix HT', value: `${product.priceHt.toFixed(2)} €` });
     }
-    details.push({ label: 'Prix HT', value: `${product.priceHt.toFixed(2)} €` });
+    
+    if (product.priceTtc) {
+      details.push({ label: 'Prix TTC', value: `${product.priceTtc.toFixed(2)} €` });
+    }
     
     if (product.category) {
       details.push({ label: 'Catégorie', value: product.category.name });

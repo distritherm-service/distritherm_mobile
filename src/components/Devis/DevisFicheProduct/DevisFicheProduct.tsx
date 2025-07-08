@@ -35,12 +35,11 @@ const DevisFicheProduct: React.FC<DevisFicheProductProps> = ({
     let totalQuantity = 0;
 
     cartItems.forEach((item: CartItemWithProduct) => {
-      const itemTotalHT = item.priceHt * item.quantity;
-      const itemTotalTTC = item.priceTtc * item.quantity;
-      
-      totalHT += itemTotalHT;
-      totalTTC += itemTotalTTC;
-      totalTVA += itemTotalTTC - itemTotalHT;
+      // priceHt and priceTtc are already the totals for this item's quantity
+      // No need to multiply by quantity again
+      totalHT += item.priceHt;
+      totalTTC += item.priceTtc;
+      totalTVA += item.priceTtc - item.priceHt;
       totalQuantity += item.quantity;
     });
 
