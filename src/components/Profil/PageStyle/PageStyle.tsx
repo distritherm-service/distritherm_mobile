@@ -22,7 +22,6 @@ const PageStyle: React.FC<PageStyleProps> = ({
   onUserUpdate,
 }) => {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isResendingEmail, setIsResendingEmail] = useState<boolean>(false);
   const [isUploadingPicture, setIsUploadingPicture] = useState<boolean>(false);
 
@@ -119,8 +118,6 @@ const PageStyle: React.FC<PageStyleProps> = ({
       });
 
       if (!result.canceled && result.assets[0]) {
-        setSelectedImage(result.assets[0].uri);
-        
         // Auto-upload the taken photo
         if (user?.id) {
           await uploadPicture(result.assets[0].uri);
@@ -172,8 +169,6 @@ const PageStyle: React.FC<PageStyleProps> = ({
       });
 
       if (!result.canceled && result.assets[0]) {
-        setSelectedImage(result.assets[0].uri);
-        
         // Auto-upload the selected image
         if (user?.id) {
           await uploadPicture(result.assets[0].uri);
@@ -210,9 +205,6 @@ const PageStyle: React.FC<PageStyleProps> = ({
         "Votre photo de profil a été mise à jour avec succès !",
         [{ text: "OK" }]
       );
-      
-      // Clear selected image after successful upload
-      setSelectedImage(null);
       
     } catch (error: any) {
       console.error("Error uploading picture:", error);
@@ -263,7 +255,7 @@ const PageStyle: React.FC<PageStyleProps> = ({
       isModalVisible={isModalVisible}
       onPhoto={onPhoto}
       onGallery={onGallery}
-      selectedImage={selectedImage}
+
       deconnectionLoading={deconnectionLoading}
       isEmailUnverified={isEmailUnverified}
       onResendVerificationEmail={handleResendVerificationEmail}

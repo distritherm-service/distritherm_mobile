@@ -36,7 +36,6 @@ interface PageStylePresenterProps {
   isModalVisible: boolean;
   onPhoto: () => void;
   onGallery: () => void;
-  selectedImage?: string | null;
   deconnectionLoading?: boolean;
   isEmailUnverified?: boolean;
   onResendVerificationEmail?: () => void;
@@ -54,7 +53,6 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
   isModalVisible,
   onPhoto,
   onGallery,
-  selectedImage,
   deconnectionLoading = false,
   isEmailUnverified = false,
   onResendVerificationEmail,
@@ -144,13 +142,14 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
     profileImage: {
       width: ms(120),
       height: ms(120),
-      borderRadius: ms(56),
+      borderRadius: ms(60), // Parfaitement circulaire (120/2 = 60)
       backgroundColor: colors.primary[100],
+      overflow: 'hidden', // Empêche l'image de déborder des bordures circulaires
     },
     defaultProfileIcon: {
       width: ms(120),
       height: ms(120),
-      borderRadius: ms(56),
+      borderRadius: ms(60), // Parfaitement circulaire (120/2 = 60)
       overflow: "hidden",
       justifyContent: "center",
       alignItems: "center",
@@ -160,7 +159,7 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
       height: "100%",
       justifyContent: "center",
       alignItems: "center",
-      borderRadius: ms(56),
+      borderRadius: ms(60), // Parfaitement circulaire (120/2 = 60)
     },
     cameraIconContainer: {
       position: "absolute",
@@ -401,32 +400,7 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
       fontWeight: "600",
       textAlign: "center",
     },
-    uploadOverlay: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      justifyContent: "center",
-      alignItems: "center",
-      backgroundColor: "rgba(0,0,0,0.5)",
-    },
-    uploadIndicatorContainer: {
-      backgroundColor: colors.surface,
-      padding: ms(16),
-      borderRadius: ms(12),
-      shadowColor: colors.tertiary[800],
-      shadowOffset: { width: 0, height: ms(4) },
-      shadowOpacity: 0.1,
-      shadowRadius: ms(8),
-      elevation: 5,
-    },
-    uploadText: {
-      fontSize: ms(16),
-      color: colors.text,
-      fontWeight: "500",
-      marginTop: ms(8),
-    },
+
   });
 
   return (
@@ -475,7 +449,10 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
                 <View style={dynamicStyles.userInfoSection}>
                   {/* Photo de profil avec bordure élégante */}
                   <Pressable
-                    style={dynamicStyles.profileImageContainer}
+                    style={[
+                      dynamicStyles.profileImageContainer,
+                      isUploadingPicture && { opacity: 0.7 }
+                    ]}
                     onPress={onOpenModalImagePicker}
                     disabled={isUploadingPicture}
                   >
@@ -485,28 +462,23 @@ const PageStylePresenter: React.FC<PageStylePresenterProps> = ({
                       start={{ x: 0, y: 0 }}
                       end={{ x: 1, y: 1 }}
                     >
-                      <Image
-                        source={{
-                          uri: selectedImage || (user.urlPicture && user.urlPicture.trim() !== "" ? user.urlPicture : NO_IMAGE_URL),
-                        }}
-                        style={dynamicStyles.profileImage}
-                      />
-                    </LinearGradient>
-
-                    {/* Loading indicator for picture upload */}
-                    {isUploadingPicture && (
-                      <View style={dynamicStyles.uploadOverlay}>
-                        <View style={dynamicStyles.uploadIndicatorContainer}>
+                      {isUploadingPicture ? (
+                        <View style={[dynamicStyles.profileImage, { justifyContent: 'center', alignItems: 'center' }]}>
                           <ActivityIndicator 
                             size="large" 
                             color={colors.primary[600]} 
                           />
-                          <Text style={dynamicStyles.uploadText}>
-                            Upload en cours...
-                          </Text>
                         </View>
-                      </View>
-                    )}
+                      ) : (
+                        <Image
+                          source={{
+                            uri: user.urlPicture && user.urlPicture.trim() !== "" ? user.urlPicture : NO_IMAGE_URL,
+                          }}
+                          style={dynamicStyles.profileImage}
+                          resizeMode="cover"
+                        />
+                      )}
+                    </LinearGradient>
 
                     {/* Icône caméra positionnée au-dessus */}
                     <View style={dynamicStyles.cameraIconContainer}>
