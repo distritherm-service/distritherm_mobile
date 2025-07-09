@@ -6,6 +6,7 @@ export enum CartStatus {
   IS_ORDERED = "IS_ORDERED",
   IS_DEVIS = "IS_DEVIS",
   IS_DEVIS_AND_ORDERED = "IS_DEVIS_AND_ORDERED",
+  IS_RESERVED = "IS_RESERVED",
 }
 
 // Interfaces communes

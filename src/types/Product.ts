@@ -51,6 +51,7 @@ export interface ProductBasicDto {
   description: string;
   categoryId: number;
   markId: number;
+  unity?: string;
   category?: {
     id: number;
     name: string;

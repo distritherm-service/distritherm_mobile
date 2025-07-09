@@ -278,9 +278,38 @@ const InputPresenter: React.FC<InputPresenterProps> = ({
       case InputType.EMAIL_ADDRESS:
         return 'email-address';
       case InputType.NUMERIC:
+      case InputType.DATE:
         return 'numeric';
       default:
         return 'default';
+    }
+  };
+
+  // Format date input for JJ/MM/AAAA format
+  const formatDateInput = (text: string): string => {
+    // Remove all non-numeric characters
+    const numericOnly = text.replace(/\D/g, '');
+    
+    // Apply formatting based on length
+    if (numericOnly.length <= 2) {
+      return numericOnly;
+    } else if (numericOnly.length <= 4) {
+      return `${numericOnly.slice(0, 2)}/${numericOnly.slice(2)}`;
+    } else if (numericOnly.length <= 8) {
+      return `${numericOnly.slice(0, 2)}/${numericOnly.slice(2, 4)}/${numericOnly.slice(4, 8)}`;
+    } else {
+      // Limit to 8 digits max (DDMMYYYY)
+      return `${numericOnly.slice(0, 2)}/${numericOnly.slice(2, 4)}/${numericOnly.slice(4, 8)}`;
+    }
+  };
+
+  // Handle text change with date formatting
+  const handleTextChange = (text: string) => {
+    if (type === InputType.DATE) {
+      const formattedText = formatDateInput(text);
+      onChangeText(formattedText);
+    } else {
+      onChangeText(text);
     }
   };
 
@@ -432,7 +461,7 @@ const InputPresenter: React.FC<InputPresenterProps> = ({
         <TextInput
           style={inputStyles}
           value={value}
-          onChangeText={onChangeText}
+          onChangeText={handleTextChange}
           onBlur={onBlur}
           placeholder={placeholder}
           placeholderTextColor={colors.tertiary[400]}
@@ -441,6 +470,7 @@ const InputPresenter: React.FC<InputPresenterProps> = ({
           multiline={isTextareaField}
           numberOfLines={isTextareaField ? numberOfLines : 1}
           textAlignVertical={isTextareaField ? 'top' : 'center'}
+          maxLength={type === InputType.DATE ? 10 : undefined}
         />
         {renderRightIcon()}
       </View>

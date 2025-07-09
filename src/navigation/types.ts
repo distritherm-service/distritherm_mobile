@@ -27,6 +27,7 @@ export type RootStackParamList = {
   Categories: undefined;
   Promotions: undefined;
   MesDevis: undefined;
+  MesReservations: undefined;
 };
 
 declare global {

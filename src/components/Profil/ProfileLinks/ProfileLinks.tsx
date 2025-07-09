@@ -75,6 +75,14 @@ const ProfileLinks: React.FC<ProfileLinksProps> = ({
         onPress: () => handleNavigation('Quotes'),
         showArrow: true,
       },
+      {
+        id: 'reservations',
+        title: 'Mes réservations',
+        subtitle: 'Consultez vos réservations de retrait',
+        icon: 'calendar-check',
+        onPress: () => handleNavigation('Reservations'),
+        showArrow: true,
+      },
     ],
   };
 

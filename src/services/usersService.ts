@@ -33,7 +33,11 @@ interface RemindMeDto {
   phoneNumber: string;
 }
 
-
+// Interface pour la réponse de l'API /users/me
+interface GetCurrentUserResponse {
+  user: UserWithClientDto;
+  message: string;
+}
 
 const usersService = {
   // GET /users/verify-email - Vérifier l'email avec un token
@@ -47,10 +51,10 @@ const usersService = {
   },
 
   // GET /users/me - Récupérer les informations de l'utilisateur connecté
-  getCurrentUser: async (): Promise<UserWithClientDto> => {
+  getCurrentUser: async (): Promise<GetCurrentUserResponse> => {
     try {
       const response = await api.get("/users/me");
-      return response.data as UserWithClientDto;
+      return response.data as GetCurrentUserResponse;
     } catch (error) {
       throw error;
     }

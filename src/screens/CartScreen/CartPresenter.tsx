@@ -21,6 +21,8 @@ import {
   faRefresh,
   faCheckCircle,
   faArrowRight,
+  faCalendarAlt,
+  faFileInvoice,
 } from "@fortawesome/free-solid-svg-icons";
 import PageContainer from "src/components/PageContainer/PageContainer";
 import SectionHeader from "src/components/SectionHeader/SectionHeader";
@@ -28,6 +30,7 @@ import ErrorState from "src/components/ErrorState/ErrorState";
 import UnauthenticatedState from "src/components/UnauthenticatedState/UnauthenticatedState";
 import EmptyState from "src/components/EmptyState/EmptyState";
 import LoadingState from "src/components/LoadingState/LoadingState";
+import { ReservationModal } from "src/components/Cart";
 import { useColors } from "src/hooks/useColors";
 import { Cart } from "src/types/Cart";
 import { ProductBasicDto } from "src/types/Product";
@@ -50,16 +53,24 @@ interface CartPresenterProps {
   error: string | null;
   loadingItems: Set<number>;
   isCreatingDevis: boolean;
+  isCreatingReservation: boolean;
+  showReservationModal: boolean;
   totals: CartTotals;
   isAuthenticated: boolean;
+  user: any;
   onQuantityUpdate: (cartItemId: number, newQuantity: number) => void;
   onRemoveItem: (cartItemId: number) => void;
   onCreateDevis: () => void;
+  onCreateReservation: (reservationData: any) => void;
+  onOpenReservationModal: () => void;
+  onCloseReservationModal: () => void;
   onProductPress: (productId: number) => void;
   onBack: () => void;
   onRetry: () => void;
   onNavigateToLogin: () => void;
 }
+
+
 
 const CartPresenter: React.FC<CartPresenterProps> = ({
   cart,
@@ -67,11 +78,17 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
   error,
   loadingItems,
   isCreatingDevis,
+  isCreatingReservation,
+  showReservationModal,
   totals,
   isAuthenticated,
+  user,
   onQuantityUpdate,
   onRemoveItem,
   onCreateDevis,
+  onCreateReservation,
+  onOpenReservationModal,
+  onCloseReservationModal,
   onProductPress,
   onBack,
   onRetry,
@@ -326,20 +343,41 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
       shadowRadius: ms(20),
       elevation: 10,
     },
+    buttonsContainer: {
+      flexDirection: "row",
+      gap: ms(12),
+    },
     checkoutButton: {
+      flex: 1,
       backgroundColor: colors.tertiary[500],
-      borderRadius: ms(16), // Using react-native-size-matters - slightly smaller border radius
-      paddingVertical: ms(14), // Using react-native-size-matters - reduced from 18 to 14
-      paddingHorizontal: ms(20), // Using react-native-size-matters - reduced from 28 to 20
+      borderRadius: ms(16),
+      paddingVertical: ms(14),
+      paddingHorizontal: ms(16),
       flexDirection: "row",
       justifyContent: "center",
       alignItems: "center",
-      gap: ms(10), // Using react-native-size-matters - reduced gap from 12 to 10
+      gap: ms(8),
       shadowColor: colors.tertiary[400],
-      shadowOffset: { width: 0, height: ms(4) }, // Using react-native-size-matters - slightly smaller shadow
-      shadowOpacity: 0.3, // Reduced shadow opacity for cleaner look
-      shadowRadius: ms(8), // Using react-native-size-matters - smaller shadow radius
-      elevation: 6, // Reduced elevation
+      shadowOffset: { width: 0, height: ms(4) },
+      shadowOpacity: 0.3,
+      shadowRadius: ms(8),
+      elevation: 6,
+    },
+    reservationButton: {
+      flex: 1,
+      backgroundColor: colors.secondary[500],
+      borderRadius: ms(16),
+      paddingVertical: ms(14),
+      paddingHorizontal: ms(16),
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      gap: ms(8),
+      shadowColor: colors.secondary[400],
+      shadowOffset: { width: 0, height: ms(4) },
+      shadowOpacity: 0.3,
+      shadowRadius: ms(8),
+      elevation: 6,
     },
     checkoutButtonDisabled: {
       backgroundColor: colors.tertiary[200],
@@ -347,11 +385,19 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
       elevation: 0,
     },
     checkoutButtonText: {
-      fontSize: ms(16), // Using react-native-size-matters - reduced from 18 to 16 for better proportion
-      fontWeight: "700", // Slightly reduced font weight for cleaner look
+      fontSize: ms(14),
+      fontWeight: "700",
       color: colors.primary[50],
-      letterSpacing: ms(0.3), // Using react-native-size-matters - reduced letter spacing
+      letterSpacing: ms(0.3),
     },
+    reservationButtonText: {
+      fontSize: ms(14),
+      fontWeight: "700",
+      color: colors.primary[50],
+      letterSpacing: ms(0.3),
+    },
+    // Modal styles
+
 
     loadingContainer: {
       flex: 1,
@@ -621,6 +667,8 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
     );
   }
 
+
+
   // Main cart content
   return (
     <PageContainer
@@ -717,36 +765,78 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
 
         {/* Checkout Section */}
         <View style={dynamicStyles.checkoutSection}>
-          <Pressable
-            style={[
-              dynamicStyles.checkoutButton,
-              (!cart.cartItems ||
-                cart.cartItems.length === 0 ||
-                isCreatingDevis) &&
-                dynamicStyles.checkoutButtonDisabled,
-            ]}
-            onPress={onCreateDevis}
-            disabled={
-              !cart.cartItems || cart.cartItems.length === 0 || isCreatingDevis
-            }
-          >
-            {isCreatingDevis ? (
-              <ActivityIndicator size="small" color={colors.primary[50]} />
-            ) : (
-              <>
-                <FontAwesomeIcon
-                  icon={faArrowRight}
-                  size={ms(18)}
-                  color={colors.primary[50]}
-                />
-                <Text style={dynamicStyles.checkoutButtonText}>
-                  Demander un devis
-                </Text>
-              </>
-            )}
-          </Pressable>
+          <View style={dynamicStyles.buttonsContainer}>
+            {/* Devis Button */}
+            <Pressable
+              style={[
+                dynamicStyles.checkoutButton,
+                (!cart.cartItems ||
+                  cart.cartItems.length === 0 ||
+                  isCreatingDevis ||
+                  isCreatingReservation) &&
+                  dynamicStyles.checkoutButtonDisabled,
+              ]}
+              onPress={onCreateDevis}
+              disabled={
+                !cart.cartItems || 
+                cart.cartItems.length === 0 || 
+                isCreatingDevis || 
+                isCreatingReservation
+              }
+            >
+              {isCreatingDevis ? (
+                <ActivityIndicator size="small" color={colors.primary[50]} />
+              ) : (
+                <>
+                  <FontAwesomeIcon
+                    icon={faFileInvoice}
+                    size={ms(16)}
+                    color={colors.primary[50]}
+                  />
+                  <Text style={dynamicStyles.checkoutButtonText}>
+                    Devis
+                  </Text>
+                </>
+              )}
+            </Pressable>
+
+            {/* Reservation Button */}
+            <Pressable
+              style={[
+                dynamicStyles.reservationButton,
+                (!cart.cartItems ||
+                  cart.cartItems.length === 0 ||
+                  isCreatingDevis ||
+                  isCreatingReservation) &&
+                  dynamicStyles.checkoutButtonDisabled,
+              ]}
+              onPress={onOpenReservationModal}
+              disabled={
+                !cart.cartItems || 
+                cart.cartItems.length === 0 || 
+                isCreatingDevis || 
+                isCreatingReservation
+              }
+            >
+              <FontAwesomeIcon
+                icon={faCalendarAlt}
+                size={ms(16)}
+                color={colors.primary[50]}
+              />
+              <Text style={dynamicStyles.reservationButtonText}>
+                Réserver
+              </Text>
+            </Pressable>
+          </View>
         </View>
       </ScrollView>
+      <ReservationModal
+        visible={showReservationModal}
+        user={user}
+        isCreatingReservation={isCreatingReservation}
+        onClose={onCloseReservationModal}
+        onCreateReservation={onCreateReservation}
+      />
     </PageContainer>
   );
 };

@@ -42,6 +42,7 @@ const ProductItem: React.FC<ProductItemProps> = ({
     description: "Plaque de plâtre standard pour cloisons",
     categoryId: 1,
     markId: 1,
+    unity: "m²",
     category: {
       id: 1,
       name: "Plâtrerie",
@@ -149,7 +150,7 @@ const ProductItem: React.FC<ProductItemProps> = ({
       name={currentProduct.name}
       category={currentProduct.category?.name || "Construction"}
       price={currentProduct.promotionPrice ? (currentProduct.promotionPrice / 1.20) : currentProduct.priceHt}
-      unit="unité"
+      unit={currentProduct.unity || "unité"}
       imageSource={getImageSource()}
       inStock={currentProduct.quantity > 0}
       onPress={handlePress}

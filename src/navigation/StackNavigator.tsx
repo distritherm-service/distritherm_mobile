@@ -7,6 +7,7 @@ import ForgotPassword from "../screens/ForgotPasswordScreen/ForgotPassword";
 import Product from "src/screens/ProductScreen/Product";
 import Promotions from "src/screens/PromotionsScreen/Promotions";
 import MesDevis from "src/screens/MesDevisScreen/MesDevis";
+import MesReservations from "src/screens/MesReservationsScreen/MesReservations";
 import Categories from "src/screens/CategoriesScreen/Categories";
 import { RootStackParamList } from "./types";
 
@@ -41,6 +42,11 @@ const StackNavigator = () => {
       <Stack.Screen 
         name="MesDevis" 
         component={MesDevis}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="MesReservations" 
+        component={MesReservations}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

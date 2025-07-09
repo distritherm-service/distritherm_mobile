@@ -8,6 +8,8 @@ import cartsService, {
   RemoveProductDto,
 } from "src/services/cartsService";
 import devisService, { CreateDeviDto } from "src/services/devisService";
+import reservationsService from "src/services/reservationsService";
+import { CreateReservationDto } from "src/types/Reservation";
 import {
   Cart as CartType,
   CartItem,
@@ -30,7 +32,9 @@ const Cart = () => {
   const [loading, setLoading] = useState(true);
   const [loadingItems, setLoadingItems] = useState<Set<number>>(new Set());
   const [isCreatingDevis, setIsCreatingDevis] = useState(false);
+  const [isCreatingReservation, setIsCreatingReservation] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showReservationModal, setShowReservationModal] = useState(false);
 
   // Calculate cart totals using the actual cartItem prices (already calculated with promotions on backend)
   const calculateTotals = useCallback(() => {
@@ -212,6 +216,60 @@ const Cart = () => {
     }
   }, [cart, user?.id, navigation, loadCart]);
 
+  // Create reservation from cart
+  const createReservation = useCallback(async (reservationData: Omit<CreateReservationDto, 'cartId'>) => {
+    if (!cart || cart.cartItems.length === 0 || !user?.id) return;
+
+    setIsCreatingReservation(true);
+    try {
+      const createReservationDto: CreateReservationDto = {
+        cartId: cart.id,
+        ...reservationData,
+      };
+
+      await reservationsService.createReservation(createReservationDto);
+
+      // Update cart status to reserved
+      await cartsService.updateCartStatus(cart.id, {
+        status: CartStatus.IS_RESERVED,
+      });
+
+      Alert.alert(
+        "Réservation créée",
+        "Votre réservation a été créée avec succès! Vous recevrez une confirmation par email.",
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              // Close modal and navigate back to home
+              setShowReservationModal(false);
+              (navigation as any).navigate("Main", { initialTab: "Home" });
+              // Reload cart for next session
+              loadCart();
+            },
+          },
+        ]
+      );
+    } catch (err: any) {
+      console.error("Error creating reservation:", err);
+      Alert.alert(
+        "Erreur",
+        err?.response?.data?.message || "Impossible de créer la réservation"
+      );
+    } finally {
+      setIsCreatingReservation(false);
+    }
+  }, [cart, user?.id, navigation, loadCart]);
+
+  // Handle reservation modal
+  const openReservationModal = useCallback(() => {
+    setShowReservationModal(true);
+  }, []);
+
+  const closeReservationModal = useCallback(() => {
+    setShowReservationModal(false);
+  }, []);
+
   // Navigate to product details
   const navigateToProduct = useCallback(
     (productId: number) => {
@@ -244,11 +302,17 @@ const Cart = () => {
       error={error}
       loadingItems={loadingItems}
       isCreatingDevis={isCreatingDevis}
+      isCreatingReservation={isCreatingReservation}
+      showReservationModal={showReservationModal}
       totals={totals}
       isAuthenticated={isAuthenticated}
+      user={user}
       onQuantityUpdate={updateQuantity}
       onRemoveItem={removeItem}
       onCreateDevis={createDevis}
+      onCreateReservation={createReservation}
+      onOpenReservationModal={openReservationModal}
+      onCloseReservationModal={closeReservationModal}
       onProductPress={navigateToProduct}
       onBack={handleBack}
       onRetry={loadCart}

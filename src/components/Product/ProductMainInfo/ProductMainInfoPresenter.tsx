@@ -239,7 +239,7 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
         <View style={[styles.totalSection, { borderTopColor: colors.border }]}>
           <View style={styles.totalContent}>
             <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>
-              Total ({quantity} unité{quantity > 1 ? 's' : ''}):
+              Total ({quantity} {product.productDetail?.unity || 'unité'}{quantity > 1 ? 's' : ''}):
             </Text>
             <Text style={[styles.totalPrice, { color: colors.secondary[500] }]}>
               {formatPrice(totalPrice)}

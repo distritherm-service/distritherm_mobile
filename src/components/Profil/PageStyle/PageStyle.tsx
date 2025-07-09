@@ -34,6 +34,8 @@ const PageStyle: React.FC<PageStyleProps> = ({
     !user.client.emailVerified
   );
 
+  console.log(user?.urlPicture);
+
   const heightPercentage = isAuthenticated
     ? user?.client?.emailVerified
       ? Platform.OS == "ios"
