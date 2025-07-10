@@ -62,7 +62,9 @@
     "glob": "^10.3.10",
     "lru-cache": "^10.2.0",
     "rimraf": "^5.0.5",
-    "typescript": "~5.8.3"
+    "typescript": "~5.8.3",
+    "eslint": "^9.0.0",
+    "eslint-config-expo": "~9.2.0"
   },
   "overrides": {
     "glob": "^10.3.10",

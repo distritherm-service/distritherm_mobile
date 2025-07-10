@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ProfileLinksPresenter from './ProfileLinksPresenter';
-import { Type } from 'src/types/User';
+import { Type, UserWithClientDto } from 'src/types/User';
+import proAccountService from 'src/services/proAccountService';
+import { Alert } from 'react-native';
+import ProAccountCategoryModal from '../../ProAccountCategoryModal/ProAccountCategoryModal';
 
 export interface ProfileLinkItem {
   id: string;
@@ -22,14 +25,110 @@ interface ProfileLinksProps {
   onNavigate?: (screen: string) => void;
   isAuthenticated: boolean;
   userType?: Type; // Add user type to determine if user is provider
+  user?: UserWithClientDto | null; // Add user data to check pro status
 }
 
 const ProfileLinks: React.FC<ProfileLinksProps> = ({ 
   onNavigate, 
   isAuthenticated, 
-  userType 
+  userType,
+  user
 }) => {
+  const [hasPostulation, setHasPostulation] = useState<boolean>(false);
+  const [isCreatingPostulation, setIsCreatingPostulation] = useState<boolean>(false);
+  const [isLoadingPostulations, setIsLoadingPostulations] = useState<boolean>(false);
+  const [showCategoryModal, setShowCategoryModal] = useState<boolean>(false);
   
+  // Check if user has existing postulation
+  useEffect(() => {
+    const checkExistingPostulation = async () => {
+      if (isAuthenticated && user) {
+        setIsLoadingPostulations(true);
+        try {
+          const response = await proAccountService.getPostulationsByUser(user.id);
+          setHasPostulation(response.postulations.length > 0);
+        } catch (error) {
+          console.log('Aucune postulation existante trouvée');
+          setHasPostulation(false);
+        } finally {
+          setIsLoadingPostulations(false);
+        }
+      }
+    };
+
+    checkExistingPostulation();
+  }, [isAuthenticated, user]);
+
+  const handleCreatePostulation = async () => {
+    if (!user) return;
+    setShowCategoryModal(true);
+  };
+
+  const handleSubmitPostulation = async (categoryName: string) => {
+    if (!user) return;
+
+    setIsCreatingPostulation(true);
+    try {
+      await proAccountService.createPostulation({ categoryName });
+      setHasPostulation(true);
+      Alert.alert(
+        "Demande envoyée",
+        "Votre demande de compte professionnel a été envoyée avec succès. Notre équipe vous contactera prochainement.",
+        [{ text: "OK" }]
+      );
+    } catch (error: any) {
+      let errorMessage = "Une erreur est survenue lors de l'envoi de votre demande.";
+      
+      if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+      
+      Alert.alert("Erreur", errorMessage, [{ text: "OK" }]);
+      throw error; // Re-throw pour que le modal gère l'erreur
+    } finally {
+      setIsCreatingPostulation(false);
+    }
+  };
+
+  const handleManagePostulation = async () => {
+    if (!user) return;
+
+    Alert.alert(
+      "Gérer ma demande",
+      "Voulez-vous annuler votre demande de compte professionnel en cours ?",
+      [
+        {
+          text: "Non",
+          style: "cancel",
+        },
+        {
+          text: "Annuler ma demande",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const response = await proAccountService.getPostulationsByUser(user.id);
+              if (response.postulations.length > 0) {
+                await proAccountService.deletePostulation(response.postulations[0].id);
+                setHasPostulation(false);
+                Alert.alert(
+                  "Demande annulée",
+                  "Votre demande de compte professionnel a été annulée avec succès.",
+                  [{ text: "OK" }]
+                );
+              }
+            } catch (error: any) {
+              Alert.alert(
+                "Erreur", 
+                "Une erreur est survenue lors de l'annulation de votre demande.",
+                [{ text: "OK" }]
+              );
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const handleNavigation = (screen: string) => {
     if (onNavigate) {
       onNavigate(screen);
@@ -128,15 +227,49 @@ const ProfileLinks: React.FC<ProfileLinksProps> = ({
     links: settingsLinks,
   };
 
+  // Section 4: Compte Professionnel (uniquement si connecté et pas encore pro)
+  const proAccountSection: ProfileSection = {
+    id: 'pro-account',
+    title: 'Compte Professionnel',
+    links: [
+      {
+        id: 'pro-postulation',
+        title: hasPostulation ? 'Gérer ma demande' : 'Devenir compte pro',
+        subtitle: hasPostulation 
+          ? 'Demande en cours d\'examen' 
+          : isCreatingPostulation 
+            ? 'Envoi en cours...' 
+            : 'Bénéficiez d\'avantages exclusifs',
+        icon: hasPostulation ? 'file-contract' : 'crown',
+        onPress: hasPostulation ? handleManagePostulation : handleCreatePostulation,
+        showArrow: true,
+        isDestructive: hasPostulation,
+      },
+    ],
+  };
+
   // Affichage conditionnel des sections selon l'état d'authentification
   const sections: ProfileSection[] = isAuthenticated 
-    ? [devisSection, settingsSection] // Si connecté: devis + paramètres + déconnexion
+    ? [
+        devisSection, 
+        !isLoadingPostulations ? proAccountSection : null, // Section pro account si pas en chargement
+        settingsSection
+      ].filter(Boolean) as ProfileSection[] // Filtrer les valeurs null
     : [authSection]; // Si non connecté: connexion + inscription
 
   return (
-    <ProfileLinksPresenter 
-      sections={sections}
-    />
+    <>
+      <ProfileLinksPresenter 
+        sections={sections}
+      />
+      
+      <ProAccountCategoryModal
+        visible={showCategoryModal}
+        onClose={() => setShowCategoryModal(false)}
+        onSubmit={handleSubmitPostulation}
+        isLoading={isCreatingPostulation}
+      />
+    </>
   );
 };
 

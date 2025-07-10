@@ -36,6 +36,7 @@ const ProfilPresenter: React.FC<ProfilPresenterProps> = ({
           onNavigate={onNavigate} 
           isAuthenticated={isAuthenticated}
           userType={user?.type}
+          user={user}
         />
     </PageStyle>
   );
