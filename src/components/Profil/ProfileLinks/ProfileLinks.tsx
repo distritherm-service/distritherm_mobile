@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import ProfileLinksPresenter from './ProfileLinksPresenter';
 import { Type, UserWithClientDto } from 'src/types/User';
-import proAccountService from 'src/services/proAccountService';
+import proAccountService, { 
+  ProAccountPostulationDto, 
+  ProAccountPostulationStatus,
+  getPostulationStatusLabel,
+  getPostulationStatusColor 
+} from '@/pro-account';
 import { Alert } from 'react-native';
-import ProAccountCategoryModal from '../../ProAccountCategoryModal/ProAccountCategoryModal';
+import ProAccountCategoryModal from '../ProAccountCategoryModal/ProAccountCategoryModal';
 
 export interface ProfileLinkItem {
   id: string;
@@ -34,30 +39,55 @@ const ProfileLinks: React.FC<ProfileLinksProps> = ({
   userType,
   user
 }) => {
-  const [hasPostulation, setHasPostulation] = useState<boolean>(false);
+  const [userPostulation, setUserPostulation] = useState<ProAccountPostulationDto | null>(null);
   const [isCreatingPostulation, setIsCreatingPostulation] = useState<boolean>(false);
   const [isLoadingPostulations, setIsLoadingPostulations] = useState<boolean>(false);
   const [showCategoryModal, setShowCategoryModal] = useState<boolean>(false);
+  const [proAccountStatus, setProAccountStatus] = useState<{
+    canRequest: boolean;
+    canManage: boolean;
+    reason?: string;
+    userStatus: 'not_pro' | 'pro_with_postulation' | 'pro_direct_validation';
+  } | null>(null);
   
-  // Check if user has existing postulation
+  // Check user's pro account status and postulations
   useEffect(() => {
-    const checkExistingPostulation = async () => {
+    const checkProAccountStatus = async () => {
       if (isAuthenticated && user) {
         setIsLoadingPostulations(true);
         try {
-          const response = await proAccountService.getPostulationsByUser(user.id);
-          setHasPostulation(response.postulations.length > 0);
+          const status = await proAccountService.canInteractWithProAccount(user);
+          setProAccountStatus(status);
+          setUserPostulation(status.postulation || null);
         } catch (error) {
-          console.log('Aucune postulation existante trouvée');
-          setHasPostulation(false);
+
+          setProAccountStatus({
+            canRequest: !user.proInfo?.isPro,
+            canManage: false,
+            userStatus: user.proInfo?.isPro ? 'pro_direct_validation' : 'not_pro'
+          });
+          setUserPostulation(null);
         } finally {
           setIsLoadingPostulations(false);
         }
       }
     };
 
-    checkExistingPostulation();
+    checkProAccountStatus();
   }, [isAuthenticated, user]);
+
+  // Fonction pour recharger le statut après une action
+  const refreshProAccountStatus = async () => {
+    if (isAuthenticated && user) {
+      try {
+        const status = await proAccountService.canInteractWithProAccount(user);
+        setProAccountStatus(status);
+        setUserPostulation(status.postulation || null);
+      } catch (error) {
+
+      }
+    }
+  };
 
   const handleCreatePostulation = async () => {
     if (!user) return;
@@ -69,11 +99,15 @@ const ProfileLinks: React.FC<ProfileLinksProps> = ({
 
     setIsCreatingPostulation(true);
     try {
-      await proAccountService.createPostulation({ categoryName });
-      setHasPostulation(true);
+      // Utilise le nouveau service unifié requestProAccount
+      const response = await proAccountService.requestProAccount(categoryName);
+      
+      // Recharger le statut complet au lieu de juste setter la postulation
+      await refreshProAccountStatus();
+      
       Alert.alert(
         "Demande envoyée",
-        "Votre demande de compte professionnel a été envoyée avec succès. Notre équipe vous contactera prochainement.",
+        response.message || "Votre demande de compte professionnel a été envoyée avec succès. Notre équipe vous contactera prochainement.",
         [{ text: "OK" }]
       );
     } catch (error: any) {
@@ -91,49 +125,132 @@ const ProfileLinks: React.FC<ProfileLinksProps> = ({
   };
 
   const handleManagePostulation = async () => {
-    if (!user) return;
+    if (!user || !userPostulation) return;
 
-    Alert.alert(
-      "Gérer ma demande",
-      "Voulez-vous annuler votre demande de compte professionnel en cours ?",
-      [
-        {
-          text: "Non",
-          style: "cancel",
-        },
-        {
-          text: "Annuler ma demande",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              const response = await proAccountService.getPostulationsByUser(user.id);
-              if (response.postulations.length > 0) {
-                await proAccountService.deletePostulation(response.postulations[0].id);
-                setHasPostulation(false);
-                Alert.alert(
-                  "Demande annulée",
-                  "Votre demande de compte professionnel a été annulée avec succès.",
-                  [{ text: "OK" }]
-                );
-              }
-            } catch (error: any) {
-              Alert.alert(
-                "Erreur", 
-                "Une erreur est survenue lors de l'annulation de votre demande.",
-                [{ text: "OK" }]
-              );
-            }
-          },
-        },
-      ]
-    );
+    const statusLabel = getPostulationStatusLabel(userPostulation.status);
+    
+    // Affichage différent selon le statut
+    switch (userPostulation.status) {
+      case ProAccountPostulationStatus.PENDING:
+        Alert.alert(
+          "Demande en cours",
+          `Votre demande de compte professionnel est en cours d'examen.\nStatut: ${statusLabel}\n\nVoulez-vous annuler votre demande ?`,
+          [
+            { text: "Non", style: "cancel" },
+            {
+              text: "Annuler ma demande",
+              style: "destructive",
+              onPress: () => handleCancelPostulation(),
+            },
+          ]
+        );
+        break;
+        
+      case ProAccountPostulationStatus.APPROVED:
+        Alert.alert(
+          "Demande approuvée",
+          `Félicitations ! Votre demande de compte professionnel a été approuvée.\nStatut: ${statusLabel}\n\nNotre équipe va prendre contact avec vous prochainement pour finaliser l'activation de votre compte.`,
+          [{ text: "OK" }]
+        );
+        break;
+    }
+  };
+
+  const handleCancelPostulation = async () => {
+    if (!userPostulation) return;
+    
+    try {
+      const response = await proAccountService.cancelPostulation(userPostulation.id);
+      
+      // Recharger le statut complet au lieu de juste remettre à null
+      await refreshProAccountStatus();
+      
+      Alert.alert(
+        "Demande annulée",
+        response.message || "Votre demande de compte professionnel a été annulée avec succès. Vous pouvez maintenant faire une nouvelle demande.",
+        [{ text: "OK" }]
+      );
+    } catch (error: any) {
+      let errorMessage = "Une erreur est survenue lors de l'annulation de votre demande.";
+      
+      if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+      
+      Alert.alert(
+        "Erreur",
+        errorMessage,
+        [{ text: "OK" }]
+      );
+    }
+  };
+
+  const handleCreateNewPostulation = () => {
+    setUserPostulation(null);
+    setShowCategoryModal(true);
+  };
+
+  const getProAccountLinkConfig = () => {
+    if (!proAccountStatus) {
+      return {
+        title: 'Chargement...',
+        subtitle: 'Vérification du statut',
+        icon: 'spinner',
+        onPress: () => {},
+        isDestructive: false,
+      };
+    }
+
+    // Si l'utilisateur est déjà pro, on ne retourne rien (la section ne s'affichera pas)
+    if (proAccountStatus.userStatus === 'pro_with_postulation' || 
+        proAccountStatus.userStatus === 'pro_direct_validation') {
+      return null;
+    }
+
+    // Cas 1: Postulation en cours (PENDING)
+    if (userPostulation?.status === ProAccountPostulationStatus.PENDING) {
+      return {
+        title: 'Demande en cours',
+        subtitle: 'En attente de validation - Touchez pour gérer',
+        icon: 'clock',
+        onPress: handleManagePostulation,
+        isDestructive: false,
+      };
+    }
+
+    // Cas 2: Postulation approuvée mais utilisateur pas encore pro (en transition)
+    if (userPostulation?.status === ProAccountPostulationStatus.APPROVED && !user?.proInfo?.isPro) {
+      return {
+        title: 'Demande approuvée',
+        subtitle: 'Finalisation en cours - Touchez pour plus d\'infos',
+        icon: 'check-circle',
+        onPress: handleManagePostulation,
+        isDestructive: false,
+      };
+    }
+
+    // Cas 3: Aucune postulation - permettre de créer une demande
+    if (proAccountStatus.canRequest && !userPostulation) {
+      return {
+        title: 'Devenir compte pro',
+        subtitle: isCreatingPostulation 
+          ? 'Envoi en cours...' 
+          : 'Bénéficiez d\'avantages exclusifs',
+        icon: 'crown',
+        onPress: handleCreatePostulation,
+        isDestructive: false,
+      };
+    }
+
+    // Cas par défaut - ne pas afficher
+    return null;
   };
 
   const handleNavigation = (screen: string) => {
     if (onNavigate) {
       onNavigate(screen);
     } else {
-      console.log(`Navigate to: ${screen}`);
+
     }
   };
 
@@ -221,38 +338,39 @@ const ProfileLinks: React.FC<ProfileLinksProps> = ({
     isDestructive: true,
   });
 
+
+
   const settingsSection: ProfileSection = {
     id: 'settings',
     title: 'Paramètres',
     links: settingsLinks,
   };
 
-  // Section 4: Compte Professionnel (uniquement si connecté et pas encore pro)
-  const proAccountSection: ProfileSection = {
-    id: 'pro-account',
-    title: 'Compte Professionnel',
-    links: [
-      {
-        id: 'pro-postulation',
-        title: hasPostulation ? 'Gérer ma demande' : 'Devenir compte pro',
-        subtitle: hasPostulation 
-          ? 'Demande en cours d\'examen' 
-          : isCreatingPostulation 
-            ? 'Envoi en cours...' 
-            : 'Bénéficiez d\'avantages exclusifs',
-        icon: hasPostulation ? 'file-contract' : 'crown',
-        onPress: hasPostulation ? handleManagePostulation : handleCreatePostulation,
-        showArrow: true,
-        isDestructive: hasPostulation,
-      },
-    ],
-  };
+  // Section 4: Compte Professionnel 
+  // Affichage seulement si l'utilisateur n'est pas déjà pro
+  const proAccountLinkConfig = getProAccountLinkConfig();
+  const proAccountSection: ProfileSection | null = 
+    isAuthenticated && 
+    user && 
+    proAccountStatus &&
+    !isLoadingPostulations &&
+    proAccountLinkConfig ? {
+      id: 'pro-account',
+      title: 'Compte Professionnel',
+      links: [
+        {
+          id: 'pro-postulation',
+          ...proAccountLinkConfig,
+          showArrow: true,
+        },
+      ],
+    } : null;
 
   // Affichage conditionnel des sections selon l'état d'authentification
   const sections: ProfileSection[] = isAuthenticated 
     ? [
-        devisSection, 
-        !isLoadingPostulations ? proAccountSection : null, // Section pro account si pas en chargement
+        devisSection,
+        proAccountSection, // Sera null si l'utilisateur est déjà pro
         settingsSection
       ].filter(Boolean) as ProfileSection[] // Filtrer les valeurs null
     : [authSection]; // Si non connecté: connexion + inscription

@@ -3,10 +3,10 @@ import React, { useEffect, useRef, useState } from "react";
 import PromotionsBannerPresenter from "./PromotionsBannerPresenter";
 import PromotionsBannerSkeleton from "./PromotionsBannerSkeleton/PromotionsBannerSkeleton";
 import promotionBannersService, { PromotionBannerDto } from "src/services/promotionBannersService";
-
-const { width: screenWidth } = Dimensions.get("window");
 import { ms } from "react-native-size-matters";
 import { useNavigation } from "@react-navigation/native";
+
+const { width: screenWidth } = Dimensions.get("window");
 
 const PromotionsBanner = () => {
   const [banners, setBanners] = useState<PromotionBannerDto[]>([]);

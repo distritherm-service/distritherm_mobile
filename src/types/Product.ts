@@ -39,6 +39,18 @@ export interface ProductDetail extends Product {
 }
 
 /**
+ * Interface pour les informations de remise professionnelle sur un produit
+ */
+export interface ProductProInfoDto {
+  isPro?: boolean;
+  categoryIdPro?: number;
+  percentage?: number;
+  categoryProName?: string;
+  proPriceHt?: number;
+  proPriceTtc?: number;
+}
+
+/**
  * DTO produit de base
  */
 export interface ProductBasicDto {
@@ -65,6 +77,7 @@ export interface ProductBasicDto {
   promotionEndDate?: Date;
   promotionPercentage?: number;
   isFavorited?: boolean;
+  proInfo?: ProductProInfoDto | null;
 }
 
 /**

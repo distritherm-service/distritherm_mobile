@@ -32,9 +32,9 @@ import EmptyState from "src/components/EmptyState/EmptyState";
 import LoadingState from "src/components/LoadingState/LoadingState";
 import { ReservationModal } from "src/components/Cart";
 import { useColors } from "src/hooks/useColors";
-import { Cart } from "src/types/Cart";
+import { Cart , CartItem } from "src/types/Cart";
 import { ProductBasicDto } from "src/types/Product";
-import { CartItem } from "src/types/Cart";
+import { calculateProductPricing, formatPrice, calculateTotalPrice } from "src/utils/priceUtils";
 
 // Extended cart interface for presenter
 interface CartWithDetails extends Cart {
@@ -155,10 +155,10 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
       lineHeight: ms(18),
     },
     priceRow: {
-      flexDirection: "row",
-      alignItems: "center",
+      flexDirection: "column",
+      alignItems: "flex-start",
       marginBottom: ms(16),
-      flexWrap: "wrap",
+      gap: ms(4),
     },
     currentPrice: {
       fontSize: ms(18),
@@ -421,17 +421,14 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
   }) => {
     const isItemLoading = loadingItems.has(item.id);
 
-    // Calculs des prix pour affichage (en HT)
-    const isInPromotion = item.product && item.product.isInPromotion;
-    // Pour le prix original, on calcule le HT à partir du TTC du produit (en assumant TVA 20%)
-    const originalUnitPriceHt = item.product?.priceHt || 0; // Conversion TTC -> HT (TVA 20%)
-    const originalTotalPriceHt = originalUnitPriceHt * item.quantity; // Prix original HT * quantité
-    const cartItemTotalPriceHt = item.priceHt; // Prix total HT du cartItem (déjà calculé avec promo côté backend)
-
-    // Calculer le pourcentage de remise si en promotion
-    const discountPercentage = isInPromotion
-      ? item.product?.promotionPercentage || 0
-      : 0;
+    // Calcul des informations de prix avec l'utilitaire centralisé
+    const pricingInfo = calculateProductPricing(item.product, user?.proInfo);
+    
+    // Prix unitaire et total pour l'affichage
+    const unitPriceHt = pricingInfo.discountedPriceHt;
+    const originalUnitPriceHt = pricingInfo.originalPriceHt;
+    const totalPriceHt = calculateTotalPrice(unitPriceHt, item.quantity);
+    const originalTotalPriceHt = calculateTotalPrice(originalUnitPriceHt, item.quantity);
 
     return (
       <View style={dynamicStyles.cartItem}>
@@ -468,27 +465,35 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
             </Text>
 
             <View style={dynamicStyles.priceRow}>
-              {isInPromotion && discountPercentage > 0 ? (
+              {pricingInfo.isApplicable && pricingInfo.percentage ? (
                 <>
                   {/* Prix barré (prix original HT * quantité) */}
                   <Text style={dynamicStyles.originalPrice}>
-                    {originalTotalPriceHt.toFixed(2)}€ HT
+                    {formatPrice(originalTotalPriceHt).replace('€', '€ HT')}
                   </Text>
-                  {/* Prix promotionnel HT (prix total du cartItem) */}
-                  <Text style={dynamicStyles.currentPrice}>
-                    {cartItemTotalPriceHt.toFixed(2)}€ HT
-                  </Text>
-                  {/* Badge de remise */}
-                  <View style={dynamicStyles.discountBadge}>
-                    <Text style={dynamicStyles.discountText}>
-                      -{discountPercentage}%
+                  {/* Prix avec remise HT et badge */}
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: ms(8) }}>
+                    <Text style={[
+                      dynamicStyles.currentPrice,
+                      { color: pricingInfo.type === 'pro' ? colors.success[500] : colors.accent[500] }
+                    ]}>
+                      {formatPrice(totalPriceHt).replace('€', '€ HT')}
                     </Text>
+                    {/* Badge de remise - vert pour pro, rouge pour promotion */}
+                    <View style={[
+                      dynamicStyles.discountBadge,
+                      { backgroundColor: pricingInfo.type === 'pro' ? colors.success[500] : colors.accent[500] }
+                    ]}>
+                      <Text style={dynamicStyles.discountText}>
+                        {pricingInfo.type === 'pro' ? '👨‍💼' : '🔥'} -{pricingInfo.percentage}%
+                      </Text>
+                    </View>
                   </View>
                 </>
               ) : (
-                /* Prix normal HT (prix total du cartItem) */
+                /* Prix normal HT */
                 <Text style={dynamicStyles.currentPrice}>
-                  {cartItemTotalPriceHt.toFixed(2)}€ HT
+                  {formatPrice(totalPriceHt).replace('€', '€ HT')}
                 </Text>
               )}
             </View>

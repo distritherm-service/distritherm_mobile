@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { Alert, Animated, Dimensions } from "react-native";
 import { EReservation } from "src/types/Reservation";
 import { CartItemWithProduct } from "src/types/Cart";
-import reservationsService from "src/services/reservationsService";
+import reservationsService from "@/reservations";
 import ReservationFicheProductPresenter from "./ReservationFicheProductPresenter";
 
 const { height: screenHeight } = Dimensions.get("window");

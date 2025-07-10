@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { Alert, Animated, Dimensions } from "react-native";
 import { Devis } from "src/types/Devis";
 import { CartItemWithProduct } from "src/types/Cart";
+import { useAuth } from "src/hooks/useAuth";
 import devisService from "src/services/devisService";
 import DevisFicheProductPresenter from "./DevisFicheProductPresenter";
 
@@ -18,6 +19,7 @@ const DevisFicheProduct: React.FC<DevisFicheProductProps> = ({
   devis,
   onClose,
 }) => {
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [cartItems, setCartItems] = useState<CartItemWithProduct[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -186,6 +188,7 @@ const DevisFicheProduct: React.FC<DevisFicheProductProps> = ({
       slideAnim={slideAnim}
       fadeAnim={fadeAnim}
       formatPrice={formatPrice}
+      user={user}
       onClose={handleClose}
       onRefresh={handleRefresh}
       onRetry={handleRetry}

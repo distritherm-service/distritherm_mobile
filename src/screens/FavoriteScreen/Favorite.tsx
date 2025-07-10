@@ -157,7 +157,7 @@ const Favorite = () => {
 
       try {
         // Update local state
-        console.log(productId);
+
         setFavorites((prev) =>
           prev.filter((product) => product.id !== productId)
         );

@@ -5,7 +5,9 @@
     "baseUrl": ".",
     "paths": {
       "@assets/*": ["./assets/*"],
-      "src/*": ["./src/*"]
+      "src/*": ["./src/*"],
+      "@/reservations": ["./src/services/reservationsService"],
+      "@/pro-account": ["./src/services/proAccountService"]
     }
   }
 }

@@ -13,6 +13,16 @@ export enum Type {
 }
 
 /**
+ * Interface pour les informations de compte professionnel
+ */
+export interface UserProInfoDto {
+  isPro?: boolean;
+  categoryIdPro?: number;
+  percentage?: number;
+  categoryProName?: string;
+}
+
+/**
  * Interface de base pour un utilisateur
  */
 export interface User {
@@ -43,6 +53,7 @@ export interface UserBasicDto {
   type: Type;
   role: Role;
   urlPicture?: string;
+  proInfo?: UserProInfoDto;
 }
 
 /**

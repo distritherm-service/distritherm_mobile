@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation , RouteProp } from '@react-navigation/native';
 import ProductPresenter from "./ProductPresenter";
 import productsService from "../../services/productsService";
 import cartsService, { AddProductDto } from "../../services/cartsService";
-import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from 'src/navigation/types';
 import { ProductDetailDto } from "src/types/Product";
 import { useAuth } from 'src/hooks/useAuth';
@@ -29,9 +28,10 @@ const Product = ({ route }: ProductProps) => {
       try {
         setLoading(true);
         const response = await productsService.findOne(productId);
+        console.log(response.product);
         setProduct(response.product);
       } catch (error) {
-        console.log("Error fetching product:", error);
+
       } finally {
         setLoading(false);
       }
@@ -53,7 +53,7 @@ const Product = ({ route }: ProductProps) => {
       // Update the route params to reflect the new product
       navigation.setParams({ productId: newProductId });
     } catch (error) {
-      console.log("Error fetching new product:", error);
+
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { ProductDetailDto } from 'src/types/Product';
+import { useAuth } from 'src/hooks/useAuth';
+import { calculateProductPricing, calculateTotalPrice, hasStockAvailable, isLowStock } from 'src/utils/priceUtils';
 import ProductMainInfoPresenter from './ProductMainInfoPresenter';
 
 interface ProductMainInfoProps {
@@ -15,6 +17,7 @@ const ProductMainInfo: React.FC<ProductMainInfoProps> = ({
 }) => {
   const [quantity, setQuantity] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { user } = useAuth();
 
   const handleQuantityChange = (newQuantity: number) => {
     if (newQuantity >= 1 && newQuantity <= product.quantity) {
@@ -41,7 +44,7 @@ const ProductMainInfo: React.FC<ProductMainInfoProps> = ({
       // Fallback behavior if no onAddToCart prop is provided
       setIsLoading(true);
       try {
-        console.log(`Adding ${quantity} of product ${product.id} to cart`);
+
         // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 1000));
       } catch (error) {
@@ -52,18 +55,16 @@ const ProductMainInfo: React.FC<ProductMainInfoProps> = ({
     }
   };
 
-  const calculateTotalPrice = () => {
-    const basePrice = product.priceHt;
-    // Check if product is in promotion - calculate HT price from promotion TTC price
-    const finalPrice = product.isInPromotion && product.promotionPrice 
-      ? product.promotionPrice / 1.20  // Convert promotion TTC to HT (assuming 20% VAT)
-      : basePrice;
-    return finalPrice * quantity;
+  // Calcul des informations de prix et remise avec l'utilitaire centralisé
+  const pricingInfo = calculateProductPricing(product, user?.proInfo);
+
+  const calculateProductTotalPrice = () => {
+    return calculateTotalPrice(pricingInfo.discountedPriceHt, quantity);
   };
 
-  const hasStock = product.quantity > 0;
+  const hasStock = hasStockAvailable(product);
   const isOutOfStock = !hasStock;
-  const isLowStock = product.quantity <= 5 && product.quantity > 0;
+  const isProductLowStock = isLowStock(product);
 
   return (
     <ProductMainInfoPresenter
@@ -72,8 +73,9 @@ const ProductMainInfo: React.FC<ProductMainInfoProps> = ({
       isLoading={onAddToCart ? addToCartLoading : isLoading}
       hasStock={hasStock}
       isOutOfStock={isOutOfStock}
-      isLowStock={isLowStock}
-      totalPrice={calculateTotalPrice()}
+      isLowStock={isProductLowStock}
+      totalPrice={calculateProductTotalPrice()}
+      discountInfo={pricingInfo}
       onQuantityChange={handleQuantityChange}
       onIncreaseQuantity={handleIncreaseQuantity}
       onDecreaseQuantity={handleDecreaseQuantity}

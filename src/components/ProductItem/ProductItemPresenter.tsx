@@ -18,13 +18,15 @@ interface ProductItemPresenterProps {
   name: string;
   category: string;
   price: number;
+  originalPrice?: number;
   unit: string;
   imageSource: ImageSourcePropType;
   inStock: boolean;
   onPress: () => void;
   isFavorited?: boolean;
   onFavoritePress?: () => void;
-  promotionPercentage?: number;
+  discountType?: 'pro' | 'promotion' | null;
+  discountPercentage?: number | null;
   isTabletDevice: boolean;
   imageError: boolean;
   isLoading: boolean;
@@ -36,13 +38,15 @@ const ProductItemPresenter: React.FC<ProductItemPresenterProps> = ({
   name,
   category,
   price,
+  originalPrice,
   unit,
   imageSource,
   inStock,
   onPress,
   isFavorited = false,
   onFavoritePress,
-  promotionPercentage,
+  discountType,
+  discountPercentage,
   isTabletDevice,
   imageError,
   isLoading,
@@ -72,7 +76,11 @@ const ProductItemPresenter: React.FC<ProductItemPresenterProps> = ({
       backgroundColor: colors.accent[500],
       shadowColor: colors.accent[900],
     },
-    promotionText: {
+    proBadge: {
+      backgroundColor: colors.success[500],
+      shadowColor: colors.success[900],
+    },
+    badgeText: {
       color: colors.surface,
     },
     favoriteButton: {
@@ -98,6 +106,9 @@ const ProductItemPresenter: React.FC<ProductItemPresenterProps> = ({
     price: {
       color: colors.secondary[700],
     },
+    originalPrice: {
+      color: colors.textSecondary,
+    },
     unit: {
       color: colors.textSecondary,
     },
@@ -107,6 +118,24 @@ const ProductItemPresenter: React.FC<ProductItemPresenterProps> = ({
     stockText: {
       color: inStock ? colors.success[600] : colors.danger[600],
     },
+  };
+
+  const getBadgeStyle = () => {
+    if (discountType === 'pro') {
+      return [styles.discountBadge, dynamicStyles.proBadge];
+    } else if (discountType === 'promotion') {
+      return [styles.discountBadge, dynamicStyles.promotionBadge];
+    }
+    return null;
+  };
+
+  const getBadgeIcon = () => {
+    if (discountType === 'pro') {
+      return '👨‍💼'; // Professional icon
+    } else if (discountType === 'promotion') {
+      return '🔥'; // Fire icon for promotion
+    }
+    return '';
   };
 
   return (
@@ -145,11 +174,14 @@ const ProductItemPresenter: React.FC<ProductItemPresenterProps> = ({
           </View>
         )}
 
-        {/* Promotion Badge */}
-        {promotionPercentage && (
-          <View style={[styles.promotionBadge, dynamicStyles.promotionBadge]}>
-            <Text style={[styles.promotionText, dynamicStyles.promotionText]}>
-              -{promotionPercentage}%
+        {/* Discount Badge - Pro (Green) or Promotion (Red) */}
+        {discountPercentage && discountType && (
+          <View style={getBadgeStyle()}>
+            <Text style={[styles.badgeIcon, dynamicStyles.badgeText]}>
+              {getBadgeIcon()}
+            </Text>
+            <Text style={[styles.badgeText, dynamicStyles.badgeText]}>
+              -{discountPercentage}%
             </Text>
           </View>
         )}
@@ -188,10 +220,17 @@ const ProductItemPresenter: React.FC<ProductItemPresenterProps> = ({
         {/* Price Container */}
         <View style={styles.priceContainer}>
           <View style={[styles.priceBackground, dynamicStyles.priceBackground]}>
-            <Text style={[styles.price, dynamicStyles.price]}>
-              {price.toFixed(2)} €
-            </Text>
-            <Text style={[styles.unit, dynamicStyles.unit]}>/{unit}</Text>
+            {originalPrice && (
+              <Text style={[styles.originalPrice, dynamicStyles.originalPrice]}>
+                {originalPrice.toFixed(2)} €
+              </Text>
+            )}
+            <View style={styles.priceRow}>
+              <Text style={[styles.price, dynamicStyles.price]}>
+                {price.toFixed(2)} €
+              </Text>
+              <Text style={[styles.unit, dynamicStyles.unit]}>/{unit}</Text>
+            </View>
           </View>
         </View>
 
@@ -266,13 +305,15 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: ms(32),
   },
-  promotionBadge: {
+  discountBadge: {
     position: "absolute",
     top: ms(8),
     left: ms(8),
-    paddingHorizontal: ms(12),
-    paddingVertical: ms(6),
+    paddingHorizontal: ms(8),
+    paddingVertical: ms(4),
     borderRadius: ms(16),
+    flexDirection: "row",
+    alignItems: "center",
     shadowOffset: {
       width: 0,
       height: 3,
@@ -281,7 +322,11 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 6,
   },
-  promotionText: {
+  badgeIcon: {
+    fontSize: ms(8),
+    marginRight: ms(4),
+  },
+  badgeText: {
     fontSize: ms(10),
     fontWeight: "800",
     textTransform: "uppercase",
@@ -334,11 +379,17 @@ const styles = StyleSheet.create({
     marginBottom: ms(8),
   },
   priceBackground: {
-    flexDirection: "row",
-    alignItems: "baseline",
+    flexDirection: "column",
+    alignItems: "flex-start",
     paddingHorizontal: ms(10),
     paddingVertical: ms(6),
     borderRadius: ms(12),
+  },
+  originalPrice: {
+    fontSize: ms(12),
+    fontWeight: "500",
+    textDecorationLine: "line-through",
+    marginRight: ms(6),
   },
   price: {
     fontSize: ms(16),
@@ -349,6 +400,10 @@ const styles = StyleSheet.create({
     fontSize: ms(12),
     fontWeight: "500",
     marginLeft: ms(3),
+  },
+  priceRow: {
+    flexDirection: "row",
+    alignItems: "baseline",
   },
   statusContainer: {
     flexDirection: "row",

@@ -18,9 +18,8 @@ import UnauthenticatedState from "src/components/UnauthenticatedState/Unauthenti
 import ErrorState from "src/components/ErrorState/ErrorState";
 import LoadingState from "src/components/LoadingState/LoadingState";
 import { Devis, DevisStatus } from "src/types/Devis";
-import { DevisFilter } from "src/components/Devis/DevisFilters/DevisFilters";
+import DevisFilters, { DevisFilter } from "src/components/Devis/DevisFilters/DevisFilters";
 import DevisCard from "src/components/Devis/DevisCard/DevisCard";
-import DevisFilters from "src/components/Devis/DevisFilters/DevisFilters";
 // Search functionality disabled for regular clients
 // import DevisSearchBar from "src/components/Devis/DevisSearchBar/DevisSearchBar";
 import DevisFicheProduct from "src/components/Devis/DevisFicheProduct/DevisFicheProduct";

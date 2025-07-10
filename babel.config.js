@@ -11,6 +11,8 @@ module.exports = function (api) {
           alias: {
             '@assets': './assets',
             'src': './src',
+            '@/reservations': './src/services/reservationsService',
+            '@/pro-account': './src/services/proAccountService',
           },
         },
       ],

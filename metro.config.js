@@ -5,6 +5,8 @@ const config = getDefaultConfig(__dirname);
 
 config.resolver.alias = {
   '@assets': path.resolve(__dirname, 'assets'),
+  '@/reservations': path.resolve(__dirname, 'src/services/reservationsService'),
+  '@/pro-account': path.resolve(__dirname, 'src/services/proAccountService'),
 };
 
 // Configuration pour la nouvelle architecture React Native

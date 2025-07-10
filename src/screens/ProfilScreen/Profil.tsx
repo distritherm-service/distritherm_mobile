@@ -20,25 +20,45 @@ const Profil = () => {
   const { logout, isAuthenticated, user, deconnectionLoading } = useAuth();
   const dispatch = useDispatch();
 
+  // Fonction de test pour forcer la récupération des données fraîches
+  const refreshUserData = async () => {
+    try {
+      const response = await usersService.getCurrentUser();
+
+      // Mettre à jour Redux
+      dispatch(updateUser(response.user));
+    } catch (error) {
+      console.error("❌ Test refresh - Erreur:", error);
+    }
+  };
+
+  // Auto-refresh au montage du composant pour diagnostic
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      refreshUserData();
+    }
+  }, [isAuthenticated]);
+
   // Handle user profile update - récupère les données fraîches via /me
   const handleUserUpdate = async (updatedUser: UserWithClientDto) => {
     try {
       // Récupérer les données utilisateur fraîches depuis l'API via /me
       const response = await usersService.getCurrentUser();
-      
+
       // Extraire les données utilisateur de la réponse {user: {...}, message: "..."}
       const userData = response.user;
-      
+
       // Mettre à jour Redux avec les données fraîches du serveur
       dispatch(updateUser(userData));
-      
-      console.log("✅ Données utilisateur mises à jour via /me");
     } catch (error) {
-      console.error("❌ Erreur lors de la récupération des données utilisateur:", error);
-      
+      console.error(
+        "❌ Erreur lors de la récupération des données utilisateur:",
+        error
+      );
+
       // Fallback: utiliser les données retournées par changePicture si /me échoue
       dispatch(updateUser(updatedUser));
-      
+
       Alert.alert(
         "Avertissement",
         "Photo mise à jour avec succès, mais impossible de synchroniser certaines données."

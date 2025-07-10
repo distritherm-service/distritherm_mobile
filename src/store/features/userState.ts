@@ -25,12 +25,16 @@ export const initializeAuth = createAsyncThunk(
     if (isAuthenticated && hasTokens) {
       try {
         // Récupérer l'utilisateur depuis l'API
-        const response: any = await usersService.getCurrentUser();
+        const response = await usersService.getCurrentUser();
+
+
+
         return {
           isAuthenticated: true,
           user: response.user,
         };
       } catch (error) {
+        console.error("❌ Erreur lors de l'initialisation de l'auth:", error);
         await storageService.clearAll();
         return {
           isAuthenticated: false,

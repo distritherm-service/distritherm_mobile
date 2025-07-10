@@ -24,10 +24,10 @@ interface FilterModalPresenterProps {
   tempFilter: SearchFilter;
   activeFiltersCount: number;
   // Category options for the UI
-  categoryOptions: Array<{label: string; value: string}>;
+  categoryOptions: {label: string; value: string}[];
   selectedCategory?: {label: string; value: string};
   // Mark options for the UI
-  markOptions: Array<{label: string; value: string}>;
+  markOptions: {label: string; value: string}[];
   selectedMark?: {label: string; value: string};
   onClose: () => void;
   onCategorySelect: (categoryId: number) => void;

@@ -41,7 +41,7 @@ const ProductSimilar: React.FC<ProductSimilarProps> = ({
           setSimilarProducts([]);
         }
       } catch (error) {
-        console.log('Error fetching similar products:', error);
+
         setError('Erreur lors du chargement des produits similaires');
         setSimilarProducts([]);
       } finally {
@@ -56,7 +56,7 @@ const ProductSimilar: React.FC<ProductSimilarProps> = ({
     if (categoryId) {
       // Navigate to category screen or products list with category filter
       // You might need to implement this navigation based on your app structure
-      console.log('Navigate to category:', categoryId);
+
     }
   };
 

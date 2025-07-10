@@ -10,6 +10,7 @@ import { RootStackParamList } from "src/navigation/types";
 import { useAuth } from "src/hooks/useAuth";
 import favoritesService from "src/services/favoritesService";
 import interactionsService from "src/services/interactionsService";
+import { calculateProductPricing, hasStockAvailable } from "src/utils/priceUtils";
 
 type NavigationProp = StackNavigationProp<RootStackParamList>;
 
@@ -52,6 +53,7 @@ const ProductItem: React.FC<ProductItemProps> = ({
     promotionEndDate: undefined,
     promotionPercentage: undefined,
     isFavorited: false,
+    proInfo: null,
   };
 
   const currentProduct = product || defaultProduct;
@@ -79,12 +81,14 @@ const ProductItem: React.FC<ProductItemProps> = ({
   };
 
   const getImageSource = () => {
-
     if (imageError || !currentProduct.imagesUrl?.[0]) {
       return { uri: NO_IMAGE_URL };
     }
     return { uri: currentProduct.imagesUrl[0] };
   };
+
+  // Calcul des informations de prix et remise avec l'utilitaire centralisé
+  const pricingInfo = calculateProductPricing(currentProduct, user?.proInfo);
 
   // Handlers pour les actions
   const handlePress = async () => {
@@ -149,14 +153,16 @@ const ProductItem: React.FC<ProductItemProps> = ({
     <ProductItemPresenter
       name={currentProduct.name}
       category={currentProduct.category?.name || "Construction"}
-      price={currentProduct.promotionPrice ? (currentProduct.promotionPrice / 1.20) : currentProduct.priceHt}
+      price={pricingInfo.discountedPriceHt}
+      originalPrice={pricingInfo.isApplicable ? pricingInfo.originalPriceHt : undefined}
       unit={currentProduct.unity || "unité"}
       imageSource={getImageSource()}
-      inStock={currentProduct.quantity > 0}
+      inStock={hasStockAvailable(currentProduct)}
       onPress={handlePress}
       isFavorited={isFavorited}
       onFavoritePress={handleFavoritePress}
-      promotionPercentage={currentProduct.promotionPercentage}
+      discountType={pricingInfo.type}
+      discountPercentage={pricingInfo.percentage}
       isTabletDevice={isTabletDevice}
       imageError={imageError}
       isLoading={isLoading}

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Alert } from "react-native";
 import { useAuth } from "src/hooks/useAuth";
-import reservationsService from "src/services/reservationsService";
+import reservationsService from "@/reservations";
 import { EReservation, EReservationStatus, ReservationFilter } from "src/types/Reservation";
 import { PaginationDto } from "src/types/PaginationDto";
 import MesReservationsPresenter from "./MesReservationsPresenter";

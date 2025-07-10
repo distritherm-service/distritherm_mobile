@@ -1,11 +1,10 @@
-import { StyleSheet, Platform } from "react-native";
+import { StyleSheet, Platform , Alert } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import GoogleSignInPresenter from "./GoogleSignInPresenter";
 import {
   GoogleSignin,
   statusCodes,
 } from "@react-native-google-signin/google-signin";
-import { Alert } from "react-native";
 import authService, { AdditionalUserInfoDto } from "src/services/authService";
 import { useForm, Control, FieldErrors } from "react-hook-form";
 import { useAuth } from "src/hooks/useAuth";
@@ -132,7 +131,7 @@ const GoogleSignIn: React.FC<GoogleSignInProps> = ({ onSignInError }) => {
       
       // Vérifier explicitement que l'utilisateur s'est bien connecté
       if (!userInfo || !userInfo.data) {
-        console.log("mami");
+
         return; // Sortie silencieuse
       }
 

@@ -8,7 +8,7 @@ import cartsService, {
   RemoveProductDto,
 } from "src/services/cartsService";
 import devisService, { CreateDeviDto } from "src/services/devisService";
-import reservationsService from "src/services/reservationsService";
+import reservationsService from "@/reservations";
 import { CreateReservationDto } from "src/types/Reservation";
 import {
   Cart as CartType,

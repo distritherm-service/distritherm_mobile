@@ -10,6 +10,7 @@ import { ms } from 'react-native-size-matters'; // Using react-native-size-matte
 import { ProductDetailDto } from 'src/types/Product';
 import { useColors } from 'src/hooks/useColors';
 import { FontAwesome6 } from '@expo/vector-icons';
+import { DiscountInfo } from 'src/utils/priceUtils';
 
 interface ProductMainInfoPresenterProps {
   product: ProductDetailDto;
@@ -19,6 +20,7 @@ interface ProductMainInfoPresenterProps {
   isOutOfStock: boolean;
   isLowStock: boolean;
   totalPrice: number;
+  discountInfo: DiscountInfo;
   onQuantityChange: (quantity: number) => void;
   onIncreaseQuantity: () => void;
   onDecreaseQuantity: () => void;
@@ -33,6 +35,7 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
   isOutOfStock,
   isLowStock,
   totalPrice,
+  discountInfo,
   onIncreaseQuantity,
   onDecreaseQuantity,
   onAddToCart,
@@ -97,13 +100,18 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
     );
   };
 
-  const getPromotionBadge = () => {
-    if (product.isInPromotion && product.promotionPercentage) {
+  const getDiscountBadge = () => {
+    if (discountInfo.isApplicable && discountInfo.type && discountInfo.percentage) {
+      const isProDiscount = discountInfo.type === 'pro';
+      const badgeColor = isProDiscount ? colors.success[500] : colors.accent[500];
+      const textColor = colors.primary[50];
+      const icon = isProDiscount ? '👨‍💼' : '🔥';
+      
       return (
-        <View style={[styles.promotionBadge, { backgroundColor: colors.accent[500] }]}>
-          <Text style={[styles.promotionIcon, { color: colors.primary[50] }]}>🔥</Text>
-          <Text style={[styles.promotionBadgeText, { color: colors.primary[50] }]}>
-            -{product.promotionPercentage}%
+        <View style={[styles.discountBadge, { backgroundColor: badgeColor }]}>
+          <Text style={[styles.discountIcon, { color: textColor }]}>{icon}</Text>
+          <Text style={[styles.discountBadgeText, { color: textColor }]}>
+            -{discountInfo.percentage}%
           </Text>
         </View>
       );
@@ -151,14 +159,17 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
       {/* Enhanced Price Section */}
       <View style={[styles.priceSection, dynamicStyles.priceSectionBorder]}>
         <View style={styles.priceContainer}>
-          {product.isInPromotion && product.promotionPrice ? (
+          {discountInfo.isApplicable ? (
             <View style={styles.promotionPriceContainer}>
               <Text style={[styles.originalPrice, { color: colors.textSecondary }]}>
                 {formatPrice(product.priceHt)}
               </Text>
               <View style={styles.currentPriceContainer}>
-                <Text style={[styles.currentPrice, { color: colors.accent[500] }]}>
-                  {formatPrice(product.promotionPrice / 1.20)}
+                <Text style={[
+                  styles.currentPrice, 
+                  { color: discountInfo.type === 'pro' ? colors.success[500] : colors.accent[500] }
+                ]}>
+                  {formatPrice(discountInfo.discountedPriceHt)}
                 </Text>
                 <Text style={[styles.priceLabel, { color: colors.textSecondary }]}>HT</Text>
               </View>
@@ -172,7 +183,7 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
             </View>
           )}
         </View>
-        {getPromotionBadge()}
+        {getDiscountBadge()}
       </View>
 
       {/* Enhanced Stock Status */}
@@ -390,28 +401,7 @@ const styles = StyleSheet.create({
     fontSize: ms(12), // Using react-native-size-matters for responsive design - reduced from 14
     fontWeight: '500',
   },
-  promotionBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: ms(10), // Using react-native-size-matters for responsive design - reduced from 12
-    paddingVertical: ms(6), // Using react-native-size-matters for responsive design - reduced from 8
-    borderRadius: ms(16), // Using react-native-size-matters for responsive design - reduced from 20
-    gap: ms(4), // Using react-native-size-matters for responsive design
-    elevation: 3,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-  },
-  promotionIcon: {
-    fontSize: ms(12), // Using react-native-size-matters for responsive design - reduced from 14
-  },
-  promotionBadgeText: {
-    fontSize: ms(12), // Using react-native-size-matters for responsive design - reduced from 14
-    fontWeight: '700',
-  },
+
   stockSection: {
     marginBottom: ms(18), // Using react-native-size-matters for responsive design - reduced from 24
   },
@@ -555,6 +545,28 @@ const styles = StyleSheet.create({
   },
   cartIcon: {
     fontSize: ms(16), // Using react-native-size-matters for responsive design - reduced from 18
+  },
+  discountBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: ms(10), // Using react-native-size-matters for responsive design - reduced from 12
+    paddingVertical: ms(6), // Using react-native-size-matters for responsive design - reduced from 8
+    borderRadius: ms(16), // Using react-native-size-matters for responsive design - reduced from 20
+    gap: ms(4), // Using react-native-size-matters for responsive design
+    elevation: 3,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+  },
+  discountIcon: {
+    fontSize: ms(12), // Using react-native-size-matters for responsive design - reduced from 14
+  },
+  discountBadgeText: {
+    fontSize: ms(12), // Using react-native-size-matters for responsive design - reduced from 14
+    fontWeight: '700',
   },
 });
 

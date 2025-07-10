@@ -9,13 +9,13 @@ import {
   RefreshControl,
   ScrollView,
   Animated,
-} from "react-native";
+ Dimensions } from "react-native";
 import { ms } from "react-native-size-matters";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import PageContainer from "src/components/PageContainer/PageContainer";
 import ProductItem from "src/components/ProductItem/ProductItem";
-import Input from "src/components/Input/Input";
+import Input, { SelectOption } from "src/components/Input/Input";
 import EmptyState from "src/components/EmptyState/EmptyState";
 import LoadingState from "src/components/LoadingState/LoadingState";
 import { InputType } from "src/types/InputType";
@@ -23,8 +23,6 @@ import { useColors } from "src/hooks/useColors";
 import { PromotionDto } from "src/services/promotionsService";
 import { ProductBasicDto } from "src/types/Product";
 import { Category } from "src/types/Category";
-import { SelectOption } from "src/components/Input/Input";
-import { Dimensions } from "react-native";
 import { faTags } from "@fortawesome/free-solid-svg-icons";
 
 interface PromotionsPresenterProps {
