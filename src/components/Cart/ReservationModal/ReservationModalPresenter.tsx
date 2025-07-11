@@ -231,7 +231,7 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
     <Modal
       visible={visible}
       transparent={true}
-      animationType="slide"
+      animationType="none"
       onRequestClose={onClose}
       statusBarTranslucent={true}
     >

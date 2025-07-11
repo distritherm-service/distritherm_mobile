@@ -30,6 +30,8 @@ const ProductItem: React.FC<ProductItemProps> = ({
   const navigation = useNavigation<NavigationProp>();
   const { user } = useAuth();
 
+  console.log(product);
+
   // Logique métier
   const isTabletDevice = isTablet();
   // Données d'exemple pour un produit de construction
@@ -87,8 +89,10 @@ const ProductItem: React.FC<ProductItemProps> = ({
     return { uri: currentProduct.imagesUrl[0] };
   };
 
-  // Calcul des informations de prix et remise avec l'utilitaire centralisé
-  const pricingInfo = calculateProductPricing(currentProduct, user?.proInfo);
+  // Calcul des informations de prix et remise basé sur la catégorie du produit
+  // La logique ne dépend plus du userState mais de la correspondance entre 
+  // product.categoryId et product.proInfo.categoryIdPro
+  const pricingInfo = calculateProductPricing(currentProduct);
 
   // Handlers pour les actions
   const handlePress = async () => {

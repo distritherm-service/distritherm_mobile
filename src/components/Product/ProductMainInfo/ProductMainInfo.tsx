@@ -55,8 +55,9 @@ const ProductMainInfo: React.FC<ProductMainInfoProps> = ({
     }
   };
 
-  // Calcul des informations de prix et remise avec l'utilitaire centralisé
-  const pricingInfo = calculateProductPricing(product, user?.proInfo);
+  // Calcul des informations de prix et remise basé sur la catégorie du produit
+  // La logique ne dépend plus du userState mais de product.categoryId vs product.proInfo.categoryIdPro
+  const pricingInfo = calculateProductPricing(product);
 
   const calculateProductTotalPrice = () => {
     return calculateTotalPrice(pricingInfo.discountedPriceHt, quantity);

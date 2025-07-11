@@ -14,12 +14,37 @@ export interface DiscountInfo {
 
 /**
  * Calcule les informations de prix et de remise pour un produit
- * Applique la logique métier : Prix pro prioritaire si utilisateur pro dans la bonne catégorie,
- * sinon prix promotion si disponible, sinon prix normal
+ * Applique la logique métier selon l'ordre de priorité :
+ * 1. Prix pro (proInfoReduction) si le produit a proInfo ET sa catégorie correspond
+ * 2. Sinon promotion si disponible
+ * 3. Sinon prix normal
+ * 
+ * @example
+ * // Exemple avec le produit du log utilisateur :
+ * const product = {
+ *   categoryId: 20,           // Catégorie "Clôture"
+ *   priceHt: 39.99,
+ *   priceTtc: 47.99,
+ *   proInfo: {
+ *     categoryIdPro: 12,      // Catégorie pro "Sanitaires" 
+ *     percentage: 10,
+ *     proPriceHt: 35.99,
+ *     proPriceTtc: 43.19,
+ *     isPro: true
+ *   },
+ *   isInPromotion: false,
+ *   promotionPrice: null,
+ *   promotionPercentage: null
+ * };
+ * 
+ * // Résultat attendu : 20 ≠ 12 → Pas de réduction pro → Pas de promotion → Prix normal
+ * const result = calculateProductPricing(product);
+ * // result.type === null
+ * // result.discountedPriceHt === 39.99 (prix normal)
  */
 export const calculateProductPricing = (
   product: ProductBasicDto,
-  userProInfo?: UserProInfoDto | null
+  userProInfo?: UserProInfoDto | null // Paramètre gardé pour compatibilité mais non utilisé
 ): DiscountInfo => {
   const originalPriceHt = product.priceHt;
   const originalPriceTtc = product.priceTtc;
@@ -38,14 +63,13 @@ export const calculateProductPricing = (
                            product.promotionEndDate &&
                            new Date(product.promotionEndDate) > new Date();
 
-  // Vérifier si l'utilisateur est pro et a droit à la réduction sur cette catégorie
-  const isUserProForThisCategory = userProInfo?.isPro && 
-                                   userProInfo?.categoryIdPro && 
-                                   hasValidProInfo &&
-                                   userProInfo.categoryIdPro === product.proInfo?.categoryIdPro;
+  // RÈGLE MÉTIER PRIORITÉ 1 : Vérifier si la catégorie du produit correspond à la catégorie pro
+  // On compare directement product.categoryId avec product.proInfo.categoryIdPro
+  const isProApplicableForThisCategory = hasValidProInfo &&
+                                        product.categoryId === product.proInfo?.categoryIdPro;
 
-  // RÈGLE MÉTIER : Si utilisateur pro pour cette catégorie, privilégier TOUJOURS la remise pro
-  if (isUserProForThisCategory && hasValidProInfo) {
+  // Si proInfo s'applique à cette catégorie, privilégier TOUJOURS la remise pro
+  if (isProApplicableForThisCategory && hasValidProInfo) {
     const discountedPriceHt = product.proInfo!.proPriceHt!;
     const discountedPriceTtc = product.proInfo!.proPriceTtc!;
     const savings = originalPriceHt - discountedPriceHt;
@@ -62,7 +86,7 @@ export const calculateProductPricing = (
     };
   }
 
-  // Sinon, appliquer la promotion si disponible
+  // RÈGLE MÉTIER PRIORITÉ 2 : Appliquer la promotion si disponible et pas de proInfo applicable
   if (hasValidPromotion) {
     const discountedPriceTtc = product.promotionPrice!;
     const discountedPriceHt = discountedPriceTtc / 1.20; // Conversion TTC vers HT
@@ -80,7 +104,7 @@ export const calculateProductPricing = (
     };
   }
 
-  // Aucune remise applicable
+  // RÈGLE MÉTIER PRIORITÉ 3 : Aucune remise applicable, prix normal
   return {
     type: null,
     percentage: null,

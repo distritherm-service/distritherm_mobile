@@ -421,8 +421,9 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
   }) => {
     const isItemLoading = loadingItems.has(item.id);
 
-    // Calcul des informations de prix avec l'utilitaire centralisé
-    const pricingInfo = calculateProductPricing(item.product, user?.proInfo);
+    // Calcul des informations de prix basé sur la catégorie du produit
+    // La logique ne dépend plus du userState mais de product.categoryId vs product.proInfo.categoryIdPro
+    const pricingInfo = calculateProductPricing(item.product);
     
     // Prix unitaire et total pour l'affichage
     const unitPriceHt = pricingInfo.discountedPriceHt;
@@ -724,16 +725,18 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
               </Text>
             </View>
           ) : (
-            /* Calculer les totaux réels à partir des cartItems */
+            /* Calculer les totaux avec la même logique que les produits individuels */
             (() => {
-              const subTotalHt = cart.cartItems.reduce(
-                (sum, item) => sum + (item.priceHt || 0),
-                0
-              );
-              const subTotalTtc = cart.cartItems.reduce(
-                (sum, item) => sum + (item.priceTtc || 0),
-                0
-              );
+              const subTotalHt = cart.cartItems.reduce((sum, item) => {
+                const itemPricingInfo = calculateProductPricing(item.product);
+                const itemTotalPrice = calculateTotalPrice(itemPricingInfo.discountedPriceHt, item.quantity);
+                return sum + itemTotalPrice;
+              }, 0);
+              const subTotalTtc = cart.cartItems.reduce((sum, item) => {
+                const itemPricingInfo = calculateProductPricing(item.product);
+                const itemTotalPriceTtc = calculateTotalPrice(itemPricingInfo.discountedPriceTtc, item.quantity);
+                return sum + itemTotalPriceTtc;
+              }, 0);
               const tvaAmount = subTotalTtc - subTotalHt;
 
               return (

@@ -27,12 +27,22 @@ const reservationsService = {
   ): Promise<any> => {
     try {
       const params = new URLSearchParams();
-      if (status) params.append("status", status);
-      if (search) params.append("s", search);
-      if (paginationDto?.page)
+      
+      // Add pagination parameters
+      if (paginationDto?.page) {
         params.append("page", paginationDto.page.toString());
-      if (paginationDto?.limit)
+      }
+      if (paginationDto?.limit) {
         params.append("limit", paginationDto.limit.toString());
+      }
+      
+      // Add filter parameters
+      if (status) {
+        params.append("status", status);
+      }
+      if (search?.trim()) {
+        params.append("s", search.trim());
+      }
 
       const queryString = params.toString();
       const url = queryString
@@ -42,6 +52,7 @@ const reservationsService = {
       const response = await api.get(url);
       return response.data;
     } catch (error) {
+      console.error("Error in getReservationsByUser:", error);
       throw error;
     }
   },
@@ -56,13 +67,13 @@ const reservationsService = {
     }
   },
 
-  // PUT /reservations/:id - Mettre à jour une réservation
-  updateReservation: async (
+  // PATCH /reservations/:id/status - Mettre à jour le statut d'une réservation (CLIENT & ADMIN)
+  updateReservationStatus: async (
     id: number,
-    updateReservationDto: UpdateReservationDto
+    status: EReservationStatus
   ): Promise<any> => {
     try {
-      const response = await api.put(`/reservations/${id}`, updateReservationDto);
+      const response = await api.patch(`/reservations/${id}/status`, { status });
       return response.data;
     } catch (error) {
       throw error;

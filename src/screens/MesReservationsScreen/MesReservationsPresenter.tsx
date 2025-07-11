@@ -148,6 +148,7 @@ const MesReservationsPresenter: React.FC<MesReservationsPresenterProps> = ({
         headerTitle="Mes Réservations"
         onCustomBack={onBack}
         isScrollable={false}
+        bottomBar={false}
       >
         <LoadingState message="Chargement de vos réservations..." />
       </PageContainer>
@@ -162,6 +163,7 @@ const MesReservationsPresenter: React.FC<MesReservationsPresenterProps> = ({
         headerTitle="Mes Réservations"
         onCustomBack={onBack}
         isScrollable={false}
+        bottomBar={false}
       >
         <UnauthenticatedState 
           icon={faSignInAlt}
@@ -181,6 +183,7 @@ const MesReservationsPresenter: React.FC<MesReservationsPresenterProps> = ({
         headerTitle="Mes Réservations"
         onCustomBack={onBack}
         isScrollable={false}
+        bottomBar={false}
       >
         <ErrorState description={error} onRetry={onRefresh} />
       </PageContainer>
@@ -194,6 +197,7 @@ const MesReservationsPresenter: React.FC<MesReservationsPresenterProps> = ({
         headerTitle="Mes Réservations"
         onCustomBack={onBack}
         isScrollable={false}
+        bottomBar={false}
       >
         <View style={dynamicStyles.container}>
           {/* Store Address Info */}

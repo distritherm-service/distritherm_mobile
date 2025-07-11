@@ -7,6 +7,15 @@ import { EReservation, EReservationStatus, ReservationFilter } from "src/types/R
 import { PaginationDto } from "src/types/PaginationDto";
 import MesReservationsPresenter from "./MesReservationsPresenter";
 
+interface ReservationsMeta {
+  total: number;
+  page: number;
+  limit: number;
+  lastPage: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
 const MesReservationsScreen = () => {
   const { user, isAuthenticated } = useAuth();
   const navigation = useNavigation();
@@ -16,18 +25,17 @@ const MesReservationsScreen = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<ReservationFilter>("ALL");
   const [cancellingReservationId, setCancellingReservationId] = useState<number | null>(null);
   const [selectedReservationForProducts, setSelectedReservationForProducts] = useState<EReservation | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
 
-  // Pagination
-  const [pagination, setPagination] = useState<PaginationDto>({
-    page: 1,
-    limit: 10,
-  });
+  // Pagination state - simplified to track only current page and meta
+  const [currentPage, setCurrentPage] = useState(1);
+  const [meta, setMeta] = useState<ReservationsMeta | null>(null);
+
+  const ITEMS_PER_PAGE = 10;
 
   // Parse dates from API response
   const parseReservationDates = useCallback((reservation: any): EReservation => ({
@@ -39,31 +47,33 @@ const MesReservationsScreen = () => {
 
   // Load reservations from API
   const loadReservations = useCallback(
-    async (reset: boolean = false) => {
+    async (reset: boolean = false, pageToLoad?: number) => {
       if (!user?.id || !isAuthenticated) return;
 
+      // Calculate the actual page to load
+      const actualPageToLoad = reset ? 1 : (pageToLoad || currentPage + 1);
+      
       try {
         setError(null);
+        
         if (reset) {
           setLoading(true);
-          setPagination({ page: 1, limit: 10 });
         } else {
           setLoadingMore(true);
         }
 
-        const currentPage = reset ? 1 : pagination.page;
         const status = activeFilter === "ALL" ? undefined : activeFilter;
 
         const response = await reservationsService.getReservationsByUser(
           user.id,
           status,
           undefined, // search
-          { page: currentPage, limit: pagination.limit }
+          { page: actualPageToLoad, limit: ITEMS_PER_PAGE }
         );
 
         // Handle the API response structure from backend
         const responseData = response?.reservations || response?.data || [];
-        const meta = response?.meta;
+        const responseMeta = response?.meta;
         
         // Ensure we have an array of reservations with properly parsed dates
         const newReservations = Array.isArray(responseData) 
@@ -72,20 +82,41 @@ const MesReservationsScreen = () => {
         
         if (reset) {
           setReservations(newReservations);
+          setCurrentPage(1);
         } else {
-          setReservations(prev => [...prev, ...newReservations]);
+          // Only append if we have new data and it's not a duplicate
+          if (newReservations.length > 0) {
+            setReservations(prev => {
+              // Prevent duplicates by filtering out reservations that already exist
+              const existingIds = new Set(prev.map(r => r.id));
+              const uniqueNewReservations = newReservations.filter(r => !existingIds.has(r.id));
+              
+              return [...prev, ...uniqueNewReservations];
+            });
+            setCurrentPage(actualPageToLoad);
+          }
         }
 
-        // Use meta information if available, otherwise fallback to simple check
-        if (meta) {
-          setHasMore(meta.page < meta.total);
+        // Update meta information from backend response
+        if (responseMeta) {
+          setMeta(responseMeta);
         } else {
-          setHasMore(newReservations.length === pagination.limit);
+          // Fallback meta calculation if backend doesn't provide it
+          setMeta(prevMeta => {
+            const currentTotal = prevMeta?.total || 0;
+            const totalItems = reset ? newReservations.length : currentTotal + newReservations.length;
+            const lastPage = Math.ceil(totalItems / ITEMS_PER_PAGE);
+            return {
+              total: totalItems,
+              page: actualPageToLoad,
+              limit: ITEMS_PER_PAGE,
+              lastPage,
+              hasNextPage: newReservations.length === ITEMS_PER_PAGE,
+              hasPreviousPage: actualPageToLoad > 1,
+            };
+          });
         }
         
-        if (!reset && currentPage) {
-          setPagination(prev => ({ ...prev, page: currentPage + 1 }));
-        }
       } catch (err: any) {
         console.error("Error loading reservations:", err);
         const errorMessage = err?.response?.data?.message || err?.message || "Impossible de charger vos réservations";
@@ -96,18 +127,18 @@ const MesReservationsScreen = () => {
         setLoadingMore(false);
       }
     },
-    [user?.id, isAuthenticated, pagination.page, pagination.limit, activeFilter, parseReservationDates]
+    [user?.id, isAuthenticated, currentPage, activeFilter, parseReservationDates]
   );
+
+
 
   // Cancel reservation
   const cancelReservation = useCallback(async (reservationId: number) => {
     setCancellingReservationId(reservationId);
     
     try {
-      // Update reservation status to cancelled
-      await reservationsService.updateReservation(reservationId, {
-        status: EReservationStatus.CANCELLED
-      });
+      // Update reservation status to cancelled using the correct endpoint for clients
+      await reservationsService.updateReservationStatus(reservationId, EReservationStatus.CANCELLED);
       
       // Update the reservation status in the list
       setReservations(prev => prev.map(r => 
@@ -127,18 +158,72 @@ const MesReservationsScreen = () => {
   }, []);
 
   // Refresh data
-  const handleRefresh = useCallback(() => {
+  const handleRefresh = useCallback(async () => {
+    if (!user?.id || !isAuthenticated) return;
+    
     setRefreshing(true);
-    loadReservations(true);
-  }, [loadReservations]);
+    
+    try {
+      setError(null);
+      
+      // Reset pagination state
+      setCurrentPage(1);
+      setMeta(null);
+      setReservations([]);
+      
+      const status = activeFilter === "ALL" ? undefined : activeFilter;
+      
+      const response = await reservationsService.getReservationsByUser(
+        user.id,
+        status,
+        undefined, // search
+        { page: 1, limit: ITEMS_PER_PAGE }
+      );
+      
+      // Handle the API response structure from backend
+      const responseData = response?.reservations || response?.data || [];
+      const responseMeta = response?.meta;
+      
+      // Ensure we have an array of reservations with properly parsed dates
+      const newReservations = Array.isArray(responseData) 
+        ? responseData.map(parseReservationDates) 
+        : [];
+      
+      setReservations(newReservations);
+      setCurrentPage(1);
+      
+      // Update meta information from backend response
+      if (responseMeta) {
+        setMeta(responseMeta);
+      } else {
+        setMeta({
+          total: newReservations.length,
+          page: 1,
+          limit: ITEMS_PER_PAGE,
+          lastPage: Math.ceil(newReservations.length / ITEMS_PER_PAGE),
+          hasNextPage: newReservations.length === ITEMS_PER_PAGE,
+          hasPreviousPage: false,
+        });
+      }
+      
+    } catch (err: any) {
+      console.error("Error refreshing reservations:", err);
+      const errorMessage = err?.response?.data?.message || err?.message || "Impossible de charger vos réservations";
+      setError(errorMessage);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [user?.id, isAuthenticated, activeFilter, parseReservationDates]);
 
   // Load more data
   const handleLoadMore = useCallback(() => {
-    if (!loadingMore && hasMore && !loading) {
-      setLoadingMore(true);
+    // Check if we can load more based on backend meta information
+    const canLoadMore = meta?.hasNextPage ?? false;
+    
+    if (!loadingMore && canLoadMore && !loading && !refreshing) {
       loadReservations(false);
     }
-  }, [loadingMore, hasMore, loading, loadReservations]);
+  }, [loadingMore, loading, refreshing, meta?.hasNextPage, loadReservations]);
 
   // Filter change
   const handleFilterChange = useCallback((filter: ReservationFilter) => {
@@ -167,61 +252,131 @@ const MesReservationsScreen = () => {
     setSelectedReservationForProducts(null);
   }, []);
 
-  // Reload data when filter changes  
-  const reloadDataForFilter = useCallback(async () => {
-    if (!user?.id || !isAuthenticated) return;
-    
-    try {
-      setError(null);
-      setLoading(true);
-      setPagination({ page: 1, limit: 10 });
-      setReservations([]);
 
-      const status = activeFilter === "ALL" ? undefined : activeFilter;
-
-      const response = await reservationsService.getReservationsByUser(
-        user.id,
-        status,
-        undefined, // search
-        { page: 1, limit: 10 }
-      );
-
-      // Handle the API response structure from backend
-      const responseData = response?.reservations || response?.data || [];
-      const meta = response?.meta;
-      
-      // Ensure we have an array of reservations with properly parsed dates
-      const newReservations = Array.isArray(responseData) 
-        ? responseData.map(parseReservationDates) 
-        : [];
-      
-      setReservations(newReservations);
-
-      // Use meta information if available, otherwise fallback to simple check
-      if (meta) {
-        setHasMore(meta.page < meta.total);
-      } else {
-        setHasMore(newReservations.length === 10);
-      }
-    } catch (err: any) {
-      console.error("Error reloading reservations:", err);
-      const errorMessage = err?.response?.data?.message || err?.message || "Impossible de charger vos réservations";
-      setError(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  }, [user?.id, isAuthenticated, activeFilter, parseReservationDates]);
 
   // Load data when filter changes
   useEffect(() => {
-    reloadDataForFilter();
-  }, [activeFilter, reloadDataForFilter]);
+    if (!user?.id || !isAuthenticated) return;
+    
+    const loadData = async () => {
+      try {
+        setError(null);
+        setLoading(true);
+        
+        // Reset pagination state
+        setCurrentPage(1);
+        setMeta(null);
+        setReservations([]);
+        
+        const status = activeFilter === "ALL" ? undefined : activeFilter;
+        
+        const response = await reservationsService.getReservationsByUser(
+          user.id,
+          status,
+          undefined, // search
+          { page: 1, limit: ITEMS_PER_PAGE }
+        );
+
+        
+        // Handle the API response structure from backend
+        const responseData = response?.reservations || response?.data || [];
+        const responseMeta = response?.meta;
+        
+        // Ensure we have an array of reservations with properly parsed dates
+        const newReservations = Array.isArray(responseData) 
+          ? responseData.map(parseReservationDates) 
+          : [];
+        
+        setReservations(newReservations);
+        setCurrentPage(1);
+        
+        // Update meta information from backend response
+        if (responseMeta) {
+          setMeta(responseMeta);
+        } else {
+          setMeta({
+            total: newReservations.length,
+            page: 1,
+            limit: ITEMS_PER_PAGE,
+            lastPage: Math.ceil(newReservations.length / ITEMS_PER_PAGE),
+            hasNextPage: newReservations.length === ITEMS_PER_PAGE,
+            hasPreviousPage: false,
+          });
+        }
+        
+      } catch (err: any) {
+        console.error("Error loading initial reservations:", err);
+        const errorMessage = err?.response?.data?.message || err?.message || "Impossible de charger vos réservations";
+        setError(errorMessage);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadData();
+  }, [activeFilter, user?.id, isAuthenticated, parseReservationDates]);
 
   // Load data when screen is focused
   useFocusEffect(
     useCallback(() => {
-      reloadDataForFilter();
-    }, [reloadDataForFilter])
+      if (!user?.id || !isAuthenticated) return;
+      
+      const loadData = async () => {
+        try {
+          setError(null);
+          setLoading(true);
+          
+          // Reset pagination state
+          setCurrentPage(1);
+          setMeta(null);
+          setReservations([]);
+          
+          const status = activeFilter === "ALL" ? undefined : activeFilter;
+          
+          const response = await reservationsService.getReservationsByUser(
+            user.id,
+            status,
+            undefined, // search
+            { page: 1, limit: ITEMS_PER_PAGE }
+          );
+          
+          // Handle the API response structure from backend
+          const responseData = response?.reservations || response?.data || [];
+          const responseMeta = response?.meta;
+          
+          // Ensure we have an array of reservations with properly parsed dates
+          const newReservations = Array.isArray(responseData) 
+            ? responseData.map(parseReservationDates) 
+            : [];
+          
+          setReservations(newReservations);
+          setCurrentPage(1);
+          
+          // Update meta information from backend response
+          if (responseMeta) {
+            setMeta(responseMeta);
+          } else {
+            setMeta({
+              total: newReservations.length,
+              page: 1,
+              limit: ITEMS_PER_PAGE,
+              lastPage: Math.ceil(newReservations.length / ITEMS_PER_PAGE),
+              hasNextPage: newReservations.length === ITEMS_PER_PAGE,
+              hasPreviousPage: false,
+            });
+          }
+          
+        } catch (err: any) {
+          console.error("Error loading reservations on focus:", err);
+          const errorMessage = err?.response?.data?.message || err?.message || "Impossible de charger vos réservations";
+          setError(errorMessage);
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      loadData();
+    }, [user?.id, isAuthenticated, activeFilter, parseReservationDates])
   );
 
   return (
