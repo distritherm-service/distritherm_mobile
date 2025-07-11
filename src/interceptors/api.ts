@@ -33,6 +33,7 @@ api.interceptors.request.use(async (config: any) => {
 api.interceptors.response.use(
   (response: any) => response,
   async (error: any) => {
+    console.log(error);
     const originalRequest = error.config;
     if (
       (error.response?.status === 401 &&

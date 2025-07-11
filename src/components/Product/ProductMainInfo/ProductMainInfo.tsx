@@ -17,7 +17,7 @@ const ProductMainInfo: React.FC<ProductMainInfoProps> = ({
 }) => {
   const [quantity, setQuantity] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   const handleQuantityChange = (newQuantity: number) => {
     if (newQuantity >= 1 && newQuantity <= product.quantity) {
@@ -55,9 +55,11 @@ const ProductMainInfo: React.FC<ProductMainInfoProps> = ({
     }
   };
 
-  // Calcul des informations de prix et remise basé sur la catégorie du produit
-  // La logique ne dépend plus du userState mais de product.categoryId vs product.proInfo.categoryIdPro
-  const pricingInfo = calculateProductPricing(product);
+  // Calcul des informations de prix et remise
+  // Les informations pro ne sont calculées que si l'utilisateur est connecté
+  const pricingInfo = calculateProductPricing(
+    isAuthenticated ? product : { ...product, proInfo: null }
+  );
 
   const calculateProductTotalPrice = () => {
     return calculateTotalPrice(pricingInfo.discountedPriceHt, quantity);

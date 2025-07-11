@@ -135,6 +135,7 @@ const Recommandation = () => {
         }
 
         if (reset || page === 1) {
+          console.log(response.products)
           setRecommendedProducts(response.products);
         } else {
           setRecommendedProducts((prev) => {

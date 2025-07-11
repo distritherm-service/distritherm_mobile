@@ -28,7 +28,7 @@ const ProductItem: React.FC<ProductItemProps> = ({
   onPressProduct,
 }) => {
   const navigation = useNavigation<NavigationProp>();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   console.log(product);
 
@@ -89,10 +89,11 @@ const ProductItem: React.FC<ProductItemProps> = ({
     return { uri: currentProduct.imagesUrl[0] };
   };
 
-  // Calcul des informations de prix et remise basé sur la catégorie du produit
-  // La logique ne dépend plus du userState mais de la correspondance entre 
-  // product.categoryId et product.proInfo.categoryIdPro
-  const pricingInfo = calculateProductPricing(currentProduct);
+  // Calcul des informations de prix et remise
+  // Les informations pro ne sont calculées que si l'utilisateur est connecté
+  const pricingInfo = calculateProductPricing(
+    isAuthenticated ? currentProduct : { ...currentProduct, proInfo: null }
+  );
 
   // Handlers pour les actions
   const handlePress = async () => {
