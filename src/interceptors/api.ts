@@ -5,7 +5,7 @@ import storageService from "src/services/storageService";
 
 // const API_BASE_URL = "http://192.168.1.11:3000";
 
-const API_BASE_URL = "http://10.192.251.243:3000";
+const API_BASE_URL = "http://10.192.251.126:3000";
 
 // Instance globale de l'API
 const api = axios.create({
