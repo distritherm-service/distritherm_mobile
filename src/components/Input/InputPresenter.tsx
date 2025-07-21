@@ -85,12 +85,39 @@ const InputPresenter: React.FC<InputPresenterProps> = ({
     },
 
     // Label styles
+    labelContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: ms(6), // Using react-native-size-matters
+    },
+
     label: {
       fontSize: ms(15), // Using react-native-size-matters
       fontWeight: '600',
       color: colors.tertiary[500],
-      marginBottom: ms(6), // Using react-native-size-matters
       letterSpacing: 0.3,
+    },
+
+    optionalBadge: {
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: ms(12),
+      paddingHorizontal: ms(8),
+      paddingVertical: ms(3),
+      marginLeft: ms(8),
+      shadowColor: colors.tertiary[500],
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+
+    optionalText: {
+      fontSize: ms(11),
+      fontWeight: '500',
+      color: colors.tertiary[400],
+      letterSpacing: 0.2,
     },
 
     // Base input container
@@ -532,9 +559,16 @@ const InputPresenter: React.FC<InputPresenterProps> = ({
   return (
     <View style={[styles.container, containerStyle]}>
       {label && (
-        <Text style={[styles.label, labelStyle]}>
-          {label}{required && <Text style={{ color: '#EF4444' }}> *</Text>}
-        </Text>
+        <View style={styles.labelContainer}>
+          <Text style={[styles.label, labelStyle]}>
+            {label}{required && <Text style={{ color: '#EF4444' }}> *</Text>}
+          </Text>
+          {!required && (
+            <View style={styles.optionalBadge}>
+              <Text style={styles.optionalText}>optionnel</Text>
+            </View>
+          )}
+        </View>
       )}
       
       {isSelectField ? renderSelect() : renderTextInput()}

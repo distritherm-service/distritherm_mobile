@@ -14,7 +14,6 @@ const MesDevis = () => {
 
   // Refs to prevent unnecessary re-renders and double calls
   const isInitialLoad = useRef(true);
-  const lastFilterRef = useRef<DevisFilter>("ALL");
 
   // State management
   const [devis, setDevis] = useState<Devis[]>([]);
@@ -109,7 +108,7 @@ const MesDevis = () => {
         setLoadingMore(false);
       }
     },
-    [user?.id, isAuthenticated, activeFilter, pagination.page, pagination.limit, devis]
+    [user?.id, isAuthenticated, activeFilter, pagination.page, pagination.limit]
   );
 
   // Download devis file
@@ -168,7 +167,6 @@ const MesDevis = () => {
   const handleFilterChange = useCallback((filter: DevisFilter) => {
     if (filter !== activeFilter) {
       setActiveFilter(filter);
-      lastFilterRef.current = filter;
     }
   }, [activeFilter]);
 
@@ -194,78 +192,25 @@ const MesDevis = () => {
     setSelectedDevisForProducts(null);
   }, []);
 
-  // Reload data when filter or search changes  
-  const reloadDataForFilter = useCallback(async () => {
-    if (!user?.id || !isAuthenticated) return;
-    
-    try {
-      setError(null);
-      setLoading(true);
-      setPagination({ page: 1, limit: 10 });
-      setDevis([]);
-      setHasMore(true);
-
-      const status = activeFilter === "ALL" ? undefined : activeFilter;
-      // Search is always undefined for regular clients (handled by backend)
-      const search = undefined;
-
-      const response = await devisService.getDevisByClient(
-        user.id,
-        status,
-        search,
-        { page: 1, limit: 10 }
-      );
-
-      // Debug logging
-      // Handle the API response structure from backend
-      const responseData = response?.data?.devis || response?.devis || [];
-      const meta = response?.data?.meta || response?.meta;
-      
-      // Ensure we have an array of devis and remove any potential duplicates
-      const newDevis = Array.isArray(responseData) ? responseData : [];
-      const uniqueDevis = newDevis.filter((devis, index, self) => 
-        index === self.findIndex(d => d.id === devis.id)
-      );
-      
-      setDevis(uniqueDevis);
-
-      // Use meta information if available, otherwise fallback to simple check
-      if (meta) {
-        // Check different possible pagination structures
-        const hasNext = meta.hasNext ?? 
-                       meta.hasNextPage ?? 
-                       (meta.page && meta.lastPage && meta.page < meta.lastPage) ??
-                       (meta.currentPage && meta.totalPages && meta.currentPage < meta.totalPages);
-        setHasMore(hasNext || false);
-      } else {
-        setHasMore(uniqueDevis.length === 10);
-      }
-    } catch (err: any) {
-      console.error("Error reloading devis:", err);
-      const errorMessage = err?.response?.data?.message || err?.message || "Impossible de charger vos devis";
-      setError(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  }, [user?.id, isAuthenticated, activeFilter]);
-
-  // Load data when filter changes (search is disabled for clients)
+  // Load data when filter changes
   useEffect(() => {
-    // Only reload data when filter actually changes (not initial load)
-    if (!isInitialLoad.current && lastFilterRef.current !== activeFilter) {
-      reloadDataForFilter();
-      lastFilterRef.current = activeFilter;
+    if (!isInitialLoad.current) {
+      // Reset data and reload when filter changes
+      setDevis([]);
+      setPagination({ page: 1, limit: 10 });
+      setHasMore(true);
+      loadDevis(true);
     }
-  }, [activeFilter, reloadDataForFilter]);
+  }, [activeFilter, loadDevis]);
 
-  // Load data when screen is focused (only on initial load or when returning from background)
+  // Load data when screen is focused (only on initial load)
   useFocusEffect(
     useCallback(() => {
       if (isInitialLoad.current) {
-        reloadDataForFilter();
+        loadDevis(true);
         isInitialLoad.current = false;
       }
-    }, [reloadDataForFilter])
+    }, [loadDevis])
   );
 
   const getStatusText = (status: DevisStatus): string => {

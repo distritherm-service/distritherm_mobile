@@ -412,7 +412,7 @@ const PersonalInformationPresenter: React.FC<
                   name="companyName"
                   control={control}
                   type={InputType.DEFAULT}
-                  placeholder="Nom de votre entreprise (optionnel)"
+                  placeholder="Ex: Ma Société SARL"
                   label="Nom de l'entreprise"
                   required={false}
                   leftLogo={faBuilding}
@@ -423,7 +423,7 @@ const PersonalInformationPresenter: React.FC<
                   name="siretNumber"
                   control={control}
                   type={InputType.NUMERIC}
-                  placeholder="12345678901234 (optionnel)"
+                  placeholder="12345678901234"
                   label="Numéro SIRET"
                   required={false}
                   leftLogo={faIdCard}

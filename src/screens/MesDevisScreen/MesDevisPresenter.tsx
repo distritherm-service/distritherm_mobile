@@ -136,6 +136,7 @@ const MesDevisPresenter: React.FC<MesDevisPresenterProps> = ({
         headerTitle="Mes Devis"
         onCustomBack={onBack}
         isScrollable={false}
+        bottomBar={false}
       >
         <LoadingState message="Chargement de vos devis..." />
       </PageContainer>
@@ -150,6 +151,7 @@ const MesDevisPresenter: React.FC<MesDevisPresenterProps> = ({
         headerTitle="Mes Devis"
         onCustomBack={onBack}
         isScrollable={false}
+        bottomBar={false}
       >
         <UnauthenticatedState 
           icon={faSignInAlt}
@@ -169,6 +171,7 @@ const MesDevisPresenter: React.FC<MesDevisPresenterProps> = ({
         headerTitle="Mes Devis"
         onCustomBack={onBack}
         isScrollable={false}
+        bottomBar={false}
       >
         <ErrorState description={error} onRetry={onRefresh} />
       </PageContainer>
@@ -182,6 +185,7 @@ const MesDevisPresenter: React.FC<MesDevisPresenterProps> = ({
         headerTitle="Mes Devis"
         onCustomBack={onBack}
         isScrollable={false}
+        bottomBar={false}
       >
         <View style={dynamicStyles.container}>
           {/* Filters */}

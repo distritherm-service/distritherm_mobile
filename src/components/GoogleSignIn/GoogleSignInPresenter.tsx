@@ -311,8 +311,7 @@ const GoogleSignInPresenter = memo<GoogleSignInPresenterProps>(
                       Compléter votre profil
                     </Text>
                     <Text style={dynamicStyles.modalSubtitle}>
-                      Informations sur votre entreprise pour finaliser votre
-                      inscription
+                      Informations pour finaliser votre inscription
                     </Text>
                   </View>
 
@@ -323,33 +322,36 @@ const GoogleSignInPresenter = memo<GoogleSignInPresenterProps>(
                       <Input<FormData>
                         name="companyName"
                         control={control}
-                        label="Nom de l'entreprise *"
+                        label="Nom de l'entreprise"
                         placeholder="Ex: Ma Société SARL"
                         leftLogo={faBuilding}
                         rules={formRules.companyName}
                         type={InputType.DEFAULT}
+                        required={false}
                       />
 
                       <Input<FormData>
                         name="siretNumber"
                         control={control}
-                        label="Numéro SIRET *"
+                        label="Numéro SIRET"
                         placeholder="12345678901234"
                         leftLogo={faIdCard}
                         rules={formRules.siretNumber}
                         type={InputType.NUMERIC}
                         maxLength={14}
+                        required={false}
                       />
 
                       <Input<FormData>
                         name="phoneNumber"
                         control={control}
-                        label="Numéro de téléphone *"
+                        label="Numéro de téléphone"
                         placeholder="06 12 34 56 78"
                         leftLogo={faPhone}
                         rules={formRules.phoneNumber}
                         type={InputType.DEFAULT}
                         keyboardType="phone-pad"
+                        required={true}
                       />
                     </View>
                   </View>
