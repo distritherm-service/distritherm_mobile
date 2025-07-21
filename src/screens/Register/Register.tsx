@@ -75,9 +75,9 @@ const Register = () => {
         lastName: data.lastName,
         email: data.email,
         password: data.password,
-        companyName: data.companyName,
+        companyName: data.companyName || undefined,
         phoneNumber: formattedPhoneNumber, // Use formatted phone number
-        siretNumber: data.siretNumber,
+        siretNumber: data.siretNumber || undefined,
       };
 
       // Call authService for regular registration

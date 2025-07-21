@@ -20,8 +20,8 @@ export interface PersonalInformationFormData {
   lastName: string;
   email: string;
   phoneNumber: string;
-  companyName: string;
-  siretNumber: string;
+  companyName?: string;
+  siretNumber?: string;
 }
 
 const PersonalInformation = () => {
@@ -171,7 +171,6 @@ const PersonalInformation = () => {
       },
     },
     companyName: {
-      required: "Le nom de l'entreprise est requis",
       minLength: {
         value: 2,
         message: "Le nom de l'entreprise doit contenir au moins 2 caractères",
@@ -182,7 +181,6 @@ const PersonalInformation = () => {
       },
     },
     siretNumber: {
-      required: "Le numéro SIRET est requis",
       pattern: {
         value: /^[0-9]{14}$/,
         message: "Le numéro SIRET doit contenir exactement 14 chiffres",
@@ -204,8 +202,8 @@ const PersonalInformation = () => {
         lastName: data.lastName.trim(),
         email: data.email.trim().toLowerCase(),
         phoneNumber: data.phoneNumber.trim() || undefined,
-        companyName: data.companyName.trim(),
-        siretNumber: data.siretNumber.trim(),
+        companyName: data.companyName?.trim() || undefined,
+        siretNumber: data.siretNumber?.trim() || undefined,
       };
 
       // Update user data via API - this should update both user and client information

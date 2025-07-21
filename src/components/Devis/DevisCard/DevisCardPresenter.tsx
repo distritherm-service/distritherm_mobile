@@ -236,7 +236,7 @@ const DevisCardPresenter: React.FC<DevisCardPresenterProps> = ({
       <View style={dynamicStyles.actionsContainer}>
         {/* View and Delete */}
         <View style={dynamicStyles.viewAndDeleteContainer}>
-          {/* View products */}
+          {/* View in details */}
           <TouchableOpacity
             style={[
               dynamicStyles.actionButton,
@@ -251,7 +251,7 @@ const DevisCardPresenter: React.FC<DevisCardPresenterProps> = ({
               color={colors.background}
               style={dynamicStyles.buttonIcon}
             />
-            <Text style={dynamicStyles.buttonText}>Voir produits</Text>
+            <Text style={dynamicStyles.buttonText}>Voir en détails</Text>
           </TouchableOpacity>
 
           {canDelete && (

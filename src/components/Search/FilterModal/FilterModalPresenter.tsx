@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Animated,
   Switch,
+  TextInput,
 } from "react-native";
 import { ms } from "react-native-size-matters";
 import { useColors } from "src/hooks/useColors";
@@ -29,15 +30,17 @@ interface FilterModalPresenterProps {
   // Mark options for the UI
   markOptions: {label: string; value: string}[];
   selectedMark?: {label: string; value: string};
+  // Price text states
+  minPriceText: string;
+  maxPriceText: string;
   onClose: () => void;
   onCategorySelect: (categoryId: number) => void;
   onMarkSelect: (markId: number) => void;
   onPriceChange: (minPrice?: number, maxPrice?: number) => void;
   onMinPriceChange: (text: string) => void;
   onMaxPriceChange: (text: string) => void;
-  onPromotionToggle: () => void;
   onClearAll: () => void;
-  onClearIndividual: (filterType: 'category' | 'mark' | 'price' | 'promotion') => void;
+  onClearIndividual: (filterType: 'category' | 'mark' | 'price') => void;
   onApply: () => void;
   // Animation props
   slideAnim: Animated.Value;
@@ -60,13 +63,15 @@ const FilterModalPresenter: React.FC<FilterModalPresenterProps> = ({
   // Mark options for the UI
   markOptions,
   selectedMark,
+  // Price text states
+  minPriceText,
+  maxPriceText,
   onClose,
   onCategorySelect,
   onMarkSelect,
   onPriceChange,
   onMinPriceChange,
   onMaxPriceChange,
-  onPromotionToggle,
   onClearAll,
   onClearIndividual,
   onApply,
@@ -365,6 +370,45 @@ const FilterModalPresenter: React.FC<FilterModalPresenterProps> = ({
       color: colors.textSecondary, // 60% - Neutral text
       fontWeight: "500",
     },
+    priceInputRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginTop: ms(10),
+    },
+    priceInputContainer: {
+      flex: 1,
+      marginHorizontal: ms(5),
+    },
+    priceInputLabel: {
+      fontSize: ms(12),
+      color: colors.textSecondary,
+      marginBottom: ms(4),
+      fontWeight: '500',
+    },
+    priceInput: {
+      backgroundColor: '#FFFFFF',
+      borderColor: colors.border,
+      borderWidth: 1,
+      borderRadius: ms(12),
+      paddingHorizontal: ms(14),
+      paddingVertical: ms(12),
+      fontSize: ms(14),
+      color: colors.text,
+      shadowColor: colors.textSecondary,
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    priceSeparator: {
+      width: ms(10),
+      alignItems: 'center',
+    },
+    priceDash: {
+      width: ms(1),
+      height: ms(10),
+      backgroundColor: colors.border,
+    },
   });
 
   const renderCategorySection = () => {
@@ -396,8 +440,11 @@ const FilterModalPresenter: React.FC<FilterModalPresenterProps> = ({
               const categoryId = parseInt(option.value);
               onCategorySelect(categoryId);
             }}
-            style={{
-              backgroundColor: '#FFFFFF', // 60% - Neutral background
+            containerStyle={{
+              marginBottom: 0,
+            }}
+            selectStyle={{
+              backgroundColor: '#FFFFFF',
               borderColor: colors.border,
               borderWidth: 1,
               borderRadius: ms(12),
@@ -441,8 +488,11 @@ const FilterModalPresenter: React.FC<FilterModalPresenterProps> = ({
               const markId = parseInt(option.value);
               onMarkSelect(markId);
             }}
-            style={{
-              backgroundColor: '#FFFFFF', // 60% - Neutral background
+            containerStyle={{
+              marginBottom: 0,
+            }}
+            selectStyle={{
+              backgroundColor: '#FFFFFF',
               borderColor: colors.border,
               borderWidth: 1,
               borderRadius: ms(12),
@@ -460,7 +510,7 @@ const FilterModalPresenter: React.FC<FilterModalPresenterProps> = ({
   const renderPriceSection = () => (
     <View style={dynamicStyles.section}>
       <View style={dynamicStyles.sectionHeader}>
-        <Text style={dynamicStyles.sectionTitle}>Fourchette de prix</Text>
+        <Text style={dynamicStyles.sectionTitle}>Prix (HT)</Text>
         <Pressable
           style={dynamicStyles.clearButton}
           onPress={() => onClearIndividual('price')}
@@ -468,101 +518,33 @@ const FilterModalPresenter: React.FC<FilterModalPresenterProps> = ({
           <Text style={dynamicStyles.clearButtonText}>Effacer</Text>
         </Pressable>
       </View>
-      <View style={dynamicStyles.priceContainer}>
-        <View style={dynamicStyles.priceInputWrapper}>
-          <Text style={dynamicStyles.priceLabel}>Prix minimum</Text>
-          <Input
-            name="minPrice"
-            type={InputType.NUMERIC}
-              placeholder="0"
-              value={tempFilter.minPrice?.toString() || ""}
-              onChangeText={onMinPriceChange}
-            style={{
-              backgroundColor: '#FFFFFF', // 60% - Neutral background
-              borderColor: colors.border,
-              borderWidth: 1,
-              borderRadius: ms(12),
-              paddingHorizontal: ms(14),
-              paddingVertical: ms(12),
-              fontSize: ms(14),
-              color: colors.text,
-              shadowColor: colors.textSecondary,
-              shadowOpacity: 0.05,
-              shadowRadius: 2,
-              elevation: 1,
-            }}
+      <View style={dynamicStyles.priceInputRow}>
+        <View style={dynamicStyles.priceInputContainer}>
+          <Text style={dynamicStyles.priceInputLabel}>Min</Text>
+          <TextInput
+            style={dynamicStyles.priceInput}
+            placeholder="0"
+            placeholderTextColor={colors.tertiary[400]}
+            value={minPriceText}
+            onChangeText={onMinPriceChange}
+            keyboardType="numeric"
           />
         </View>
-        <View style={dynamicStyles.priceInputWrapper}>
-          <Text style={dynamicStyles.priceLabel}>Prix maximum</Text>
-          <Input
-            name="maxPrice"
-            type={InputType.NUMERIC}
-              placeholder="∞"
-              value={tempFilter.maxPrice?.toString() || ""}
-              onChangeText={onMaxPriceChange}
-            style={{
-              backgroundColor: '#FFFFFF', // 60% - Neutral background
-              borderColor: colors.border,
-              borderWidth: 1,
-              borderRadius: ms(12),
-              paddingHorizontal: ms(14),
-              paddingVertical: ms(12),
-              fontSize: ms(14),
-              color: colors.text,
-              shadowColor: colors.textSecondary,
-              shadowOpacity: 0.05,
-              shadowRadius: 2,
-              elevation: 1,
-            }}
+        <View style={dynamicStyles.priceSeparator}>
+          <View style={dynamicStyles.priceDash} />
+        </View>
+        <View style={dynamicStyles.priceInputContainer}>
+          <Text style={dynamicStyles.priceInputLabel}>Max</Text>
+          <TextInput
+            style={dynamicStyles.priceInput}
+            placeholder="∞"
+            placeholderTextColor={colors.tertiary[400]}
+            value={maxPriceText}
+            onChangeText={onMaxPriceChange}
+            keyboardType="numeric"
           />
         </View>
       </View>
-    </View>
-  );
-
-  const renderPromotionSection = () => (
-    <View style={dynamicStyles.section}>
-      <View style={dynamicStyles.sectionHeader}>
-        <Text style={dynamicStyles.sectionTitle}>Options</Text>
-        <Pressable
-          style={dynamicStyles.clearButton}
-          onPress={() => onClearIndividual('promotion')}
-        >
-          <Text style={dynamicStyles.clearButtonText}>Effacer</Text>
-        </Pressable>
-      </View>
-      <Pressable
-        style={({ pressed }) => [
-          dynamicStyles.promotionContainer,
-          pressed && { backgroundColor: colors.primary[100] }, // 30% - Subtle secondary
-        ]}
-        onPress={onPromotionToggle}
-      >
-        <View>
-          <Text style={dynamicStyles.promotionText}>Articles en promotion</Text>
-          <Text style={dynamicStyles.promotionSubtext}>
-            Afficher uniquement les produits en promotion
-          </Text>
-        </View>
-        <View style={dynamicStyles.promotionRow}>
-          <Text style={[dynamicStyles.promotionSubtext, { flex: 1 }]}>
-            {tempFilter.inPromotion ? "Activé" : "Désactivé"}
-          </Text>
-          <Switch
-            value={tempFilter.inPromotion || false}
-            onValueChange={onPromotionToggle}
-            trackColor={{
-              false: colors.border, // 60% - Neutral
-              true: colors.secondary[500], // 10% - Accent when active
-            }}
-            thumbColor={
-              tempFilter.inPromotion ? colors.background : colors.surface
-            }
-            ios_backgroundColor={colors.border}
-          />
-        </View>
-      </Pressable>
     </View>
   );
 
@@ -619,7 +601,6 @@ const FilterModalPresenter: React.FC<FilterModalPresenterProps> = ({
               {renderCategorySection()}
               {renderMarkSection()}
               {renderPriceSection()}
-              {renderPromotionSection()}
             </View>
           </ScrollView>
 

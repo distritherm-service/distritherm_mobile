@@ -28,6 +28,7 @@ type InputPresenterProps = {
   placeholder?: string;
   error?: string;
   label?: string;
+  required?: boolean;
   leftLogo?: IconDefinition;
   options?: SelectOption[];
   multiline?: boolean;
@@ -50,6 +51,7 @@ const InputPresenter: React.FC<InputPresenterProps> = ({
   placeholder,
   error,
   label,
+  required = false,
   leftLogo,
   options,
   multiline,
@@ -147,6 +149,16 @@ const InputPresenter: React.FC<InputPresenterProps> = ({
        alignItems: 'center',
        zIndex: 1,
        width: ms(20), // Using react-native-size-matters
+     },
+
+     leftIconContainerTextarea: {
+       position: 'absolute',
+       left: ms(12),
+       top: ms(12), // Position fixe en haut pour les textarea
+       justifyContent: 'flex-start',
+       alignItems: 'center',
+       zIndex: 1,
+       width: ms(20),
      },
 
      rightIconContainer: {
@@ -354,7 +366,7 @@ const InputPresenter: React.FC<InputPresenterProps> = ({
     if (!hasLeftIcon) return null;
     
     return (
-      <View style={styles.leftIconContainer}>
+      <View style={isTextareaField ? styles.leftIconContainerTextarea : styles.leftIconContainer}>
         <FontAwesomeIcon
           icon={leftLogo!}
           size={ms(18)} // Using react-native-size-matters
@@ -521,7 +533,7 @@ const InputPresenter: React.FC<InputPresenterProps> = ({
     <View style={[styles.container, containerStyle]}>
       {label && (
         <Text style={[styles.label, labelStyle]}>
-          {label}
+          {label}{required && <Text style={{ color: '#EF4444' }}> *</Text>}
         </Text>
       )}
       

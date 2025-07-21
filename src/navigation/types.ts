@@ -9,7 +9,6 @@ export type SearchFilter = {
   markId?: number;
   minPrice?: number;
   maxPrice?: number;
-  inPromotion?: boolean;
 };
 
 export type SearchParams = {

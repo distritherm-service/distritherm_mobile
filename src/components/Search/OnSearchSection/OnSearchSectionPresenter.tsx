@@ -47,7 +47,7 @@ interface OnSearchSectionPresenterProps {
   onFilterModalClose: () => void;
   onApplyFilter: (filter: SearchFilter) => void;
   onClearIndividualFilter: (
-    filterType: "category" | "mark" | "price" | "promotion"
+    filterType: "category" | "mark" | "price"
   ) => void;
   onClearAllFilters: () => void;
   onProductPress: (productId: number) => void;
@@ -88,7 +88,6 @@ const OnSearchSectionPresenter: React.FC<OnSearchSectionPresenterProps> = ({
     if (filter.categoryId) count++;
     if (filter.markId) count++;
     if (filter.minPrice || filter.maxPrice) count++;
-    if (filter.inPromotion) count++;
     return count;
   };
 

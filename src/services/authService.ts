@@ -11,15 +11,15 @@ export interface RegularRegisterDto {
   lastName: string;
   email: string;
   password: string;
-  companyName: string;
+  companyName?: string;
   phoneNumber: string;
-  siretNumber: string;
+  siretNumber?: string;
 }
  
 export interface AdditionalUserInfoDto {
   firstName?: string;
   lastName?: string;
-  phoneNumber?: string;
+  phoneNumber: string;
   companyName?: string;
   siretNumber?: string;
 }

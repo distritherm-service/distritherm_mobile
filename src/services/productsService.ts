@@ -66,7 +66,6 @@ export interface SearchFilters {
   markId?: number;
   minPrice?: number;
   maxPrice?: number;
-  inPromotion?: boolean;
 }
 
 const productsService = {
@@ -138,11 +137,6 @@ const productsService = {
       
       if (filters.maxPrice !== undefined) {
         params.append("maxPrice", filters.maxPrice.toString());
-      }
-      
-      // Add promotion filter if provided
-      if (filters.inPromotion !== undefined) {
-        params.append("inPromotion", filters.inPromotion.toString());
       }
       
       // Add pagination parameters

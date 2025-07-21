@@ -9,9 +9,9 @@ export interface RegisterFormData {
   email: string;
   password: string;
   confirmPassword: string;
-  companyName: string;
+  companyName?: string;
   phoneNumber: string;
-  siretNumber: string;
+  siretNumber?: string;
 }
 
 // Validation rules for forms
@@ -45,7 +45,6 @@ export const validationRules = {
     },
   },
   companyName: {
-    required: "Nom de l'entreprise requis",
     minLength: {
       value: 2,
       message: "Le nom de l'entreprise doit contenir au moins 2 caractères",
@@ -59,7 +58,6 @@ export const validationRules = {
     },
   },
   siretNumber: {
-    required: "Numéro SIRET requis",
     pattern: {
       value: /^[0-9]{14}$/,
       message: "Le numéro SIRET doit contenir exactement 14 chiffres",
