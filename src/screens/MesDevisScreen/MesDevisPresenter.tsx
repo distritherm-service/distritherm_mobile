@@ -111,8 +111,8 @@ const MesDevisPresenter: React.FC<MesDevisPresenterProps> = ({
     },
   };
 
-  // Render devis item
-  const renderDevisItem = ({ item }: { item: Devis }) => {
+  // Render devis item (memoized for performance)
+  const renderDevisItem = React.useCallback(({ item }: { item: Devis }) => {
     const isDownloading = downloadingIds.has(item.id);
     const isDeleting = deletingDevisId === item.id;
     
@@ -126,7 +126,7 @@ const MesDevisPresenter: React.FC<MesDevisPresenterProps> = ({
         isDeleting={isDeleting}
       />
     );
-  };
+  }, [downloadingIds, deletingDevisId, onDownload, onViewProducts, onDelete]);
 
   // Render loading state
   if (loading) {
@@ -210,7 +210,7 @@ const MesDevisPresenter: React.FC<MesDevisPresenterProps> = ({
             <FlatList
               style={dynamicStyles.listContainer}
               data={devis}
-              keyExtractor={(item) => item.id.toString()}
+              keyExtractor={(item, index) => `devis-${item.id}-${index}`}
               renderItem={renderDevisItem}
               refreshControl={
                 <RefreshControl
@@ -230,6 +230,15 @@ const MesDevisPresenter: React.FC<MesDevisPresenterProps> = ({
                 ) : null
               }
               showsVerticalScrollIndicator={false}
+              removeClippedSubviews={true}
+              maxToRenderPerBatch={10}
+              windowSize={10}
+              initialNumToRender={10}
+              getItemLayout={(data, index) => ({
+                length: 200, // Estimated item height
+                offset: 200 * index,
+                index,
+              })}
             />
           )}
         </View>
