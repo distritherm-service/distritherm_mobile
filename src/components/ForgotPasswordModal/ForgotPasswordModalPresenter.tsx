@@ -147,6 +147,7 @@ const ForgotPasswordModalPresenter: React.FC<ForgotPasswordModalPresenterProps> 
               type={InputType.EMAIL_ADDRESS}
               placeholder="Votre adresse email"
               label="Email"
+              required={true}
               leftLogo={faEnvelope}
               rules={{
                 required: 'L\'email est requis',

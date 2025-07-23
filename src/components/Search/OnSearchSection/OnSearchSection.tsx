@@ -132,8 +132,7 @@ const OnSearchSection: React.FC<OnSearchSectionProps> = ({
       filter.categoryId ||
       filter.markId ||
       filter.minPrice !== undefined ||
-      filter.maxPrice !== undefined ||
-      filter.inPromotion;
+      filter.maxPrice !== undefined;
 
     if (hasQuery || hasFilters) {
       performSearch();
@@ -150,8 +149,7 @@ const OnSearchSection: React.FC<OnSearchSectionProps> = ({
       filter.categoryId ||
       filter.markId ||
       filter.minPrice ||
-      filter.maxPrice ||
-      filter.inPromotion;
+      filter.maxPrice;
 
     // If no query and no filters, clear results
     if (!hasQuery && !hasFilters) {
@@ -191,10 +189,6 @@ const OnSearchSection: React.FC<OnSearchSectionProps> = ({
 
         if (filter.maxPrice !== undefined) {
           searchFilters.maxPrice = filter.maxPrice;
-        }
-
-        if (filter.inPromotion) {
-          searchFilters.inPromotion = filter.inPromotion;
         }
 
         response = await productsService.searchWithFilters(searchFilters, {
@@ -300,7 +294,7 @@ const OnSearchSection: React.FC<OnSearchSectionProps> = ({
    * Handle clearing individual filters immediately
    */
   const handleClearIndividualFilter = useCallback(
-    (filterType: 'category' | 'mark' | 'price' | 'promotion') => {
+    (filterType: 'category' | 'mark' | 'price') => {
       const newFilter = { ...filter };
       
       switch (filterType) {
@@ -313,9 +307,6 @@ const OnSearchSection: React.FC<OnSearchSectionProps> = ({
         case 'price':
           delete newFilter.minPrice;
           delete newFilter.maxPrice;
-          break;
-        case 'promotion':
-          delete newFilter.inPromotion;
           break;
       }
       

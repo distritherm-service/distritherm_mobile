@@ -30,8 +30,6 @@ const ProductItem: React.FC<ProductItemProps> = ({
   const navigation = useNavigation<NavigationProp>();
   const { user, isAuthenticated } = useAuth();
 
-  console.log(product);
-
   // Logique métier
   const isTabletDevice = isTablet();
   // Données d'exemple pour un produit de construction

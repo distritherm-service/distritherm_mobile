@@ -48,6 +48,7 @@ const RegisterPresenter = ({
           type={InputType.DEFAULT}
           placeholder="Votre prénom"
           label="Prénom"
+          required={true}
           leftLogo={faUser}
           rules={validationRules.firstName}
         />
@@ -58,6 +59,7 @@ const RegisterPresenter = ({
           type={InputType.DEFAULT}
           placeholder="Votre nom de famille"
           label="Nom de famille"
+          required={true}
           leftLogo={faUser}
           rules={validationRules.lastName}
         />
@@ -68,6 +70,7 @@ const RegisterPresenter = ({
           type={InputType.EMAIL_ADDRESS}
           placeholder="Votre adresse email"
           label="Email"
+          required={true}
           leftLogo={faEnvelope}
           rules={validationRules.email}
         />
@@ -78,6 +81,7 @@ const RegisterPresenter = ({
           type={InputType.PASSWORD}
           placeholder="Votre mot de passe"
           label="Mot de passe"
+          required={true}
           leftLogo={faLock}
           rules={validationRules.password}
         />
@@ -88,18 +92,9 @@ const RegisterPresenter = ({
           type={InputType.PASSWORD}
           placeholder="Confirmez votre mot de passe"
           label="Confirmer le mot de passe"
+          required={true}
           leftLogo={faLock}
           rules={validationRules.confirmPassword}
-        />
-        
-        <Input<RegisterFormData>
-          name="companyName"
-          control={control}
-          type={InputType.DEFAULT}
-          placeholder="Nom de votre entreprise"
-          label="Nom de l'entreprise"
-          leftLogo={faBuilding}
-          rules={validationRules.companyName}
         />
         
         <Input<RegisterFormData>
@@ -108,16 +103,29 @@ const RegisterPresenter = ({
           type={InputType.NUMERIC}
           placeholder="Votre numéro de téléphone"
           label="Numéro de téléphone"
+          required={true}
           leftLogo={faPhone}
           rules={validationRules.phoneNumber}
+        />
+        
+        <Input<RegisterFormData>
+          name="companyName"
+          control={control}
+          type={InputType.DEFAULT}
+          placeholder="Ex: Ma Société SARL"
+          label="Nom de l'entreprise"
+          required={false}
+          leftLogo={faBuilding}
+          rules={validationRules.companyName}
         />
         
         <Input<RegisterFormData>
           name="siretNumber"
           control={control}
           type={InputType.NUMERIC}
-          placeholder="Numéro SIRET (14 chiffres)"
+          placeholder="12345678901234"
           label="Numéro SIRET"
+          required={false}
           leftLogo={faIdCard}
           rules={validationRules.siretNumber}
         />

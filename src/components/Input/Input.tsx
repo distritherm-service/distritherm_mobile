@@ -18,6 +18,7 @@ type InputProps<T extends FieldValues> = {
   type?: InputType;
   placeholder?: string;
   label?: string;
+  required?: boolean; // New prop to show/hide asterisk
   secureTextEntry?: boolean;
   leftLogo?: IconDefinition;
   error?: string;
@@ -44,6 +45,7 @@ const Input = <T extends FieldValues>({
   type = InputType.DEFAULT,
   placeholder,
   label,
+  required = false,
   secureTextEntry,
   leftLogo,
   error,
@@ -75,6 +77,7 @@ const Input = <T extends FieldValues>({
             type={type}
             placeholder={placeholder}
             label={label}
+            required={required}
             leftLogo={leftLogo}
             error={fieldError?.message || error}
             options={options}
@@ -103,6 +106,7 @@ const Input = <T extends FieldValues>({
       type={type}
       placeholder={placeholder}
       label={label}
+      required={required}
       leftLogo={leftLogo}
       error={error}
       options={options}

@@ -1,7 +1,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { Alert } from "react-native";
-import { CreateReservationDto } from "src/types/Reservation";
+import { CreateReservationDto, EReservation } from "src/types/Reservation";
 import ReservationModalPresenter from "./ReservationModalPresenter";
 
 // Form data interface
@@ -18,6 +18,8 @@ interface ReservationModalProps {
   visible: boolean;
   user?: any;
   isCreatingReservation: boolean;
+  existingReservation?: EReservation;
+  mode?: 'create' | 'view';
   onClose: () => void;
   onCreateReservation: (data: Omit<CreateReservationDto, 'cartId'>) => void;
 }
@@ -26,9 +28,35 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
   visible,
   user,
   isCreatingReservation,
+  existingReservation,
+  mode = 'create',
   onClose,
   onCreateReservation,
 }) => {
+  // Helper function to get default values
+  const getDefaultValues = (): ReservationFormData => {
+    if (existingReservation && mode === 'view') {
+      return {
+        pickupDate: existingReservation.pickupDate 
+          ? new Date(existingReservation.pickupDate).toLocaleDateString('fr-FR')
+          : '',
+        pickupTimeSlot: existingReservation.pickupTimeSlot || '',
+        customerName: existingReservation.customerName || '',
+        customerPhone: existingReservation.customerPhone || '',
+        customerEmail: existingReservation.customerEmail || '',
+        notes: existingReservation.notes || '',
+      };
+    }
+    return {
+      pickupDate: '',
+      pickupTimeSlot: '',
+      customerName: user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : '',
+      customerPhone: user?.phoneNumber || '',
+      customerEmail: user?.email || '',
+      notes: '',
+    };
+  };
+
   // useForm hook for better form management
   const {
     control,
@@ -38,14 +66,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
     formState: { errors },
     reset,
   } = useForm<ReservationFormData>({
-    defaultValues: {
-      pickupDate: '',
-      pickupTimeSlot: '',
-      customerName: user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : '',
-      customerPhone: user?.phoneNumber || '',
-      customerEmail: user?.email || '',
-      notes: '',
-    },
+    defaultValues: getDefaultValues(),
   });
 
   const watchedTimeSlot = watch('pickupTimeSlot');
@@ -55,21 +76,26 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
     { label: '14:00-18:00', value: '14:00-18:00' },
   ];
 
-  // Reset form when modal closes
+  // Reset form when modal closes or data changes
   React.useEffect(() => {
     if (!visible) {
-      reset({
-        pickupDate: '',
-        pickupTimeSlot: '',
-        customerName: user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : '',
-        customerPhone: user?.phoneNumber || '',
-        customerEmail: user?.email || '',
-        notes: '',
-      });
+      reset(getDefaultValues());
     }
-  }, [visible, reset, user]);
+  }, [visible, reset, user, existingReservation, mode]);
+
+  // Update form when existing reservation changes
+  React.useEffect(() => {
+    if (visible && existingReservation && mode === 'view') {
+      reset(getDefaultValues());
+    }
+  }, [existingReservation, mode, visible]);
 
   const onSubmit = (data: ReservationFormData) => {
+    // Don't submit in view mode
+    if (mode === 'view') {
+      return;
+    }
+
     // Validation
     if (!data.pickupDate || !data.pickupTimeSlot || 
         !data.customerName || !data.customerPhone || 
@@ -102,6 +128,8 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
       watchedTimeSlot={watchedTimeSlot}
       timeSlots={timeSlots}
       isCreatingReservation={isCreatingReservation}
+      existingReservation={existingReservation}
+      mode={mode}
       onClose={onClose}
       onSubmit={handleSubmit(onSubmit)}
       onTimeSlotSelect={handleTimeSlotSelect}

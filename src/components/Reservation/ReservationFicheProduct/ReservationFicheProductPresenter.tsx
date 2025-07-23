@@ -32,6 +32,7 @@ import {
   faClock,
   faUser,
   faPhone,
+  faComment,
 } from "@fortawesome/free-solid-svg-icons";
 import { useColors } from "src/hooks/useColors";
 import { EReservation } from "src/types/Reservation";
@@ -662,6 +663,21 @@ const ReservationFicheProductPresenter: React.FC<ReservationFicheProductPresente
           </View>
           <Text style={styles.clientInfoText}>
             {reservation.customerEmail}
+          </Text>
+        </View>
+      )}
+
+      {reservation?.notes && (
+        <View style={styles.clientInfoRow}>
+          <View style={styles.clientInfoIcon}>
+            <FontAwesomeIcon
+              icon={faComment}
+              size={ms(12)}
+              color={colors.tertiary[500]}
+            />
+          </View>
+          <Text style={styles.clientInfoText}>
+            Note du client: {reservation.notes}
           </Text>
         </View>
       )}

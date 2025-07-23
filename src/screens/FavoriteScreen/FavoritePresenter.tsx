@@ -87,12 +87,6 @@ const FavoritePresenter: React.FC<FavoritePresenterProps> = ({
       marginBottom: ms(12), // Smaller than before (was 16)
       borderRadius: ms(16),
       overflow: "hidden",
-      backgroundColor: colors.surface,
-      shadowColor: colors.tertiary[300],
-      shadowOffset: { width: 0, height: ms(2) },
-      shadowOpacity: 0.08,
-      shadowRadius: ms(8),
-      elevation: 3,
     },
     // Enhanced load more styles
     loadMoreContainer: {

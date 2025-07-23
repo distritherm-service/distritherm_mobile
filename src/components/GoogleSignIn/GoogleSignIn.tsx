@@ -44,17 +44,17 @@ const useFormValidation = () => {
 
   const formRules = {
     companyName: {
-      required: "Le nom de l'entreprise est requis",
+      // Optionnel - pas de required
       minLength: {
         value: 2,
         message: "Le nom doit contenir au moins 2 caractères",
       },
     },
     siretNumber: {
-      required: "Le numéro SIRET est requis",
+      // Optionnel - pas de required
       pattern: {
         value: /^\d{14}$/,
-        message: "Le numéro SIRET doit contenir exactement 14 chiffres",
+        message: "Le numéro SIRET doit contenir exactement 14 chiffres (si renseigné)",
       },
     },
     phoneNumber: {
@@ -212,8 +212,11 @@ const GoogleSignIn: React.FC<GoogleSignInProps> = ({ onSignInError }) => {
         }
 
         const additionalInfo: AdditionalUserInfoDto = {
-          companyName: formData.companyName,
-          siretNumber: formData.siretNumber,
+          // Envoyer companyName seulement s'il n'est pas vide
+          companyName: formData.companyName.trim() || undefined,
+          // Envoyer siretNumber seulement s'il n'est pas vide
+          siretNumber: formData.siretNumber.trim() || undefined,
+          // phoneNumber est toujours requis
           phoneNumber: formData.phoneNumber,
         };
 

@@ -17,7 +17,7 @@ const ProductMainInfo: React.FC<ProductMainInfoProps> = ({
 }) => {
   const [quantity, setQuantity] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useAuth();
 
   const handleQuantityChange = (newQuantity: number) => {
     if (newQuantity >= 1 && newQuantity <= product.quantity) {
@@ -35,6 +35,30 @@ const ProductMainInfo: React.FC<ProductMainInfoProps> = ({
     if (quantity > 1) {
       setQuantity(prev => prev - 1);
     }
+  };
+
+  const handleQuantityTextPress = () => {
+    setIsEditingQuantity(true);
+    setTempQuantityText(quantity.toString());
+  };
+
+  const handleQuantityTextChange = (text: string) => {
+    setTempQuantityText(text);
+  };
+
+  const handleQuantityTextSubmit = () => {
+    const newQuantity = parseInt(tempQuantityText, 10);
+    if (!isNaN(newQuantity) && newQuantity >= 1 && newQuantity <= product.quantity) {
+      setQuantity(newQuantity);
+    } else {
+      // Reset to current quantity if invalid
+      setTempQuantityText(quantity.toString());
+    }
+    setIsEditingQuantity(false);
+  };
+
+  const handleQuantityTextBlur = () => {
+    handleQuantityTextSubmit();
   };
 
   const handleAddToCart = async () => {
@@ -83,6 +107,12 @@ const ProductMainInfo: React.FC<ProductMainInfoProps> = ({
       onIncreaseQuantity={handleIncreaseQuantity}
       onDecreaseQuantity={handleDecreaseQuantity}
       onAddToCart={handleAddToCart}
+      isEditingQuantity={isEditingQuantity}
+      tempQuantityText={tempQuantityText}
+      onQuantityTextPress={handleQuantityTextPress}
+      onQuantityTextChange={handleQuantityTextChange}
+      onQuantityTextSubmit={handleQuantityTextSubmit}
+      onQuantityTextBlur={handleQuantityTextBlur}
     />
   );
 };

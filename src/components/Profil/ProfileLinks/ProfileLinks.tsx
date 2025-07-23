@@ -370,10 +370,10 @@ const ProfileLinks: React.FC<ProfileLinksProps> = ({
   const sections: ProfileSection[] = isAuthenticated 
     ? [
         devisSection,
-        proAccountSection, // Sera null si l'utilisateur est déjà pro
+        proAccountSection, 
         settingsSection
-      ].filter(Boolean) as ProfileSection[] // Filtrer les valeurs null
-    : [authSection]; // Si non connecté: connexion + inscription
+      ].filter(Boolean) as ProfileSection[]
+    : [authSection];
 
   return (
     <>

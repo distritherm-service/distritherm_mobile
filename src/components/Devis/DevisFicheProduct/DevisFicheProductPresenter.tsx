@@ -324,47 +324,7 @@ const DevisFicheProductPresenter: React.FC<DevisFicheProductPresenterProps> = ({
       letterSpacing: -0.5,
     },
 
-    // Discount pricing styles
-    discountPricingContainer: {
-      gap: ms(8),
-      width: "100%" as const,
-    },
-    originalPriceContainer: {
-      flexDirection: "row" as const,
-      justifyContent: "space-between" as const,
-      alignItems: "center" as const,
-      marginBottom: ms(4),
-    },
-    originalPriceLabel: {
-      fontSize: ms(11),
-      fontWeight: "500" as const,
-      color: colors.textSecondary,
-    },
-    originalPriceValue: {
-      fontSize: ms(13),
-      fontWeight: "600" as const,
-      color: colors.textSecondary,
-      textDecorationLine: "line-through" as const,
-    },
-    discountedPriceContainer: {
-      gap: ms(4),
-    },
-    discountedPriceRow: {
-      flexDirection: "row" as const,
-      alignItems: "center" as const,
-      justifyContent: "space-between" as const,
-    },
-    discountBadgeInline: {
-      paddingHorizontal: ms(8),
-      paddingVertical: ms(4),
-      borderRadius: ms(12),
-      marginLeft: ms(8),
-    },
-    discountBadgeText: {
-      fontSize: ms(10),
-      fontWeight: "600" as const,
-      color: colors.primary[50],
-    },
+
     standardPricingContainer: {
       flexDirection: "row" as const,
       justifyContent: "space-between" as const,
@@ -542,51 +502,6 @@ const DevisFicheProductPresenter: React.FC<DevisFicheProductPresenterProps> = ({
     // Use HT price from cartItem directly
     const totalHT = item.priceHt;
 
-    // Logique pour déterminer le type de remise appliquée
-    const getDiscountInfo = () => {
-      const hasProInfo = product?.proInfo?.isPro && 
-                         product?.proInfo?.percentage && 
-                         product?.proInfo?.proPriceHt;
-
-      const hasPromotion = product?.isInPromotion && 
-                          product?.promotionPrice && 
-                          product?.promotionPercentage;
-
-      // Si utilisateur pro et que le produit est dans sa catégorie, c'était une remise pro
-      if (hasProInfo && user?.proInfo?.isPro && 
-          user.proInfo.categoryIdPro === product?.proInfo?.categoryIdPro) {
-        const originalTotal = (product?.priceHt || 0) * item.quantity;
-        const discountedTotal = (product?.proInfo?.proPriceHt || 0) * item.quantity;
-        return {
-          type: 'pro' as const,
-          percentage: product?.proInfo?.percentage!,
-          originalTotal,
-          isApplicable: Math.abs(originalTotal - discountedTotal) > 0.01
-        };
-      }
-
-      // Sinon, vérifier si c'était une promotion normale
-      if (hasPromotion) {
-        const originalTotal = (product?.priceHt || 0) * item.quantity;
-        const discountedTotal = (product?.promotionPrice! / 1.20) * item.quantity;
-        return {
-          type: 'promotion' as const,
-          percentage: product?.promotionPercentage!,
-          originalTotal,
-          isApplicable: Math.abs(originalTotal - discountedTotal) > 0.01
-        };
-      }
-
-      return {
-        type: null,
-        percentage: 0,
-        originalTotal: totalHT,
-        isApplicable: false
-      };
-    };
-
-    const discountInfo = getDiscountInfo();
-
     return (
       <View style={styles.productCard}>
         <View style={styles.cardContent}>
@@ -654,42 +569,12 @@ const DevisFicheProductPresenter: React.FC<DevisFicheProductPresenterProps> = ({
             </View>
           </View>
 
-          {/* Enhanced Pricing Section with Discount Info */}
+          {/* Simplified Pricing Section - Only Real HT Amount */}
           <View style={styles.pricingSection}>
-            {discountInfo.isApplicable ? (
-              <View style={styles.discountPricingContainer}>
-                <View style={styles.originalPriceContainer}>
-                  <Text style={styles.originalPriceLabel}>Prix original HT</Text>
-                  <Text style={styles.originalPriceValue}>
-                    {formatPrice(discountInfo.originalTotal)}
-                  </Text>
-                </View>
-                <View style={styles.discountedPriceContainer}>
-                  <Text style={styles.totalLabel}>Total HT avec remise</Text>
-                  <View style={styles.discountedPriceRow}>
-                    <Text style={[
-                      styles.totalValue,
-                      { color: discountInfo.type === 'pro' ? colors.success[500] : colors.accent[500] }
-                    ]}>
-                      {formatPrice(totalHT)}
-                    </Text>
-                    <View style={[
-                      styles.discountBadgeInline,
-                      { backgroundColor: discountInfo.type === 'pro' ? colors.success[500] : colors.accent[500] }
-                    ]}>
-                      <Text style={styles.discountBadgeText}>
-                        {discountInfo.type === 'pro' ? '👨‍💼' : '🔥'} -{discountInfo.percentage}%
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-              </View>
-            ) : (
-              <View style={styles.standardPricingContainer}>
-                <Text style={styles.totalLabel}>Total HT</Text>
-                <Text style={styles.totalValue}>{formatPrice(totalHT)}</Text>
-              </View>
-            )}
+            <View style={styles.standardPricingContainer}>
+              <Text style={styles.totalLabel}>Total HT</Text>
+              <Text style={styles.totalValue}>{formatPrice(totalHT)}</Text>
+            </View>
           </View>
         </View>
       </View>

@@ -364,7 +364,8 @@ const PersonalInformationPresenter: React.FC<
                   control={control}
                   type={InputType.DEFAULT}
                   placeholder="Votre prénom"
-                  label="Prénom *"
+                  label="Prénom"
+                  required={true}
                   leftLogo={faUser}
                   rules={validationRules.firstName}
                 />
@@ -374,7 +375,8 @@ const PersonalInformationPresenter: React.FC<
                   control={control}
                   type={InputType.DEFAULT}
                   placeholder="Votre nom de famille"
-                  label="Nom de famille *"
+                  label="Nom de famille"
+                  required={true}
                   leftLogo={faUser}
                   rules={validationRules.lastName}
                 />
@@ -386,7 +388,8 @@ const PersonalInformationPresenter: React.FC<
                   control={control}
                   type={InputType.EMAIL_ADDRESS}
                   placeholder="votre.email@exemple.com"
-                  label="Adresse email *"
+                  label="Adresse email"
+                  required={true}
                   leftLogo={faEnvelope}
                   rules={validationRules.email}
                 />
@@ -396,7 +399,8 @@ const PersonalInformationPresenter: React.FC<
                   control={control}
                   type={InputType.DEFAULT}
                   placeholder="+33 6 12 34 56 78"
-                  label="Téléphone *"
+                  label="Téléphone"
+                  required={true}
                   leftLogo={faPhone}
                   rules={validationRules.phoneNumber}
                   keyboardType="phone-pad"
@@ -408,8 +412,9 @@ const PersonalInformationPresenter: React.FC<
                   name="companyName"
                   control={control}
                   type={InputType.DEFAULT}
-                  placeholder="Nom de votre entreprise"
-                  label="Nom de l'entreprise *"
+                  placeholder="Ex: Ma Société SARL"
+                  label="Nom de l'entreprise"
+                  required={false}
                   leftLogo={faBuilding}
                   rules={validationRules.companyName}
                 />
@@ -419,7 +424,8 @@ const PersonalInformationPresenter: React.FC<
                   control={control}
                   type={InputType.NUMERIC}
                   placeholder="12345678901234"
-                  label="Numéro SIRET *"
+                  label="Numéro SIRET"
+                  required={false}
                   leftLogo={faIdCard}
                   rules={validationRules.siretNumber}
                   keyboardType="numeric"

@@ -70,6 +70,7 @@ const LoginPresenter = ({
           type={InputType.EMAIL_ADDRESS}
           placeholder="Votre adresse email"
           label="Email"
+          required={true}
           leftLogo={faEnvelope}
           rules={validationRules.email}
         />
@@ -80,6 +81,7 @@ const LoginPresenter = ({
           type={InputType.PASSWORD}
           placeholder="Votre mot de passe"
           label="Mot de passe"
+          required={true}
           leftLogo={faLock}
           rules={validationRules.password}
         />

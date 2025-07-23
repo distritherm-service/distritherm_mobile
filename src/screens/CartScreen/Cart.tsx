@@ -72,8 +72,6 @@ const Cart = () => {
       setError(null);
       const response = await cartsService.getUserActiveCart(user.id);
 
-      console.log(response.cart);
-
       // Handle the API response structure - the cart data is nested inside response.cart
       const rawCartData = response.cart || response; // Fallback to response if cart property doesn't exist
 

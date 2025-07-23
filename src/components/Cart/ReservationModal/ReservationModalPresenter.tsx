@@ -20,14 +20,43 @@ import {
   faPhone,
   faEnvelope,
   faStickyNote,
+  faEye,
 } from "@fortawesome/free-solid-svg-icons";
 import { Control } from "react-hook-form";
 import Input from "src/components/Input/Input";
 import { InputType } from "src/types/InputType";
 import { useColors } from "src/hooks/useColors";
 import { ReservationFormData } from "./ReservationModal";
+import { EReservation, EReservationStatus } from "src/types/Reservation";
 
 const { height: screenHeight } = Dimensions.get('window');
+
+// Helper functions for reservation status
+const getStatusText = (status: EReservationStatus): string => {
+  switch (status) {
+    case EReservationStatus.CONFIRMED:
+      return "Confirmée";
+    case EReservationStatus.PICKED_UP:
+      return "Récupérée";
+    case EReservationStatus.CANCELLED:
+      return "Annulée";
+    default:
+      return status;
+  }
+};
+
+const getStatusColor = (status: EReservationStatus): string => {
+  switch (status) {
+    case EReservationStatus.CONFIRMED:
+      return "#10B981"; // Green
+    case EReservationStatus.PICKED_UP:
+      return "#3B82F6"; // Blue
+    case EReservationStatus.CANCELLED:
+      return "#EF4444"; // Red
+    default:
+      return "#6B7280"; // Gray
+  }
+};
 
 interface TimeSlot {
   label: string;
@@ -40,6 +69,8 @@ interface ReservationModalPresenterProps {
   watchedTimeSlot: string;
   timeSlots: TimeSlot[];
   isCreatingReservation: boolean;
+  existingReservation?: EReservation;
+  mode?: 'create' | 'view';
   onClose: () => void;
   onSubmit: () => void;
   onTimeSlotSelect: (timeSlot: string) => void;
@@ -51,6 +82,8 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
   watchedTimeSlot,
   timeSlots,
   isCreatingReservation,
+  existingReservation,
+  mode = 'create',
   onClose,
   onSubmit,
   onTimeSlotSelect,
@@ -67,7 +100,8 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
       backgroundColor: colors.primary[50],
       borderTopLeftRadius: ms(20),
       borderTopRightRadius: ms(20),
-      height: screenHeight * 0.85,
+      maxHeight: screenHeight * 0.85,
+      flex: 1,
       shadowColor: "#000",
       shadowOffset: { width: 0, height: -4 },
       shadowOpacity: 0.1,
@@ -115,6 +149,7 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
     scrollContent: {
       paddingHorizontal: ms(20),
       paddingBottom: ms(20),
+      flexGrow: 1,
     },
     section: {
       marginVertical: ms(10),
@@ -153,6 +188,10 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
       backgroundColor: colors.secondary[400],
       borderColor: colors.secondary[500],
     },
+    timeSlotButtonDisabled: {
+      opacity: 0.6,
+      backgroundColor: colors.tertiary[100],
+    },
     timeSlotText: {
       fontSize: ms(14),
       color: colors.tertiary[500],
@@ -162,6 +201,9 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
     timeSlotTextActive: {
       color: colors.primary[50],
       fontWeight: "700",
+    },
+    timeSlotTextDisabled: {
+      color: colors.tertiary[400],
     },
     errorMessage: {
       color: colors.danger[600],
@@ -225,6 +267,41 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
       fontWeight: "700",
       color: colors.primary[50],
     },
+    reservationInfoContainer: {
+      marginTop: ms(8),
+    },
+    reservationInfoRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: ms(12),
+      paddingVertical: ms(4),
+    },
+    reservationInfoLabel: {
+      fontSize: ms(14),
+      fontWeight: "600",
+      color: colors.tertiary[600],
+      flex: 1,
+    },
+    reservationInfoValue: {
+      fontSize: ms(14),
+      fontWeight: "500",
+      color: colors.tertiary[500],
+      flex: 1,
+      textAlign: "right",
+    },
+    statusBadge: {
+      paddingHorizontal: ms(12),
+      paddingVertical: ms(6),
+      borderRadius: ms(20),
+      alignSelf: "flex-end",
+    },
+    statusText: {
+      fontSize: ms(12),
+      fontWeight: "700",
+      color: colors.primary[50],
+      textAlign: "center",
+    },
   });
 
   return (
@@ -242,7 +319,9 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
               <View style={styles.handle} />
               
               <View style={styles.header}>
-                <Text style={styles.title}>Réserver pour retrait</Text>
+                <Text style={styles.title}>
+                  {mode === 'view' ? 'Détails de la réservation' : 'Réserver pour retrait'}
+                </Text>
                 <TouchableOpacity
                   style={styles.closeButton}
                   onPress={onClose}
@@ -263,7 +342,52 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
                   bounces={true}
                   keyboardDismissMode="on-drag"
                   contentContainerStyle={styles.scrollContent}
+                  nestedScrollEnabled={true}
+                  scrollEventThrottle={16}
+                  contentInsetAdjustmentBehavior="automatic"
                 >
+                {mode === 'view' && existingReservation && (
+                  <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>
+                      <FontAwesomeIcon
+                        icon={faEye}
+                        size={ms(14)}
+                        color={colors.secondary[500]}
+                      />
+                      {" "}Informations de la réservation
+                    </Text>
+                    
+                    <View style={styles.reservationInfoContainer}>
+                      <View style={styles.reservationInfoRow}>
+                        <Text style={styles.reservationInfoLabel}>Statut :</Text>
+                        <View style={[styles.statusBadge, { backgroundColor: getStatusColor(existingReservation.status) }]}>
+                          <Text style={styles.statusText}>{getStatusText(existingReservation.status)}</Text>
+                        </View>
+                      </View>
+                      
+                      <View style={styles.reservationInfoRow}>
+                        <Text style={styles.reservationInfoLabel}>Créée le :</Text>
+                        <Text style={styles.reservationInfoValue}>
+                          {new Date(existingReservation.createdAt).toLocaleDateString('fr-FR', {
+                            day: '2-digit',
+                            month: '2-digit', 
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </Text>
+                      </View>
+                      
+                      {existingReservation.cart && (
+                        <View style={styles.reservationInfoRow}>
+                          <Text style={styles.reservationInfoLabel}>Panier :</Text>
+                          <Text style={styles.reservationInfoValue}>#{existingReservation.cartId}</Text>
+                        </View>
+                      )}
+                    </View>
+                  </View>
+                )}
+                
                 <View style={styles.section}>
                   <Text style={styles.sectionTitle}>
                     <FontAwesomeIcon
@@ -281,7 +405,8 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
                     label="Date de retrait *"
                     placeholder="JJ/MM/AAAA"
                     leftLogo={faCalendarAlt}
-                    rules={{
+                    editable={mode === 'create'}
+                    rules={mode === 'create' ? {
                       required: 'La date de retrait est obligatoire',
                       pattern: {
                         value: /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/,
@@ -303,7 +428,7 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
                           return true;
                         }
                       }
-                    }}
+                    } : {}}
                   />
 
                   <View style={{ marginTop: ms(12) }}>
@@ -315,14 +440,17 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
                           style={[
                             styles.timeSlotButton,
                             watchedTimeSlot === slot.value && styles.timeSlotButtonActive,
+                            mode === 'view' && styles.timeSlotButtonDisabled,
                           ]}
-                          onPress={() => onTimeSlotSelect(slot.value)}
-                          activeOpacity={0.8}
+                          onPress={mode === 'create' ? () => onTimeSlotSelect(slot.value) : undefined}
+                          disabled={mode === 'view'}
+                          activeOpacity={mode === 'create' ? 0.8 : 1}
                         >
                           <Text
                             style={[
                               styles.timeSlotText,
                               watchedTimeSlot === slot.value && styles.timeSlotTextActive,
+                              mode === 'view' && styles.timeSlotTextDisabled,
                             ]}
                           >
                             {slot.label}
@@ -330,7 +458,7 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
                         </TouchableOpacity>
                       ))}
                     </View>
-                    {!watchedTimeSlot && (
+                    {!watchedTimeSlot && mode === 'create' && (
                       <Text style={styles.errorMessage}>
                         ⚠️ Veuillez sélectionner un créneau horaire
                       </Text>
@@ -355,13 +483,14 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
                     label="Nom complet *"
                     placeholder="Votre nom complet"
                     leftLogo={faUser}
-                    rules={{
+                    editable={mode === 'create'}
+                    rules={mode === 'create' ? {
                       required: 'Le nom est obligatoire',
                       minLength: {
                         value: 2,
                         message: 'Le nom doit contenir au moins 2 caractères'
                       }
-                    }}
+                    } : {}}
                   />
 
                   <Input
@@ -371,13 +500,14 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
                     label="Téléphone *"
                     placeholder="Votre numéro de téléphone"
                     leftLogo={faPhone}
-                    rules={{
+                    editable={mode === 'create'}
+                    rules={mode === 'create' ? {
                       required: 'Le téléphone est obligatoire',
                       pattern: {
                         value: /^[0-9+\-\s()]+$/,
                         message: 'Format de téléphone invalide'
                       }
-                    }}
+                    } : {}}
                   />
 
                   <Input
@@ -387,13 +517,14 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
                     label="Email *"
                     placeholder="Votre adresse email"
                     leftLogo={faEnvelope}
-                    rules={{
+                    editable={mode === 'create'}
+                    rules={mode === 'create' ? {
                       required: 'L\'email est obligatoire',
                       pattern: {
                         value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                         message: 'Format d\'email invalide'
                       }
-                    }}
+                    } : {}}
                   />
                 </View>
 
@@ -404,57 +535,72 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
                       size={ms(14)}
                       color={colors.secondary[500]}
                     />
-                    {" "}Notes optionnelles
+                    {mode === 'view' ? " Notes de la réservation" : " Notes optionnelles"}
                   </Text>
 
                   <Input
                     name="notes"
                     control={control}
                     type={InputType.TEXTAREA}
-                    label="Instructions particulières"
-                    placeholder="Ajoutez des instructions particulières pour le retrait..."
+                    label={mode === 'view' ? "Instructions particulières laissées" : "Instructions particulières"}
+                    placeholder={mode === 'view' ? "Aucune note spécifique" : "Ajoutez des instructions particulières pour le retrait..."}
                     multiline={true}
-                    numberOfLines={3}
+                    numberOfLines={mode === 'view' ? 4 : 3}
                     leftLogo={faStickyNote}
+                    editable={mode === 'create'}
                   />
                 </View>
                 </ScrollView>
               </View>
 
               <View style={styles.actions}>
-                <TouchableOpacity
-                  style={[styles.button, styles.cancelButton]}
-                  onPress={onClose}
-                  activeOpacity={0.8}
-                >
-                  <Text style={[styles.buttonText, styles.cancelButtonText]}>
-                    Annuler
-                  </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[
-                    styles.button, 
-                    styles.confirmButton,
-                    isCreatingReservation && { opacity: 0.7 }
-                  ]}
-                  onPress={onSubmit}
-                  disabled={isCreatingReservation}
-                  activeOpacity={0.8}
-                >
-                  {isCreatingReservation ? (
-                    <View style={styles.loadingContainer}>
-                      <ActivityIndicator size="small" color={colors.primary[50]} />
-                      <Text style={[styles.buttonText, styles.loadingText]}>
-                        Traitement...
-                      </Text>
-                    </View>
-                  ) : (
+                {mode === 'view' ? (
+                  <TouchableOpacity
+                    style={[styles.button, styles.confirmButton]}
+                    onPress={onClose}
+                    activeOpacity={0.8}
+                  >
                     <Text style={[styles.buttonText, styles.confirmButtonText]}>
-                      ✓ Confirmer
+                      Fermer
                     </Text>
-                  )}
-                </TouchableOpacity>
+                  </TouchableOpacity>
+                ) : (
+                  <>
+                    <TouchableOpacity
+                      style={[styles.button, styles.cancelButton]}
+                      onPress={onClose}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={[styles.buttonText, styles.cancelButtonText]}>
+                        Annuler
+                      </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[
+                        styles.button, 
+                        styles.confirmButton,
+                        isCreatingReservation && { opacity: 0.7 }
+                      ]}
+                      onPress={onSubmit}
+                      disabled={isCreatingReservation}
+                      activeOpacity={0.8}
+                    >
+                      {isCreatingReservation ? (
+                        <View style={styles.loadingContainer}>
+                          <ActivityIndicator size="small" color={colors.primary[50]} />
+                          <Text style={[styles.buttonText, styles.loadingText]}>
+                            Traitement...
+                          </Text>
+                        </View>
+                      ) : (
+                        <Text style={[styles.buttonText, styles.confirmButtonText]}>
+                          ✓ Confirmer
+                        </Text>
+                      )}
+                    </TouchableOpacity>
+                  </>
+                )}
               </View>
             </View>
           </TouchableWithoutFeedback>

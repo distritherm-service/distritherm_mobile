@@ -21,7 +21,7 @@ interface FilterModalProps {
   isLoadingFilterData?: boolean;
   onClose: () => void;
   onApplyFilter: (filter: SearchFilter) => void;
-  onClearIndividualFilter?: (filterType: 'category' | 'mark' | 'price' | 'promotion') => void;
+  onClearIndividualFilter?: (filterType: 'category' | 'mark' | 'price') => void;
   onClearAllFilters?: () => void;
 }
 
@@ -46,6 +46,10 @@ const FilterModal: React.FC<FilterModalProps> = ({
 
   // State for current filter values
   const [tempFilter, setTempFilter] = useState<SearchFilter>(currentFilter);
+  
+  // Local state for price input strings to prevent clearing while typing
+  const [minPriceText, setMinPriceText] = useState<string>("");
+  const [maxPriceText, setMaxPriceText] = useState<string>("");
 
   // Animation values
   const slideAnim = useRef(new Animated.Value(0)).current;
@@ -60,9 +64,11 @@ const FilterModal: React.FC<FilterModalProps> = ({
     }
   }, [isVisible]);
 
-  // Update temp filter when current filter changes
+  // Update temp filter and price texts when current filter changes
   useEffect(() => {
     setTempFilter(currentFilter);
+    setMinPriceText(currentFilter.minPrice?.toString() || "");
+    setMaxPriceText(currentFilter.maxPrice?.toString() || "");
   }, [currentFilter]);
 
   const animateIn = () => {
@@ -118,21 +124,28 @@ const FilterModal: React.FC<FilterModalProps> = ({
   };
 
   const handleMinPriceChange = (text: string) => {
+    // Allow only digits
     const cleanText = text.replace(/[^0-9]/g, '');
+    setMinPriceText(cleanText);
+    
+    // Update the filter immediately
     const minPrice = cleanText ? parseInt(cleanText) : undefined;
-    handlePriceChange(minPrice, tempFilter.maxPrice);
+    setTempFilter((prev) => ({
+      ...prev,
+      minPrice,
+    }));
   };
 
   const handleMaxPriceChange = (text: string) => {
+    // Allow only digits
     const cleanText = text.replace(/[^0-9]/g, '');
+    setMaxPriceText(cleanText);
+    
+    // Update the filter immediately
     const maxPrice = cleanText ? parseInt(cleanText) : undefined;
-    handlePriceChange(tempFilter.minPrice, maxPrice);
-  };
-
-  const handlePromotionToggle = () => {
     setTempFilter((prev) => ({
       ...prev,
-      inPromotion: !prev.inPromotion,
+      maxPrice,
     }));
   };
 
@@ -149,7 +162,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
     }
   };
 
-  const handleClearIndividual = (filterType: 'category' | 'mark' | 'price' | 'promotion') => {
+  const handleClearIndividual = (filterType: 'category' | 'mark' | 'price') => {
     if (onClearIndividualFilter) {
       // Use immediate clearing if available
       onClearIndividualFilter(filterType);
@@ -168,9 +181,9 @@ const FilterModal: React.FC<FilterModalProps> = ({
         case 'price':
           delete newTempFilter.minPrice;
           delete newTempFilter.maxPrice;
-          break;
-        case 'promotion':
-          delete newTempFilter.inPromotion;
+          // Also clear the price text states
+          setMinPriceText("");
+          setMaxPriceText("");
           break;
       }
       
@@ -188,7 +201,6 @@ const FilterModal: React.FC<FilterModalProps> = ({
     if (tempFilter.categoryId) count++;
     if (tempFilter.markId) count++;
     if (tempFilter.minPrice || tempFilter.maxPrice) count++;
-    if (tempFilter.inPromotion) count++;
     return count;
   };
 
@@ -227,13 +239,15 @@ const FilterModal: React.FC<FilterModalProps> = ({
       // Mark options for the UI
       markOptions={markOptions}
       selectedMark={selectedMark}
+      // Price text states
+      minPriceText={minPriceText}
+      maxPriceText={maxPriceText}
       onClose={onClose}
       onCategorySelect={handleCategorySelect}
       onMarkSelect={handleMarkSelect}
       onPriceChange={handlePriceChange}
       onMinPriceChange={handleMinPriceChange}
       onMaxPriceChange={handleMaxPriceChange}
-      onPromotionToggle={handlePromotionToggle}
       onClearAll={handleClearAll}
       onClearIndividual={handleClearIndividual}
       onApply={handleApply}

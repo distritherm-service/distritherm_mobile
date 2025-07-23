@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Alert, Linking } from "react-native";
 import { useAuth } from "src/hooks/useAuth";
@@ -11,6 +11,9 @@ import { DevisFilter } from "src/components/Devis/DevisFilters/DevisFilters";
 const MesDevis = () => {
   const { user, isAuthenticated } = useAuth();
   const navigation = useNavigation();
+
+  // Refs to prevent unnecessary re-renders and double calls
+  const isInitialLoad = useRef(true);
 
   // State management
   const [devis, setDevis] = useState<Devis[]>([]);
@@ -39,14 +42,17 @@ const MesDevis = () => {
 
       try {
         setError(null);
+        let currentPage: number;
+        
         if (reset) {
           setLoading(true);
+          currentPage = 1;
           setPagination({ page: 1, limit: 10 });
         } else {
           setLoadingMore(true);
+          currentPage = pagination.page || 1;
         }
 
-        const currentPage = reset ? 1 : pagination.page;
         const status = activeFilter === "ALL" ? undefined : activeFilter;
         // Search is always undefined for regular clients (handled by backend)
         const search = undefined;
@@ -58,28 +64,39 @@ const MesDevis = () => {
           { page: currentPage, limit: pagination.limit }
         );
 
+        // Debug logging
         // Handle the API response structure from backend
-        const responseData = response?.devis || response?.data || [];
-        const meta = response?.meta;
+        const responseData = response?.data?.devis || response?.devis || [];
+        const meta = response?.data?.meta || response?.meta;
         
         // Ensure we have an array of devis
         const newDevis = Array.isArray(responseData) ? responseData : [];
         
+        // Remove duplicates by filtering out existing devis IDs
+        const existingIds = reset ? new Set() : new Set(devis.map(d => d.id));
+        const uniqueNewDevis = newDevis.filter(d => !existingIds.has(d.id));
+        
         if (reset) {
-          setDevis(newDevis);
+          setDevis(uniqueNewDevis);
         } else {
-          setDevis(prev => [...prev, ...newDevis]);
+          setDevis(prev => [...prev, ...uniqueNewDevis]);
         }
 
         // Use meta information if available, otherwise fallback to simple check
         if (meta) {
-          setHasMore(meta.page < meta.total);
+          // Check different possible pagination structures
+          const hasNext = meta.hasNext ?? 
+                         meta.hasNextPage ?? 
+                         (meta.page && meta.lastPage && meta.page < meta.lastPage) ??
+                         (meta.currentPage && meta.totalPages && meta.currentPage < meta.totalPages);
+          setHasMore(hasNext || false);
         } else {
-          setHasMore(newDevis.length === pagination.limit);
+          setHasMore(uniqueNewDevis.length === pagination.limit);
         }
         
-        if (!reset && currentPage) {
-          setPagination(prev => ({ ...prev, page: currentPage + 1 }));
+        // Update pagination page only after successful load and if not reset
+        if (!reset && uniqueNewDevis.length > 0) {
+          setPagination(prev => ({ ...prev, page: (prev.page || 1) + 1 }));
         }
       } catch (err: any) {
         console.error("Error loading devis:", err);
@@ -91,7 +108,7 @@ const MesDevis = () => {
         setLoadingMore(false);
       }
     },
-    [user?.id, isAuthenticated, pagination.page, pagination.limit]
+    [user?.id, isAuthenticated, activeFilter, pagination.page, pagination.limit]
   );
 
   // Download devis file
@@ -148,9 +165,10 @@ const MesDevis = () => {
 
   // Filter change
   const handleFilterChange = useCallback((filter: DevisFilter) => {
-    setActiveFilter(filter);
-  }, []);
-
+    if (filter !== activeFilter) {
+      setActiveFilter(filter);
+    }
+  }, [activeFilter]);
 
   // Navigate back
   const handleBack = useCallback(() => {
@@ -174,62 +192,25 @@ const MesDevis = () => {
     setSelectedDevisForProducts(null);
   }, []);
 
-  // Reload data when filter or search changes  
-  const reloadDataForFilter = useCallback(async () => {
-    if (!user?.id || !isAuthenticated) return;
-    
-    try {
-      setError(null);
-      setLoading(true);
-      setPagination({ page: 1, limit: 10 });
-      setDevis([]);
-
-      const status = activeFilter === "ALL" ? undefined : activeFilter;
-      // Search is always undefined for regular clients (handled by backend)
-      const search = undefined;
-
-      const response = await devisService.getDevisByClient(
-        user.id,
-        status,
-        search,
-        { page: 1, limit: 10 }
-      );
-
-      // Handle the API response structure from backend
-      const responseData = response?.devis || response?.data || [];
-      const meta = response?.meta;
-      
-      // Ensure we have an array of devis
-      const newDevis = Array.isArray(responseData) ? responseData : [];
-      
-      setDevis(newDevis);
-
-      // Use meta information if available, otherwise fallback to simple check
-      if (meta) {
-        setHasMore(meta.page < meta.total);
-      } else {
-        setHasMore(newDevis.length === 10);
-      }
-    } catch (err: any) {
-      console.error("Error reloading devis:", err);
-      const errorMessage = err?.response?.data?.message || err?.message || "Impossible de charger vos devis";
-      setError(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  }, [user?.id, isAuthenticated, activeFilter]);
-
-  // Load data when filter changes (search is disabled for clients)
+  // Load data when filter changes
   useEffect(() => {
-    // Always reload data when filter changes
-    reloadDataForFilter();
-  }, [activeFilter, reloadDataForFilter]);
+    if (!isInitialLoad.current) {
+      // Reset data and reload when filter changes
+      setDevis([]);
+      setPagination({ page: 1, limit: 10 });
+      setHasMore(true);
+      loadDevis(true);
+    }
+  }, [activeFilter, loadDevis]);
 
-  // Load data when screen is focused
+  // Load data when screen is focused (only on initial load)
   useFocusEffect(
     useCallback(() => {
-      reloadDataForFilter();
-    }, [reloadDataForFilter])
+      if (isInitialLoad.current) {
+        loadDevis(true);
+        isInitialLoad.current = false;
+      }
+    }, [loadDevis])
   );
 
   const getStatusText = (status: DevisStatus): string => {

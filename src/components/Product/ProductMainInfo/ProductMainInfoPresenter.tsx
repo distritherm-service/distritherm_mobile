@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
+  TextInput,
 } from 'react-native';
 import { ms } from 'react-native-size-matters'; // Using react-native-size-matters for responsive design
 import { ProductDetailDto } from 'src/types/Product';
@@ -25,6 +26,12 @@ interface ProductMainInfoPresenterProps {
   onIncreaseQuantity: () => void;
   onDecreaseQuantity: () => void;
   onAddToCart: () => void;
+  isEditingQuantity: boolean;
+  tempQuantityText: string;
+  onQuantityTextPress: () => void;
+  onQuantityTextChange: (text: string) => void;
+  onQuantityTextSubmit: () => void;
+  onQuantityTextBlur: () => void;
 }
 
 const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
@@ -39,6 +46,12 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
   onIncreaseQuantity,
   onDecreaseQuantity,
   onAddToCart,
+  isEditingQuantity,
+  tempQuantityText,
+  onQuantityTextPress,
+  onQuantityTextChange,
+  onQuantityTextSubmit,
+  onQuantityTextBlur,
 }) => {
   const colors = useColors();
 
@@ -218,9 +231,27 @@ const ProductMainInfoPresenter: React.FC<ProductMainInfoPresenterProps> = ({
             </TouchableOpacity>
             
             <View style={styles.quantityTextContainer}>
-              <Text style={[styles.quantityText, { color: colors.text }]}>
-                {quantity}
-              </Text>
+              {isEditingQuantity ? (
+                <TextInput
+                  style={[styles.quantityInput, { color: colors.text }]}
+                  value={tempQuantityText}
+                  onChangeText={onQuantityTextChange}
+                  onSubmitEditing={onQuantityTextSubmit}
+                  onBlur={onQuantityTextBlur}
+                  keyboardType="numeric"
+                  selectTextOnFocus={true}
+                  autoFocus={true}
+                  maxLength={3}
+                  textAlign="center"
+                  returnKeyType="done"
+                />
+              ) : (
+                <TouchableOpacity onPress={onQuantityTextPress} style={styles.quantityTextTouchable}>
+                  <Text style={[styles.quantityText, { color: colors.text }]}>
+                    {quantity}
+                  </Text>
+                </TouchableOpacity>
+              )}
             </View>
             
             <TouchableOpacity
@@ -482,6 +513,21 @@ const styles = StyleSheet.create({
   quantityText: {
     fontSize: ms(18), // Using react-native-size-matters for responsive design - reduced from 20
     fontWeight: '800',
+  },
+  quantityTextTouchable: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: ms(4),
+  },
+  quantityInput: {
+    fontSize: ms(18),
+    fontWeight: '800',
+    paddingVertical: ms(4),
+    paddingHorizontal: ms(8),
+    borderRadius: ms(4),
+    minWidth: ms(40),
+    textAlign: 'center',
   },
   totalSection: {
     paddingTop: ms(16), // Using react-native-size-matters for responsive design - reduced from 20

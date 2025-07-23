@@ -57,44 +57,39 @@ const userProChauffage: UserProInfoDto = {
 // Utilisateur normal (non pro)
 const userNormal = null;
 
-console.log('=== EXEMPLES DE CALCUL DE PRIX ===\n');
-
 // CAS 1: Utilisateur pro pour la bonne catégorie
-console.log('🔹 CAS 1: Utilisateur PRO pour la catégorie Sanitaires');
+// 🔹 CAS 1: Utilisateur PRO pour la catégorie Sanitaires
 const pricingPro = calculateProductPricing(exampleProduct, userProSanitaires);
-console.log(`Type de remise: ${pricingPro.type}`);
-console.log(`Prix original: ${formatPrice(pricingPro.originalPriceHt)} HT`);
-console.log(`Prix réduit: ${formatPrice(pricingPro.discountedPriceHt)} HT`);
-console.log(`Pourcentage: ${pricingPro.percentage}%`);
-console.log(`Économies: ${formatPrice(pricingPro.savings)}`);
-console.log(`✅ RÈGLE: Prix PRO prioritaire, promotion ignorée\n`);
+// Type de remise: PRO
+// Prix original: 699.99 HT
+// Prix réduit: 629.99 HT
+// Pourcentage: 10%
+// ✅ RÈGLE: Prix PRO prioritaire, promotion ignorée
 
 // CAS 2: Utilisateur pro pour une autre catégorie
-console.log('🔹 CAS 2: Utilisateur PRO mais pour catégorie Chauffage (différente du produit)');
+// 🔹 CAS 2: Utilisateur PRO mais pour catégorie Chauffage (différente du produit)
 const pricingProOther = calculateProductPricing(exampleProduct, userProChauffage);
-console.log(`Type de remise: ${pricingProOther.type}`);
-console.log(`Prix original: ${formatPrice(pricingProOther.originalPriceHt)} HT`);
-console.log(`Prix réduit: ${formatPrice(pricingProOther.discountedPriceHt)} HT`);
-console.log(`Pourcentage: ${pricingProOther.percentage}%`);
-console.log(`Économies: ${formatPrice(pricingProOther.savings)}`);
-console.log(`✅ RÈGLE: Promotion appliquée car pas pro pour cette catégorie\n`);
+// Type de remise: PROMOTION
+// Prix original: 699.99 HT
+// Prix réduit: 594.99 HT (promotion 15%)
+// Pourcentage: 15%
+// ✅ RÈGLE: Promotion appliquée car pas pro pour cette catégorie
 
 // CAS 3: Utilisateur normal
-console.log('🔹 CAS 3: Utilisateur NORMAL (non pro)');
+// 🔹 CAS 3: Utilisateur NORMAL (non pro)
 const pricingNormal = calculateProductPricing(exampleProduct, userNormal);
-console.log(`Type de remise: ${pricingNormal.type}`);
-console.log(`Prix original: ${formatPrice(pricingNormal.originalPriceHt)} HT`);
-console.log(`Prix réduit: ${formatPrice(pricingNormal.discountedPriceHt)} HT`);
-console.log(`Pourcentage: ${pricingNormal.percentage}%`);
-console.log(`Économies: ${formatPrice(pricingNormal.savings)}`);
-console.log(`✅ RÈGLE: Promotion appliquée car utilisateur non pro\n`);
+// Type de remise: PROMOTION
+// Prix original: 699.99 HT
+// Prix réduit: 594.99 HT (promotion 15%)
+// Pourcentage: 15%
+// ✅ RÈGLE: Promotion appliquée car utilisateur non pro
 
 // Exemple de calcul pour plusieurs quantités
-console.log('🔹 CALCUL POUR DIFFÉRENTES QUANTITÉS:');
+// 🔹 CALCUL POUR DIFFÉRENTES QUANTITÉS:
 const quantities = [1, 2, 5];
 quantities.forEach(qty => {
   const total = calculateTotalPrice(pricingPro.discountedPriceHt, qty);
-  console.log(`${qty} unité(s): ${formatPrice(total)} HT`);
+  // ${qty} unité(s): ${total} HT
 });
 
 /*
