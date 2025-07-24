@@ -67,7 +67,7 @@ const HeaderPresenter: React.FC<HeaderPresenterProps> = ({
       paddingRight: ms(15)
     },
     dropdownButton: {
-      width: ms(170),
+      width: ms(120),
       height: ms(36),
       borderRadius: ms(18),
       backgroundColor: colors.primary[50],
