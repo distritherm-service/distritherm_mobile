@@ -93,7 +93,6 @@ api.interceptors.request.use(async (config: any) => {
 api.interceptors.response.use(
   (response: any) => response,
   async (error: any) => {
-    console.log(error);
     const originalRequest = error.config;
 
     // Vérifier si c'est une erreur d'authentification avec expiration de token
