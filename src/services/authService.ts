@@ -16,19 +16,7 @@ export interface RegularRegisterDto {
   siretNumber?: string;
 }
  
-export interface AdditionalUserInfoDto {
-  firstName?: string;
-  lastName?: string;
-  phoneNumber: string;
-  companyName?: string;
-  siretNumber?: string;
-}
 
-export interface ProviderAuthDto {
-  providerAuthToken: string;
-  providerName: string;
-  additionalInfo?: AdditionalUserInfoDto;
-}
 
 export interface RefreshTokenResponse {
   accessToken: string;
@@ -70,25 +58,7 @@ const authService = {
     }
   },
 
-  // POST /auth/provider-login - Connexion via fournisseur d'identité
-  providerLogin: async (providerAuthDto: ProviderAuthDto): Promise<any> => {
-    try {
-      const response = await api.post("/auth/provider-login", providerAuthDto);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
 
-  // POST /auth/provider-register - Inscription via fournisseur d'identité
-  providerRegister: async (providerAuthDto: ProviderAuthDto): Promise<any> => {
-    try {
-      const response = await api.post("/auth/provider-register", providerAuthDto);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
 
   // POST /auth/logout - Déconnexion de l'utilisateur
   logout: async (refreshToken: string): Promise<LogoutResponse> => {

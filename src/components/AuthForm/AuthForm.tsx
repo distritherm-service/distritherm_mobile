@@ -20,7 +20,7 @@ const AuthForm = ({
   const navigation = useNavigation<any>();
   const [contentHeight, setContentHeight] = useState(0);
   const [screenHeight, setScreenHeight] = useState(0);
-  const [errorGoogleSignIn, setErrorGoogleSignIn] = useState<string>("");
+
 
   // Calculate if content is scrollable (content height > available screen height)
   const isScrollable = contentHeight > screenHeight;
@@ -33,9 +33,7 @@ const AuthForm = ({
     }
   };
 
-  const onGoogleSignInError = (errorText: string) => {
-    setErrorGoogleSignIn(errorText);
-  };
+
 
   const handleContentSizeChange = (height: number) => {
     setContentHeight(height);
@@ -56,8 +54,7 @@ const AuthForm = ({
       isScrollable={isScrollable}
       onContentSizeChange={handleContentSizeChange}
       onScrollContainerLayout={handleScrollContainerLayout}
-      errorGoogleSignIn={errorGoogleSignIn}
-      onGoogleSignInError={onGoogleSignInError}
+
     >
       {children}
     </AuthFormPresenter>

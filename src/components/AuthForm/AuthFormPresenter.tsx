@@ -14,7 +14,7 @@ import { useColors } from "src/hooks/useColors";
 import { ms } from "react-native-size-matters";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import GoogleSignIn from "../GoogleSignIn/GoogleSignIn";
+
 import Spacer from "../Spacer/Spacer";
 
 interface AuthFormPresenterProps {
@@ -27,8 +27,7 @@ interface AuthFormPresenterProps {
   isScrollable: boolean;
   onContentSizeChange: (width: number, height: number) => void;
   onScrollContainerLayout: (event: any) => void;
-  errorGoogleSignIn?: string;
-  onGoogleSignInError: (errorText: string) => void;
+
 }
 
 const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
@@ -41,8 +40,7 @@ const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
   isScrollable,
   onContentSizeChange,
   onScrollContainerLayout,
-  errorGoogleSignIn,
-  onGoogleSignInError,
+
 }) => {
   const colors = useColors(); // Using react-native-size-matters for responsive design
 
@@ -192,28 +190,7 @@ const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
       fontWeight: "700",
       letterSpacing: ms(0.5), // Using react-native-size-matters for responsive letter spacing
     },
-    dividerContainer: {
-      flexDirection: "row",
-      alignItems: "center",
-      marginVertical: ms(24), // Using react-native-size-matters for responsive margin
-    },
-    dividerLine: {
-      flex: 1,
-      height: 1,
-      backgroundColor: colors.border,
-    },
-    dividerText: {
-      marginHorizontal: ms(16), // Using react-native-size-matters for responsive margin
-      color: colors.textSecondary,
-      fontSize: ms(14), // Using react-native-size-matters for responsive font size
-      fontWeight: "500",
-    },
-    googleSignInError: {
-      color: colors.error,
-      fontSize: ms(12), // Using react-native-size-matters for responsive font size
-      marginTop: ms(8), // Using react-native-size-matters for responsive margin
-      textAlign: "center",
-    },
+
     stickyRedirectionContainer: {
       position: "absolute",
       top: ms(10), // Using react-native-size-matters for responsive positioning
@@ -382,18 +359,7 @@ const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
                 </Pressable>
               )}
 
-              {/* Divider with "ou" text */}
-              <View style={dynamicStyles.dividerContainer}>
-                <View style={dynamicStyles.dividerLine} />
-                <Text style={dynamicStyles.dividerText}>ou</Text>
-                <View style={dynamicStyles.dividerLine} />
-              </View>
 
-              <GoogleSignIn onSignInError={onGoogleSignInError} />
-
-              {errorGoogleSignIn && (
-                <Text style={dynamicStyles.googleSignInError}>{errorGoogleSignIn}</Text>
-              )}
             </View>
 
           </ScrollView>
