@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import { Alert, Linking } from "react-native";
+import { Alert } from "react-native";
 import { useAuth } from "src/hooks/useAuth";
 import devisService from "src/services/devisService";
 import { Devis, DevisStatus } from "src/types/Devis";
-import { PaginationDto } from "src/types/PaginationDto";
+import { PaginationDto } from "src/types/paginationDto";
 import MesDevisPresenter from "./MesDevisPresenter";
 import { DevisFilter } from "src/components/Devis/DevisFilters/DevisFilters";
+import { downloadPDF } from "src/utils/fileDownload";
 
 const MesDevis = () => {
   const { user, isAuthenticated } = useAuth();
@@ -108,18 +109,49 @@ const MesDevis = () => {
         setLoadingMore(false);
       }
     },
-    [user?.id, isAuthenticated, activeFilter, pagination.page, pagination.limit]
+    [user?.id, isAuthenticated, activeFilter, pagination.page, pagination.limit, devis]
   );
 
   // Download devis file
   const downloadDevis = useCallback(async (devisId: number) => {
+    // Trouver le devis correspondant
+    const targetDevis = devis.find(d => d.id === devisId);
+    if (!targetDevis) {
+      Alert.alert("Erreur", "Devis introuvable");
+      return;
+    }
+
+    // Vérifier que l'URL du fichier existe
+    if (!targetDevis.fileUrl) {
+      Alert.alert("Erreur", "Aucun fichier PDF disponible pour ce devis");
+      return;
+    }
+
     setDownloadingIds(prev => new Set(prev).add(devisId));
     
     try {
-      Alert.alert("Succès", "Téléchargement effectué");
+      // Générer un nom de fichier descriptif
+      const filename = `devis_${devisId}_${new Date().toISOString().split('T')[0]}.pdf`;
+      
+      // Télécharger le PDF
+      const success = await downloadPDF({
+        url: targetDevis.fileUrl,
+        filename: filename,
+        showAlert: true
+      });
+
+      if (!success) {
+        throw new Error("Le téléchargement a échoué");
+      }
+
+      console.log(`✅ Devis ${devisId} téléchargé avec succès`);
+      
     } catch (err: any) {
       console.error("Error downloading devis:", err);
-      Alert.alert("Erreur", "Impossible de télécharger le devis");
+      Alert.alert(
+        "Erreur de téléchargement", 
+        err?.message || "Impossible de télécharger le devis. Vérifiez votre connexion internet et réessayez."
+      );
     } finally {
       setDownloadingIds(prev => {
         const newSet = new Set(prev);
@@ -127,7 +159,7 @@ const MesDevis = () => {
         return newSet;
       });
     }
-  }, []);
+  }, [devis]);
 
   // Delete devis
   const deleteDevis = useCallback(async (devisId: number) => {
