@@ -8,6 +8,29 @@ export enum EReservationStatus {
 }
 
 /**
+ * Type pour les filtres de réservation
+ */
+export type ReservationFilter = "ALL" | EReservationStatus;
+
+/**
+ * Interface pour un élément de réservation (snapshot du produit)
+ */
+export interface ReservationItem {
+  id: number;
+  reservationId: number;
+  productName: string;
+  categoryName: string;
+  markName: string;
+  quantity: number;
+  priceHt: number;
+  priceTtc: number;
+  totalHt: number;
+  totalTtc: number;
+  imageUrl?: string | null;
+  createdAt: Date;
+}
+
+/**
  * Interface pour une réservation
  */
 export interface EReservation {
@@ -20,13 +43,16 @@ export interface EReservation {
   customerPhone: string;
   customerEmail: string;
   notes?: string | null;
+  totalHt: number;
+  totalTtc: number;
   createdAt: Date;
   updatedAt: Date;
   cart?: {
     id: number;
-    cartItems?: any[];
+    user?: any;
     [key: string]: any;
   };
+  reservationItems?: ReservationItem[];
 }
 
 /**
@@ -55,7 +81,4 @@ export interface UpdateReservationDto {
   status?: EReservationStatus;
 }
 
-/**
- * Interface pour le filtre des réservations
- */
-export type ReservationFilter = 'ALL' | EReservationStatus; 
+ 

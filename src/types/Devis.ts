@@ -9,6 +9,24 @@ export enum DevisStatus {
 }
 
 /**
+ * Interface pour un élément de devis (snapshot du produit)
+ */
+export interface DevisItem {
+  id: number;
+  devisId: number;
+  productName: string;
+  categoryName: string;
+  markName: string;
+  quantity: number;
+  priceHt: number;
+  priceTtc: number;
+  totalHt: number;
+  totalTtc: number;
+  imageUrl?: string | null;
+  createdAt: Date;
+}
+
+/**
  * Interface pour un devis
  */
 export interface Devis {
@@ -20,9 +38,11 @@ export interface Devis {
   createdAt: Date;
   updatedAt: Date;
   cartId: number;
+  totalHt: number;
+  totalTtc: number;
   cart?: {
     id: number;
-    cartItems?: any[];
+    user?: any;
     [key: string]: any;
   };
   commercial?: {
@@ -30,4 +50,5 @@ export interface Devis {
     user?: any;
     [key: string]: any;
   };
+  devisItems?: DevisItem[];
 } 

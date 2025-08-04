@@ -35,8 +35,7 @@ import {
   faComment,
 } from "@fortawesome/free-solid-svg-icons";
 import { useColors } from "src/hooks/useColors";
-import { EReservation } from "src/types/Reservation";
-import { CartItemWithProduct } from "src/types/Cart";
+import { EReservation, ReservationItem } from "src/types/Reservation";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
@@ -51,7 +50,7 @@ interface CalculationsType {
 interface ReservationFicheProductPresenterProps {
   visible: boolean;
   reservation: EReservation | null;
-  cartItems: CartItemWithProduct[];
+  reservationItems: ReservationItem[];
   loading: boolean;
   refreshing: boolean;
   error: string | null;
@@ -67,7 +66,7 @@ interface ReservationFicheProductPresenterProps {
 const ReservationFicheProductPresenter: React.FC<ReservationFicheProductPresenterProps> = ({
   visible,
   reservation,
-  cartItems,
+  reservationItems,
   loading,
   refreshing,
   error,
@@ -523,28 +522,20 @@ const ReservationFicheProductPresenter: React.FC<ReservationFicheProductPresente
     },
   };
 
-  // Individual product item component
-  const CartItem: React.FC<{ item: CartItemWithProduct; index: number }> = ({
+  // Individual reservation item component
+  const ReservationItemComponent: React.FC<{ item: ReservationItem; index: number }> = ({
     item,
     index,
   }) => {
-    const product = item.product;
-    const imageUrl =
-      Array.isArray(product?.imagesUrl) && product.imagesUrl.length > 0
-        ? product.imagesUrl[0]
-        : null;
-    
-    const totalHT = item.priceHt;
-
     return (
       <View style={styles.productCard}>
         <View style={styles.cardContent}>
           {/* Product Header */}
           <View style={styles.productHeader}>
             <View style={styles.imageContainer}>
-              {imageUrl ? (
+              {item.imageUrl ? (
                 <Image
-                  source={{ uri: imageUrl }}
+                  source={{ uri: item.imageUrl }}
                   style={styles.productImage}
                   resizeMode="cover"
                 />
@@ -561,21 +552,21 @@ const ReservationFicheProductPresenter: React.FC<ReservationFicheProductPresente
 
             <View style={styles.productInfo}>
               <Text style={styles.productName} numberOfLines={2}>
-                {product?.name || "Produit sans nom"}
+                {item.productName || "Produit sans nom"}
               </Text>
 
               <View style={styles.productMeta}>
-                {product?.category?.name && (
+                {item.categoryName && (
                   <View style={styles.metaChip}>
                     <FontAwesomeIcon
                       icon={faLayerGroup}
                       size={ms(8)}
                       color={colors.tertiary[600]}
                     />
-                    <Text style={styles.metaText}>{product.category.name}</Text>
+                    <Text style={styles.metaText}>{item.categoryName}</Text>
                   </View>
                 )}
-                {product?.mark?.name && (
+                {item.markName && (
                   <View style={[styles.metaChip, styles.brandChip]}>
                     <FontAwesomeIcon
                       icon={faCrown}
@@ -583,7 +574,7 @@ const ReservationFicheProductPresenter: React.FC<ReservationFicheProductPresente
                       color={colors.secondary[500]}
                     />
                     <Text style={[styles.metaText, styles.brandText]}>
-                      {product.mark.name}
+                      {item.markName}
                     </Text>
                   </View>
                 )}
@@ -606,7 +597,7 @@ const ReservationFicheProductPresenter: React.FC<ReservationFicheProductPresente
           {/* Pricing Section */}
           <View style={styles.pricingSection}>
             <Text style={styles.totalLabel}>Total HT</Text>
-            <Text style={styles.totalValue}>{formatPrice(totalHT)}</Text>
+            <Text style={styles.totalValue}>{formatPrice(item.totalHt)}</Text>
           </View>
         </View>
       </View>
@@ -759,7 +750,7 @@ const ReservationFicheProductPresenter: React.FC<ReservationFicheProductPresente
       );
     }
 
-    if (cartItems.length === 0) {
+    if (reservationItems.length === 0) {
       return (
         <View style={styles.centerContainer}>
           <View style={styles.emptyContainer}>
@@ -810,8 +801,8 @@ const ReservationFicheProductPresenter: React.FC<ReservationFicheProductPresente
         </View>
 
         {/* Products List */}
-        {cartItems.map((item, index) => (
-          <CartItem key={`cart-item-${item.id}`} item={item} index={index} />
+        {reservationItems.map((item, index) => (
+          <ReservationItemComponent key={`reservation-item-${item.id}`} item={item} index={index} />
         ))}
 
         {renderSummary()}

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Alert, Animated, Dimensions } from "react-native";
-import { EReservation } from "src/types/Reservation";
-import { CartItemWithProduct } from "src/types/Cart";
+import { EReservation, ReservationItem } from "src/types/Reservation";
 import reservationsService from "@/reservations";
 import ReservationFicheProductPresenter from "./ReservationFicheProductPresenter";
 
@@ -19,7 +18,7 @@ const ReservationFicheProduct: React.FC<ReservationFicheProductProps> = ({
   onClose,
 }) => {
   const [loading, setLoading] = useState(false);
-  const [cartItems, setCartItems] = useState<CartItemWithProduct[]>([]);
+  const [reservationItems, setReservationItems] = useState<ReservationItem[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   
@@ -34,10 +33,10 @@ const ReservationFicheProduct: React.FC<ReservationFicheProductProps> = ({
     let totalTVA = 0;
     let totalQuantity = 0;
 
-    cartItems.forEach((item: CartItemWithProduct) => {
-      totalHT += item.priceHt;
-      totalTTC += item.priceTtc;
-      totalTVA += item.priceTtc - item.priceHt;
+    reservationItems.forEach((item: ReservationItem) => {
+      totalHT += item.totalHt;
+      totalTTC += item.totalTtc;
+      totalTVA += item.totalTtc - item.totalHt;
       totalQuantity += item.quantity;
     });
 
@@ -46,9 +45,9 @@ const ReservationFicheProduct: React.FC<ReservationFicheProductProps> = ({
       totalTTC,
       totalTVA,
       totalQuantity,
-      averagePrice: cartItems.length > 0 ? totalTTC / totalQuantity : 0,
+      averagePrice: reservationItems.length > 0 ? totalTTC / totalQuantity : 0,
     };
-  }, [cartItems]);
+  }, [reservationItems]);
 
   const fetchReservationDetails = useCallback(
     async (isRefresh = false) => {
@@ -62,23 +61,20 @@ const ReservationFicheProduct: React.FC<ReservationFicheProductProps> = ({
       setError(null);
 
       try {
-        // Fetch reservation details with cart items
+        // Fetch reservation details with reservation items
         const response = await reservationsService.getReservationById(reservation.id);
 
-        // Extract cart items with products from the response
-        // Following the same pattern as DevisFicheProduct
-        const cartItems = response?.reservation?.cart?.cartItems || response?.cart?.cartItems || [];
+        // Extract reservation items from the response
+        const items = response?.reservation?.reservationItems || [];
 
-        // Sort products by name for better UX
-        const sortedItems = cartItems.sort(
-          (a: CartItemWithProduct, b: CartItemWithProduct) => {
-            const nameA = a.product?.name || "";
-            const nameB = b.product?.name || "";
-            return nameA.localeCompare(nameB);
+        // Sort items by product name for better UX
+        const sortedItems = items.sort(
+          (a: ReservationItem, b: ReservationItem) => {
+            return a.productName.localeCompare(b.productName);
           }
         );
         
-        setCartItems(sortedItems);
+        setReservationItems(sortedItems);
       } catch (err: any) {
         console.error("Error fetching reservation details:", err);
         const errorMessage =
@@ -128,7 +124,7 @@ const ReservationFicheProduct: React.FC<ReservationFicheProductProps> = ({
   const handleClose = useCallback(() => {
     // Reset state when closing for better next opening experience
     setError(null);
-    setCartItems([]);
+    setReservationItems([]);
     onClose();
   }, [onClose]);
 
@@ -168,7 +164,7 @@ const ReservationFicheProduct: React.FC<ReservationFicheProductProps> = ({
       fetchReservationDetails();
     } else if (!visible) {
       // Reset state when modal is closed for better performance
-      setCartItems([]);
+      setReservationItems([]);
       setError(null);
     }
   }, [visible, reservation, fetchReservationDetails]);
@@ -177,7 +173,7 @@ const ReservationFicheProduct: React.FC<ReservationFicheProductProps> = ({
     <ReservationFicheProductPresenter
       visible={visible}
       reservation={reservation}
-      cartItems={cartItems}
+      reservationItems={reservationItems}
       loading={loading}
       refreshing={refreshing}
       error={error}

@@ -3,22 +3,19 @@ import { View, Text, TouchableOpacity, StyleSheet, Platform, Alert, KeyboardAvoi
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FontAwesome } from '@expo/vector-icons';
 import { ms } from 'react-native-size-matters';
-import colors from '../../utils/colors';
+import colors from '../src/utils/colors';
 import { BOTTOM_BAR_HEIGHT, ICON_SIZE, FLOATING_BUTTON_SIZE, TAB_LABEL_FONT_SIZE, FLOATING_BUTTON_ICON_SIZE, IS_TABLET, FLOATING_BUTTON_TABLET_PADDING } from './constants';
 import {
-  HomeScreen,
-  SearchScreen,
-  FavoritesScreen,
-  ProfileScreen,
-  CreateAnnonceScreen,
-  MesAnnoncesScreen,
-  InformationsPersonnellesScreen,
-  MotDePasseScreen,
-  ModificationAnnonceScreen,
-  AnnonceDetailsScreen
-} from '../../screens';
-import { SearchParams } from '../types';
-import { useAppStore } from '../../store';
+  Home as HomeScreen,
+  Search as SearchScreen,
+  Favorite as FavoritesScreen,
+  Profil as ProfileScreen,
+  PersonalInformation as InformationsPersonnellesScreen,
+  ForgotPassword as MotDePasseScreen,
+  Product as AnnonceDetailsScreen
+} from '../src/screens';
+import { SearchParams } from '../src/navigation/types';
+import { useAppStore } from '../src/store/store';
 
 interface BottomBarProps {
   initialTab?: string;
@@ -96,9 +93,9 @@ const BottomBar: React.FC<BottomBarProps> = ({
   // Function to navigate to Password with provider check
   const navigateToPassword = useCallback(() => {
     // Check from store if we have user info
-    const { user } = state;
+    const { user } = state.user;
     
-    const isProvider = user?.providerName === 'PROVIDER' || user?.providerName === 'GOOGLE' || user?.type === 'PROVIDER';
+    const isProvider = user?.type === 'PROVIDER';
     
     if (isProvider) {
       Alert.alert(
@@ -127,63 +124,59 @@ const BottomBar: React.FC<BottomBarProps> = ({
     switch (activeTab) {
       case 'Home':
         return <HomeScreen 
-          onNavigateToSearch={navigateToSearch} 
-          onNavigateToAnnonce={(annonceId: string) => navigateToScreen('AnnonceDetails', { annonceId })}
-          onNavigateToProfile={() => handleTabPress('Profile')}
+          onNavigateToSearch={navigateToSearch}
         />;
       case 'Search':
-        return <SearchScreen 
-          searchParams={currentSearchParams} 
-          onAnnoncePress={(annonceId: string) => navigateToScreen('AnnonceDetails', { annonceId })}
-        />;
+        return <SearchScreen />;
       case 'Favorites':
-        return <FavoritesScreen 
-          onNavigateToAuth={navigateToAuth} 
-          onNavigateToAnnonce={(annonceId: string) => navigateToScreen('AnnonceDetails', { annonceId })}
-        />;
+                return <FavoritesScreen />;
       case 'Profile':
-        return (
-          <ProfileScreen 
-            onNavigateToAuth={navigateToAuth}
-            onNavigateToPersonalInfo={() => navigateToScreen('PersonalInfo')}
-            onNavigateToPassword={navigateToPassword}
-            onNavigateToMesAnnonces={() => navigateToScreen('MyAnnonces')}
-          />
-        );
+        return <ProfileScreen />;
       case 'CreateAnnonce':
-        return <CreateAnnonceScreen onNavigateToAuth={navigateToAuth} onNavigateToHome={() => setActiveTab('Home')} />;
+        return (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
+            <Text style={{ color: colors.text, fontSize: 18 }}>Créer une annonce - À venir</Text>
+            <TouchableOpacity 
+              onPress={() => setActiveTab('Home')}
+              style={{ marginTop: 20, padding: 10, backgroundColor: colors.secondary[400], borderRadius: 5 }}
+            >
+              <Text style={{ color: colors.text }}>Retour à l'accueil</Text>
+            </TouchableOpacity>
+          </View>
+        );
       case 'PersonalInfo':
-        return <InformationsPersonnellesScreen onNavigateBack={goBack} />;
+        return <InformationsPersonnellesScreen />;
       case 'Password':
-        return <MotDePasseScreen onNavigateBack={goBack} />;
+        return <MotDePasseScreen />;
       case 'MyAnnonces':
-        return <MesAnnoncesScreen 
-          onNavigateBack={goBack} 
-          onNavigateToEdit={(annonceId: number) => navigateToScreen('ModificationAnnonce', { annonceId: annonceId.toString() })}
-          onNavigateToCreate={() => navigateToScreen('CreateAnnonce')}
-        />;
+        return (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
+            <Text style={{ color: colors.text, fontSize: 18 }}>Mes annonces - À venir</Text>
+            <TouchableOpacity 
+              onPress={goBack}
+              style={{ marginTop: 20, padding: 10, backgroundColor: colors.secondary[400], borderRadius: 5 }}
+            >
+              <Text style={{ color: colors.text }}>Retour</Text>
+            </TouchableOpacity>
+          </View>
+        );
       case 'ModificationAnnonce':
-        return <ModificationAnnonceScreen 
-          onNavigateBack={goBack} 
-          annonceId={getNavigationParams()?.annonceId} 
-          onNavigateToAnnonce={(annonceId: string) => navigateToScreen('AnnonceDetails', { annonceId })}
-        />;
+        return (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
+            <Text style={{ color: colors.text, fontSize: 18 }}>Modification d'annonce - À venir</Text>
+            <TouchableOpacity 
+              onPress={goBack}
+              style={{ marginTop: 20, padding: 10, backgroundColor: colors.secondary[400], borderRadius: 5 }}
+            >
+              <Text style={{ color: colors.text }}>Retour</Text>
+            </TouchableOpacity>
+          </View>
+        );
       case 'AnnonceDetails':
-        return <AnnonceDetailsScreen 
-          annonceId={getNavigationParams()?.annonceId}
-          onNavigateBack={goBack} 
-          onNavigateToAnnonce={(annonceId: string) => navigateToScreen('AnnonceDetails', { annonceId })}
-          onNavigateToHome={() => {
-            console.log('BottomBar - Navigation vers l\'accueil depuis AnnonceDetails');
-            setNavigationStack([]);
-            setNavigationParams(undefined);
-            setActiveTab('Home');
-          }}
-        />;
+        return <AnnonceDetailsScreen route={{ key: 'Product', name: 'Product', params: { productId: getNavigationParams()?.annonceId || 1 } }} />;
       default:
         return <HomeScreen 
-          onNavigateToSearch={navigateToSearch} 
-          onNavigateToAnnonce={(annonceId: string) => navigateToScreen('AnnonceDetails', { annonceId })}
+          onNavigateToSearch={navigateToSearch}
         />;
     }
   };
@@ -232,7 +225,7 @@ const BottomBar: React.FC<BottomBarProps> = ({
                 <FontAwesome 
                   name="home" 
                   size={activeTab === 'Home' ? ICON_SIZE : ms(ICON_SIZE * 0.9)} 
-                  color={colors.text.inverse}
+                  color={colors.text}
                 />
               </View>
               <Text style={[
@@ -256,7 +249,7 @@ const BottomBar: React.FC<BottomBarProps> = ({
                 <FontAwesome 
                   name="search" 
                   size={activeTab === 'Search' ? ICON_SIZE : ms(ICON_SIZE * 0.9)} 
-                  color={colors.text.inverse}
+                  color={colors.text}
                 />
               </View>
               <Text style={[
@@ -278,7 +271,7 @@ const BottomBar: React.FC<BottomBarProps> = ({
                   <FontAwesome 
                     name="plus" 
                     size={ms(FLOATING_BUTTON_ICON_SIZE)} 
-                    color={colors.accent.primary}
+                    color={colors.accent[500]}
                   />
                 </View>
               </View>
@@ -300,7 +293,7 @@ const BottomBar: React.FC<BottomBarProps> = ({
                 <FontAwesome 
                   name="heart" 
                   size={activeTab === 'Favorites' ? ICON_SIZE : ms(ICON_SIZE * 0.9)} 
-                  color={colors.text.inverse}
+                  color={colors.text}
                 />
               </View>
               <Text style={[
@@ -324,7 +317,7 @@ const BottomBar: React.FC<BottomBarProps> = ({
                 <FontAwesome 
                   name="user" 
                   size={activeTab === 'Profile' ? ICON_SIZE : ms(ICON_SIZE * 0.9)} 
-                  color={colors.text.inverse}
+                  color={colors.text}
                 />
               </View>
               <Text style={[
@@ -344,7 +337,7 @@ const BottomBar: React.FC<BottomBarProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.dominant.primary,
+    backgroundColor: colors.background,
   },
   keyboardAvoidingView: {
     flex: 1,
@@ -357,10 +350,10 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: colors.accent.primary,
+    backgroundColor: colors.secondary[400],
     paddingTop: IS_TABLET ? ms(4) : ms(3),
     borderTopWidth: 0,
-    shadowColor: colors.effects?.shadowStrong || colors.shadow,
+    shadowColor: colors.tertiary[300],
     shadowOffset: {
       width: 0,
       height: ms(-6),
@@ -398,13 +391,13 @@ const styles = StyleSheet.create({
   },
   tabLabel: {
     fontSize: ms(TAB_LABEL_FONT_SIZE),
-    color: colors.text.inverse,
+    color: colors.text,
     fontWeight: '500',
     textAlign: 'center',
   },
   tabLabelActive: {
     fontSize: ms(TAB_LABEL_FONT_SIZE + 1),
-    color: colors.text.inverse,
+    color: colors.text,
     fontWeight: 'bold',
     textAlign: 'center',
   },
@@ -417,12 +410,12 @@ const styles = StyleSheet.create({
     width: FLOATING_BUTTON_SIZE,
     height: FLOATING_BUTTON_SIZE,
     borderRadius: FLOATING_BUTTON_SIZE / 2,
-    backgroundColor: colors.text.inverse,
+    backgroundColor: colors.tertiary[500],
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: ms(2),
-    borderColor: colors.accent.primary,
-    shadowColor: colors.accent.primary,
+    borderColor: colors.secondary[400],
+    shadowColor: colors.secondary[400],
     shadowOffset: {
       width: 0,
       height: ms(2),
@@ -433,7 +426,7 @@ const styles = StyleSheet.create({
   },
   createButtonLabel: {
     fontSize: ms(TAB_LABEL_FONT_SIZE + 1),
-    color: colors.text.inverse,
+    color: colors.background,
     fontWeight: 'bold',
     textAlign: 'center',
     opacity: 1,

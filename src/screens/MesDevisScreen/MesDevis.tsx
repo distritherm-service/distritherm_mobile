@@ -4,7 +4,7 @@ import { Alert } from "react-native";
 import { useAuth } from "src/hooks/useAuth";
 import devisService from "src/services/devisService";
 import { Devis, DevisStatus } from "src/types/Devis";
-import { PaginationDto } from "src/types/paginationDto";
+import { PaginationDto } from "src/types/PaginationDto";
 import MesDevisPresenter from "./MesDevisPresenter";
 import { DevisFilter } from "src/components/Devis/DevisFilters/DevisFilters";
 import { downloadPDF } from "src/utils/fileDownload";
@@ -15,7 +15,7 @@ const MesDevis = () => {
 
   // Refs to prevent unnecessary re-renders and double calls
   const isInitialLoad = useRef(true);
-  const loadDevisRef = useRef<(reset?: boolean) => Promise<void>>();
+  const loadDevisRef = useRef<(reset?: boolean) => Promise<void>>(null);
 
   // State management
   const [devis, setDevis] = useState<Devis[]>([]);

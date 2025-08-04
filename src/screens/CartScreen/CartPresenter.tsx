@@ -421,15 +421,18 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
   }) => {
     const isItemLoading = loadingItems.has(item.id);
 
-    // Calcul des informations de prix basé sur la catégorie du produit
-    // La logique ne dépend plus du userState mais de product.categoryId vs product.proInfo.categoryIdPro
-    const pricingInfo = calculateProductPricing(item.product);
+    // Utiliser directement les prix du backend qui sont déjà calculés avec promotions/pro
+    // item.priceHt et item.priceTtc sont maintenant des prix unitaires avec remises appliquées
+    const unitPriceHt = item.priceHt;
+    const totalPriceHt = item.priceHt * item.quantity;
     
-    // Prix unitaire et total pour l'affichage
-    const unitPriceHt = pricingInfo.discountedPriceHt;
+    // Calculer le prix original pour l'affichage barré si nécessaire
+    const pricingInfo = calculateProductPricing(item.product);
     const originalUnitPriceHt = pricingInfo.originalPriceHt;
-    const totalPriceHt = calculateTotalPrice(unitPriceHt, item.quantity);
     const originalTotalPriceHt = calculateTotalPrice(originalUnitPriceHt, item.quantity);
+    
+    // Vérifier s'il y a une remise (pro ou promotion)
+    const hasDiscount = pricingInfo.isApplicable && unitPriceHt < originalUnitPriceHt;
 
     return (
       <View style={dynamicStyles.cartItem}>
@@ -466,7 +469,7 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
             </Text>
 
             <View style={dynamicStyles.priceRow}>
-              {pricingInfo.isApplicable && pricingInfo.percentage ? (
+              {hasDiscount ? (
                 <>
                   {/* Prix barré (prix original HT * quantité) */}
                   <Text style={dynamicStyles.originalPrice}>
@@ -481,14 +484,16 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
                       {formatPrice(totalPriceHt).replace('€', '€ HT')}
                     </Text>
                     {/* Badge de remise - vert pour pro, rouge pour promotion */}
-                    <View style={[
-                      dynamicStyles.discountBadge,
-                      { backgroundColor: pricingInfo.type === 'pro' ? colors.success[500] : colors.accent[500] }
-                    ]}>
-                      <Text style={dynamicStyles.discountText}>
-                        {pricingInfo.type === 'pro' ? '👨‍💼' : '🔥'} -{pricingInfo.percentage}%
-                      </Text>
-                    </View>
+                    {pricingInfo.percentage && (
+                      <View style={[
+                        dynamicStyles.discountBadge,
+                        { backgroundColor: pricingInfo.type === 'pro' ? colors.success[500] : colors.accent[500] }
+                      ]}>
+                        <Text style={dynamicStyles.discountText}>
+                          {pricingInfo.type === 'pro' ? '👨‍💼' : '🔥'} -{pricingInfo.percentage}%
+                        </Text>
+                      </View>
+                    )}
                   </View>
                 </>
               ) : (
@@ -725,17 +730,13 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
               </Text>
             </View>
           ) : (
-            /* Calculer les totaux avec la même logique que les produits individuels */
+            /* Calculer les totaux directement depuis les prix backend */
             (() => {
               const subTotalHt = cart.cartItems.reduce((sum, item) => {
-                const itemPricingInfo = calculateProductPricing(item.product);
-                const itemTotalPrice = calculateTotalPrice(itemPricingInfo.discountedPriceHt, item.quantity);
-                return sum + itemTotalPrice;
+                return sum + (item.priceHt * item.quantity);
               }, 0);
               const subTotalTtc = cart.cartItems.reduce((sum, item) => {
-                const itemPricingInfo = calculateProductPricing(item.product);
-                const itemTotalPriceTtc = calculateTotalPrice(itemPricingInfo.discountedPriceTtc, item.quantity);
-                return sum + itemTotalPriceTtc;
+                return sum + (item.priceTtc * item.quantity);
               }, 0);
               const tvaAmount = subTotalTtc - subTotalHt;
 
@@ -793,7 +794,12 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
               }
             >
               {isCreatingDevis ? (
-                <ActivityIndicator size="small" color={colors.primary[50]} />
+                <>
+                  <ActivityIndicator size="small" color={colors.primary[50]} />
+                  <Text style={[dynamicStyles.checkoutButtonText, { marginLeft: ms(8) }]}>
+                    Création...
+                  </Text>
+                </>
               ) : (
                 <>
                   <FontAwesomeIcon
@@ -826,14 +832,25 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
                 isCreatingReservation
               }
             >
-              <FontAwesomeIcon
-                icon={faCalendarAlt}
-                size={ms(16)}
-                color={colors.primary[50]}
-              />
-              <Text style={dynamicStyles.reservationButtonText}>
-                Réserver
-              </Text>
+              {isCreatingReservation ? (
+                <>
+                  <ActivityIndicator size="small" color={colors.primary[50]} />
+                  <Text style={[dynamicStyles.reservationButtonText, { marginLeft: ms(8) }]}>
+                    Traitement...
+                  </Text>
+                </>
+              ) : (
+                <>
+                  <FontAwesomeIcon
+                    icon={faCalendarAlt}
+                    size={ms(16)}
+                    color={colors.primary[50]}
+                  />
+                  <Text style={dynamicStyles.reservationButtonText}>
+                    Réserver
+                  </Text>
+                </>
+              )}
             </Pressable>
           </View>
         </View>

@@ -3,6 +3,8 @@ import api from "../interceptors/api";
 export enum ProAccountPostulationStatus {
   PENDING = 'PENDING',
   APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+  CANCELLED = 'CANCELLED',
 }
 
 // Interface pour la création de postulation (unifie l'ancien système)

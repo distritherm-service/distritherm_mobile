@@ -46,9 +46,9 @@ const Cart = () => {
       };
     }
 
-    // Use the priceHt from cartItems for subtotal (HT prices)
+    // Use the priceHt from cartItems multiplied by quantity for subtotal (HT prices)
     const subTotal = cart.cartItems.reduce((total, item) => {
-      return total + (item.priceHt || 0);
+      return total + ((item.priceHt || 0) * item.quantity);
     }, 0);
 
     // Count unique products instead of total quantity
@@ -174,6 +174,9 @@ const Cart = () => {
   // Create devis from cart
   const createDevis = useCallback(async () => {
     if (!cart || cart.cartItems.length === 0 || !user?.id) return;
+    
+    // Prevent double-click/multiple calls
+    if (isCreatingDevis || isCreatingReservation) return;
 
     setIsCreatingDevis(true);
     try {
@@ -199,11 +202,14 @@ const Cart = () => {
             onPress: () => {
               // Navigate back to home tab in bottom bar
               (navigation as any).navigate("Main", { initialTab: "Home" });
-              // Reload cart for next session
-              loadCart();
+              // Force reload cart to get a fresh new active cart
+              setTimeout(() => {
+                loadCart();
+              }, 500); // Small delay to ensure backend processing is complete
             },
           },
-        ]
+        ],
+        { cancelable: false } // Prevent dismissing by tapping outside
       );
     } catch (err: any) {
       console.error("Error creating devis:", err);
@@ -219,6 +225,9 @@ const Cart = () => {
   // Create reservation from cart
   const createReservation = useCallback(async (reservationData: Omit<CreateReservationDto, 'cartId'>) => {
     if (!cart || cart.cartItems.length === 0 || !user?.id) return;
+    
+    // Prevent double-click/multiple calls
+    if (isCreatingReservation || isCreatingDevis) return;
 
     setIsCreatingReservation(true);
     try {
@@ -244,11 +253,14 @@ const Cart = () => {
               // Close modal and navigate back to home
               setShowReservationModal(false);
               (navigation as any).navigate("Main", { initialTab: "Home" });
-              // Reload cart for next session
-              loadCart();
+              // Force reload cart to get a fresh new active cart
+              setTimeout(() => {
+                loadCart();
+              }, 500); // Small delay to ensure backend processing is complete
             },
           },
-        ]
+        ],
+        { cancelable: false } // Prevent dismissing by tapping outside
       );
     } catch (err: any) {
       console.error("Error creating reservation:", err);
@@ -263,8 +275,11 @@ const Cart = () => {
 
   // Handle reservation modal
   const openReservationModal = useCallback(() => {
+    // Prevent opening modal if any process is running
+    if (isCreatingDevis || isCreatingReservation) return;
+    
     setShowReservationModal(true);
-  }, []);
+  }, [isCreatingDevis, isCreatingReservation]);
 
   const closeReservationModal = useCallback(() => {
     setShowReservationModal(false);

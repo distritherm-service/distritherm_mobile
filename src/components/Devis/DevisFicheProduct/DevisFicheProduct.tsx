@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Alert, Animated, Dimensions } from "react-native";
-import { Devis } from "src/types/Devis";
-import { CartItemWithProduct } from "src/types/Cart";
+import { Devis, DevisItem } from "src/types/Devis";
 import { useAuth } from "src/hooks/useAuth";
 import devisService from "src/services/devisService";
 import DevisFicheProductPresenter from "./DevisFicheProductPresenter";
@@ -21,7 +20,7 @@ const DevisFicheProduct: React.FC<DevisFicheProductProps> = ({
 }) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [cartItems, setCartItems] = useState<CartItemWithProduct[]>([]);
+  const [devisItems, setDevisItems] = useState<DevisItem[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   
@@ -36,12 +35,11 @@ const DevisFicheProduct: React.FC<DevisFicheProductProps> = ({
     let totalTVA = 0;
     let totalQuantity = 0;
 
-    cartItems.forEach((item: CartItemWithProduct) => {
-      // priceHt and priceTtc are already the totals for this item's quantity
-      // No need to multiply by quantity again
-      totalHT += item.priceHt;
-      totalTTC += item.priceTtc;
-      totalTVA += item.priceTtc - item.priceHt;
+    devisItems.forEach((item: DevisItem) => {
+      // Use the total values directly from the snapshot
+      totalHT += item.totalHt;
+      totalTTC += item.totalTtc;
+      totalTVA += item.totalTtc - item.totalHt;
       totalQuantity += item.quantity;
     });
 
@@ -50,9 +48,9 @@ const DevisFicheProduct: React.FC<DevisFicheProductProps> = ({
       totalTTC,
       totalTVA,
       totalQuantity,
-      averagePrice: cartItems.length > 0 ? totalTTC / totalQuantity : 0,
+      averagePrice: devisItems.length > 0 ? totalTTC / totalQuantity : 0,
     };
-  }, [cartItems]);
+  }, [devisItems]);
 
   const fetchDevisDetails = useCallback(
     async (isRefresh = false) => {
@@ -68,19 +66,17 @@ const DevisFicheProduct: React.FC<DevisFicheProductProps> = ({
       try {
         const response = await devisService.getDevisById(devis.id);
 
-        // Extract cart items with products from the response
-        const cartItems = response?.devis?.cart?.cartItems || [];
+        // Extract devis items from the response
+        const items = response?.devis?.devisItems || [];
 
-        // Sort products by name for better UX
-        const sortedItems = cartItems.sort(
-          (a: CartItemWithProduct, b: CartItemWithProduct) => {
-            const nameA = a.product?.name || "";
-            const nameB = b.product?.name || "";
-            return nameA.localeCompare(nameB);
+        // Sort items by product name for better UX
+        const sortedItems = items.sort(
+          (a: DevisItem, b: DevisItem) => {
+            return a.productName.localeCompare(b.productName);
           }
         );
         
-        setCartItems(sortedItems);
+        setDevisItems(sortedItems);
       } catch (err: any) {
         console.error("Error fetching devis details:", err);
         const errorMessage =
@@ -131,7 +127,7 @@ const DevisFicheProduct: React.FC<DevisFicheProductProps> = ({
   const handleClose = useCallback(() => {
     // Reset state when closing for better next opening experience
     setError(null);
-    setCartItems([]);
+    setDevisItems([]);
     onClose();
   }, [onClose]);
 
@@ -171,7 +167,7 @@ const DevisFicheProduct: React.FC<DevisFicheProductProps> = ({
       fetchDevisDetails();
     } else if (!visible) {
       // Reset state when modal is closed for better performance
-      setCartItems([]);
+      setDevisItems([]);
       setError(null);
     }
   }, [visible, devis, fetchDevisDetails]);
@@ -180,7 +176,7 @@ const DevisFicheProduct: React.FC<DevisFicheProductProps> = ({
     <DevisFicheProductPresenter
       visible={visible}
       devis={devis}
-      cartItems={cartItems}
+      devisItems={devisItems}
       loading={loading}
       refreshing={refreshing}
       error={error}

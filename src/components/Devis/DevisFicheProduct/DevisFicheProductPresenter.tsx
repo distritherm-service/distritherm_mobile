@@ -34,8 +34,7 @@ import {
   faLayerGroup,
 } from "@fortawesome/free-solid-svg-icons";
 import { useColors } from "src/hooks/useColors";
-import { Devis } from "src/types/Devis";
-import { CartItemWithProduct } from "src/types/Cart";
+import { Devis, DevisItem } from "src/types/Devis";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
@@ -50,7 +49,7 @@ interface CalculationsType {
 interface DevisFicheProductPresenterProps {
   visible: boolean;
   devis: Devis | null;
-  cartItems: CartItemWithProduct[];
+  devisItems: DevisItem[];
   loading: boolean;
   refreshing: boolean;
   error: string | null;
@@ -67,7 +66,7 @@ interface DevisFicheProductPresenterProps {
 const DevisFicheProductPresenter: React.FC<DevisFicheProductPresenterProps> = ({
   visible,
   devis,
-  cartItems,
+  devisItems,
   loading,
   refreshing,
   error,
@@ -488,29 +487,20 @@ const DevisFicheProductPresenter: React.FC<DevisFicheProductPresenterProps> = ({
     },
   };
 
-    // Individual cart item component with elegant design
-  const CartItem: React.FC<{ item: CartItemWithProduct; index: number }> = ({
+    // Individual devis item component with elegant design
+  const DevisItemComponent: React.FC<{ item: DevisItem; index: number }> = ({
     item,
     index,
   }) => {
-    const product = item.product;
-    const imageUrl =
-      Array.isArray(product?.imagesUrl) && product.imagesUrl.length > 0
-        ? product.imagesUrl[0]
-        : null;
-    
-    // Use HT price from cartItem directly
-    const totalHT = item.priceHt;
-
     return (
       <View style={styles.productCard}>
         <View style={styles.cardContent}>
           {/* Product Header */}
           <View style={styles.productHeader}>
             <View style={styles.imageContainer}>
-              {imageUrl ? (
+              {item.imageUrl ? (
                 <Image
-                  source={{ uri: imageUrl }}
+                  source={{ uri: item.imageUrl }}
                   style={styles.productImage}
                   resizeMode="cover"
                 />
@@ -527,21 +517,21 @@ const DevisFicheProductPresenter: React.FC<DevisFicheProductPresenterProps> = ({
 
             <View style={styles.productInfo}>
               <Text style={styles.productName} numberOfLines={2}>
-                {product?.name || "Produit sans nom"}
+                {item.productName || "Produit sans nom"}
               </Text>
 
               <View style={styles.productMeta}>
-                {product?.category?.name && (
+                {item.categoryName && (
                   <View style={styles.metaChip}>
                     <FontAwesomeIcon
                       icon={faLayerGroup}
                       size={ms(8)}
                       color={colors.tertiary[600]}
                     />
-                    <Text style={styles.metaText}>{product.category.name}</Text>
+                    <Text style={styles.metaText}>{item.categoryName}</Text>
                   </View>
                 )}
-                {product?.mark?.name && (
+                {item.markName && (
                   <View style={[styles.metaChip, styles.brandChip]}>
                     <FontAwesomeIcon
                       icon={faCrown}
@@ -549,7 +539,7 @@ const DevisFicheProductPresenter: React.FC<DevisFicheProductPresenterProps> = ({
                       color={colors.secondary[500]}
                     />
                     <Text style={[styles.metaText, styles.brandText]}>
-                      {product.mark.name}
+                      {item.markName}
                     </Text>
                   </View>
                 )}
@@ -573,7 +563,7 @@ const DevisFicheProductPresenter: React.FC<DevisFicheProductPresenterProps> = ({
           <View style={styles.pricingSection}>
             <View style={styles.standardPricingContainer}>
               <Text style={styles.totalLabel}>Total HT</Text>
-              <Text style={styles.totalValue}>{formatPrice(totalHT)}</Text>
+              <Text style={styles.totalValue}>{formatPrice(item.totalHt)}</Text>
             </View>
           </View>
         </View>
@@ -656,7 +646,7 @@ const DevisFicheProductPresenter: React.FC<DevisFicheProductPresenterProps> = ({
       );
     }
 
-    if (cartItems.length === 0) {
+    if (devisItems.length === 0) {
       return (
         <View style={styles.centerContainer}>
           <View style={styles.emptyContainer}>
@@ -690,8 +680,8 @@ const DevisFicheProductPresenter: React.FC<DevisFicheProductPresenterProps> = ({
           />
         }
       >
-        {cartItems.map((item, index) => (
-          <CartItem key={`cart-item-${item.id}`} item={item} index={index} />
+        {devisItems.map((item, index) => (
+          <DevisItemComponent key={`devis-item-${item.id}`} item={item} index={index} />
         ))}
 
         {renderSummary()}
