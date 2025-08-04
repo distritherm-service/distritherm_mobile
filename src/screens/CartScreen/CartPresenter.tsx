@@ -100,7 +100,7 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
     container: {
       flex: 1,
       backgroundColor: colors.background,
-    },
+  },
 
     // Content area with improved spacing
     contentContainer: {

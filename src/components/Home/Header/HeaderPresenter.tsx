@@ -8,6 +8,7 @@ import {
   FlatList,
   Animated,
   TextInput,
+  Platform,
 } from "react-native";
 import React from "react";
 import { ms } from "react-native-size-matters";
@@ -17,6 +18,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faChevronDown, faChevronUp, faSearch } from "@fortawesome/free-solid-svg-icons";
 import Input from "src/components/Input/Input";
 import { InputType } from "src/types/InputType";
+import { StatusBar } from "react-native";
 
 interface HeaderPresenterProps {
   agencies: Agency[] | null;
@@ -55,7 +57,7 @@ const HeaderPresenter: React.FC<HeaderPresenterProps> = ({
       right: 0,
       zIndex: 1000,
       backgroundColor: colors.background,
-      paddingTop: ms(50), // Espace pour la status bar
+      paddingTop: Platform.OS === 'ios' ? ms(50) : ms(25),
       paddingHorizontal: ms(5),
     },
     topContent: {

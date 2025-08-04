@@ -110,39 +110,23 @@ const DevisCardPresenter: React.FC<DevisCardPresenterProps> = ({
       fontWeight: "500" as const,
     },
     actionsContainer: {
-      justifyContent: "space-between" as const,
       paddingTop: ms(16),
       borderTopWidth: 1,
       borderTopColor: colors.border + "40", // Semi-transparent
-      flexWrap: "wrap" as const,
-      gap: ms(10),
     },
     actionButton: {
       flexDirection: "row" as const,
       alignItems: "center" as const,
       justifyContent: "center" as const,
-      paddingHorizontal: ms(12),
-      paddingVertical: ms(10),
-      borderRadius: ms(12), // Slightly smaller for more buttons
-      height: ms(45),
+      paddingHorizontal: ms(16),
+      paddingVertical: ms(12),
+      borderRadius: ms(12),
+      height: ms(48),
       flex: 1,
     },
-    viewAndDeleteContainer: {
+    topActionsRow: {
       flexDirection: "row" as const,
-      gap: ms(7),
-    },
-    downloadButton: {
-      backgroundColor: colors.secondary[500],
-      shadowColor: colors.secondary[500],
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.25,
-      shadowRadius: 4,
-      elevation: 3,
-    },
-    downloadButtonDisabled: {
-      backgroundColor: colors.tertiary[300],
-      shadowOpacity: 0,
-      elevation: 0,
+      marginBottom: ms(10),
     },
     viewProductsButton: {
       backgroundColor: colors.tertiary[500],
@@ -151,14 +135,31 @@ const DevisCardPresenter: React.FC<DevisCardPresenterProps> = ({
       shadowOpacity: 0.25,
       shadowRadius: 4,
       elevation: 3,
+      marginRight: ms(8),
     },
-    deleteButton: {
+    deleteButtonInRow: {
       backgroundColor: colors.danger[500],
       shadowColor: colors.danger[500],
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.25,
       shadowRadius: 4,
       elevation: 3,
+      flex: 0,
+      minWidth: ms(120),
+    },
+    downloadButton: {
+      backgroundColor: colors.secondary[500],
+      shadowColor: colors.secondary[500],
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 3,
+      width: "100%",
+    },
+    downloadButtonDisabled: {
+      backgroundColor: colors.tertiary[300],
+      shadowOpacity: 0,
+      elevation: 0,
     },
     deleteButtonDisabled: {
       backgroundColor: colors.tertiary[300],
@@ -177,7 +178,8 @@ const DevisCardPresenter: React.FC<DevisCardPresenterProps> = ({
   };
 
   const isExpired = devis.status === DevisStatus.EXPIRED;
-  const isDownloadDisabled = isDownloading || !devis.fileUrl;
+  const hasFileUrl = !!devis.fileUrl;
+  const isDownloadDisabled = !hasFileUrl;
   const canDelete = devis.status === DevisStatus.PROGRESS && onDelete;
   const isDeleteDisabled = isDeleting || !canDelete;
 
@@ -234,9 +236,8 @@ const DevisCardPresenter: React.FC<DevisCardPresenterProps> = ({
 
       {/* Actions */}
       <View style={dynamicStyles.actionsContainer}>
-        {/* View and Delete */}
-        <View style={dynamicStyles.viewAndDeleteContainer}>
-          {/* View in details */}
+        {/* Top row: View details and Delete (if available) */}
+        <View style={dynamicStyles.topActionsRow}>
           <TouchableOpacity
             style={[
               dynamicStyles.actionButton,
@@ -258,7 +259,7 @@ const DevisCardPresenter: React.FC<DevisCardPresenterProps> = ({
             <TouchableOpacity
               style={[
                 dynamicStyles.actionButton,
-                dynamicStyles.deleteButton,
+                dynamicStyles.deleteButtonInRow,
                 isDeleteDisabled && dynamicStyles.deleteButtonDisabled,
               ]}
               onPress={onDelete}
@@ -282,19 +283,30 @@ const DevisCardPresenter: React.FC<DevisCardPresenterProps> = ({
           )}
         </View>
 
-        {!isDownloadDisabled && (
+        {/* Bottom row: Download button (full width when available) */}
+        {hasFileUrl && (
           <TouchableOpacity
-            style={[dynamicStyles.actionButton, dynamicStyles.downloadButton]}
+            style={[
+              dynamicStyles.actionButton,
+              dynamicStyles.downloadButton,
+              isDownloading && dynamicStyles.downloadButtonDisabled,
+            ]}
             onPress={onDownload}
-            activeOpacity={0.8}
+            activeOpacity={isDownloading ? 1 : 0.8}
+            disabled={isDownloading}
           >
             {isDownloading ? (
-              <ActivityIndicator size="small" color={colors.background} />
+              <>
+                <ActivityIndicator size="small" color={colors.background} />
+                <Text style={[dynamicStyles.buttonText, { marginLeft: ms(8) }]}>
+                  Téléchargement...
+                </Text>
+              </>
             ) : (
               <>
                 <FontAwesomeIcon
                   icon={faDownload}
-                  size={ms(14)}
+                  size={ms(16)}
                   color={colors.background}
                   style={dynamicStyles.buttonIcon}
                 />

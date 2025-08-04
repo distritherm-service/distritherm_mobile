@@ -15,6 +15,7 @@ const MesDevis = () => {
 
   // Refs to prevent unnecessary re-renders and double calls
   const isInitialLoad = useRef(true);
+  const loadDevisRef = useRef<(reset?: boolean) => Promise<void>>();
 
   // State management
   const [devis, setDevis] = useState<Devis[]>([]);
@@ -73,14 +74,15 @@ const MesDevis = () => {
         // Ensure we have an array of devis
         const newDevis = Array.isArray(responseData) ? responseData : [];
         
-        // Remove duplicates by filtering out existing devis IDs
-        const existingIds = reset ? new Set() : new Set(devis.map(d => d.id));
-        const uniqueNewDevis = newDevis.filter(d => !existingIds.has(d.id));
-        
         if (reset) {
-          setDevis(uniqueNewDevis);
+          setDevis(newDevis);
         } else {
-          setDevis(prev => [...prev, ...uniqueNewDevis]);
+          // Remove duplicates by filtering out existing devis IDs using functional update
+          setDevis(prevDevis => {
+            const existingIds = new Set(prevDevis.map(d => d.id));
+            const uniqueNewDevis = newDevis.filter(d => !existingIds.has(d.id));
+            return [...prevDevis, ...uniqueNewDevis];
+          });
         }
 
         // Use meta information if available, otherwise fallback to simple check
@@ -92,11 +94,11 @@ const MesDevis = () => {
                          (meta.currentPage && meta.totalPages && meta.currentPage < meta.totalPages);
           setHasMore(hasNext || false);
         } else {
-          setHasMore(uniqueNewDevis.length === pagination.limit);
+          setHasMore(newDevis.length === pagination.limit);
         }
         
         // Update pagination page only after successful load and if not reset
-        if (!reset && uniqueNewDevis.length > 0) {
+        if (!reset && newDevis.length > 0) {
           setPagination(prev => ({ ...prev, page: (prev.page || 1) + 1 }));
         }
       } catch (err: any) {
@@ -109,27 +111,33 @@ const MesDevis = () => {
         setLoadingMore(false);
       }
     },
-    [user?.id, isAuthenticated, activeFilter, pagination.page, pagination.limit, devis]
+    [user?.id, isAuthenticated, activeFilter, pagination.page, pagination.limit]
   );
+
+  // Store loadDevis in ref to avoid dependency issues
+  useEffect(() => {
+    loadDevisRef.current = loadDevis;
+  }, [loadDevis]);
 
   // Download devis file
   const downloadDevis = useCallback(async (devisId: number) => {
-    // Trouver le devis correspondant
-    const targetDevis = devis.find(d => d.id === devisId);
-    if (!targetDevis) {
-      Alert.alert("Erreur", "Devis introuvable");
-      return;
-    }
-
-    // Vérifier que l'URL du fichier existe
-    if (!targetDevis.fileUrl) {
-      Alert.alert("Erreur", "Aucun fichier PDF disponible pour ce devis");
-      return;
-    }
-
     setDownloadingIds(prev => new Set(prev).add(devisId));
     
     try {
+      // Récupérer les informations du devis depuis l'API pour éviter la dépendance
+      const targetDevis = devis.find(d => d.id === devisId);
+      
+      if (!targetDevis) {
+        Alert.alert("Erreur", "Devis introuvable");
+        return;
+      }
+
+      // Vérifier que l'URL du fichier existe
+      if (!targetDevis.fileUrl) {
+        Alert.alert("Erreur", "Aucun fichier PDF disponible pour ce devis");
+        return;
+      }
+      
       // Générer un nom de fichier descriptif
       const filename = `devis_${devisId}_${new Date().toISOString().split('T')[0]}.pdf`;
       
@@ -184,16 +192,16 @@ const MesDevis = () => {
   // Refresh data
   const handleRefresh = useCallback(() => {
     setRefreshing(true);
-    loadDevis(true);
-  }, [loadDevis]);
+    loadDevisRef.current?.(true);
+  }, []);
 
   // Load more data
   const handleLoadMore = useCallback(() => {
     if (!loadingMore && hasMore && !loading) {
       setLoadingMore(true);
-      loadDevis(false);
+      loadDevisRef.current?.(false);
     }
-  }, [loadingMore, hasMore, loading, loadDevis]);
+  }, [loadingMore, hasMore, loading]);
 
   // Filter change
   const handleFilterChange = useCallback((filter: DevisFilter) => {
@@ -231,18 +239,18 @@ const MesDevis = () => {
       setDevis([]);
       setPagination({ page: 1, limit: 10 });
       setHasMore(true);
-      loadDevis(true);
+      loadDevisRef.current?.(true);
     }
-  }, [activeFilter, loadDevis]);
+  }, [activeFilter]);
 
   // Load data when screen is focused (only on initial load)
   useFocusEffect(
     useCallback(() => {
       if (isInitialLoad.current) {
-        loadDevis(true);
+        loadDevisRef.current?.(true);
         isInitialLoad.current = false;
       }
-    }, [loadDevis])
+    }, [])
   );
 
   const getStatusText = (status: DevisStatus): string => {

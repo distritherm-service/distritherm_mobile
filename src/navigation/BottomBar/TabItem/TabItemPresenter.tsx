@@ -58,7 +58,7 @@ const TabItemPresenter: React.FC<TabItemPresenterProps> = ({
         >
           <FontAwesomeIcon 
             icon={icon} 
-            size={ms(ICON_SIZE * 1.4)}
+            size={ms(ICON_SIZE * 1.3)}
             color={isActive ? colors.primary[50] : colors.primary[200]} 
           />
           

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ScrollView, SafeAreaView } from "react-native";
+import { StyleSheet, Text, View, ScrollView, SafeAreaView, Platform } from "react-native";
 import React from "react";
 import { ms } from "react-native-size-matters"; // Using react-native-size-matters for responsive design
 import CategoryList from "src/components/Home/CategoryList/CategoryList";
@@ -34,7 +34,7 @@ const HomePresenter: React.FC<HomePresenterProps> = ({
       flex: 1,
     },
     contentContainer: {
-      paddingTop: ms(50), // Espace pour le header sticky
+      paddingTop: Platform.OS === 'ios' ? ms(50) : ms(75), // Espace pour le header sticky
     },
     categorySection: {
       minHeight: ms(120), // Using react-native-size-matters for responsive height

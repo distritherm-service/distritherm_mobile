@@ -33,7 +33,7 @@ interface BottomBarPresenterProps {
   isEmailUnverified?: boolean;
 }
 
-const CART_ELEVATION = Platform.OS === "ios" ? ms(22) : ms(30);
+const CART_ELEVATION = Platform.OS === "ios" ? ms(16) : ms(22);
 
 const BottomBarPresenter: React.FC<BottomBarPresenterProps> = ({
   activeTab,
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
   },
   bottomBarContent: {
     flexDirection: "row",
-    paddingTop: ms(10),
+    paddingTop: ms(6),
   },
   tabGroup: {
     flexDirection: "row",
@@ -200,12 +200,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
   },
   centerSpace: {
-    width: CART_BUTTON_SIZE + ms(30),
+    width: CART_BUTTON_SIZE + ms(25),
   },
   cartButtonContainer: {
     position: "absolute",
     top:
-      Platform.OS === "ios" ? -CART_ELEVATION - ms(6) : -CART_ELEVATION + ms(4),
+      Platform.OS === "ios" ? -CART_ELEVATION - ms(4) : -CART_ELEVATION + ms(2),
     alignSelf: "center",
     zIndex: 10,
     width: CART_BUTTON_SIZE,
@@ -214,18 +214,18 @@ const styles = StyleSheet.create({
     pointerEvents: "box-none",
   },
   cartIconContainer: {
-    width: CART_BUTTON_SIZE + ms(5),
-    height: CART_BUTTON_SIZE + ms(5),
-    borderRadius: CART_BUTTON_SIZE / 2 + ms(5),
+    width: CART_BUTTON_SIZE + ms(4),
+    height: CART_BUTTON_SIZE + ms(4),
+    borderRadius: CART_BUTTON_SIZE / 2 + ms(4),
     backgroundColor: colors.secondary[500],
     alignItems: "center",
     justifyContent: "center",
     shadowColor: colors.tertiary[500],
-    shadowOffset: { width: 0, height: 6 },
+    shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.35,
-    shadowRadius: 10,
-    elevation: 12,
-    borderWidth: ms(3),
+    shadowRadius: 8,
+    elevation: 10,
+    borderWidth: ms(2.5),
     borderColor: colors.primary[50],
     overflow: "visible",
   },

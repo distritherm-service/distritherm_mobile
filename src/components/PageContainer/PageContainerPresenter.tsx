@@ -38,8 +38,8 @@ const PageContainerPresenter: React.FC<PageContainerPresenterProps> = ({
     safeContainer: {
       flex: 1,
       backgroundColor: colors.background,
-      paddingBottom: Platform.OS == "ios" ? ms(47) : ms(65),
-    },
+      paddingBottom: Platform.OS == "ios" ? ms(37) : ms(45),
+  },
   });
 
   return (
