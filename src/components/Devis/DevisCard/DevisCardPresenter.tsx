@@ -179,6 +179,7 @@ const DevisCardPresenter: React.FC<DevisCardPresenterProps> = ({
 
   const isExpired = devis.status === DevisStatus.EXPIRED;
   const hasFileUrl = !!devis.fileUrl;
+  const canDownload = hasFileUrl && !isExpired; // Ne peut pas télécharger si expiré
   const isDownloadDisabled = !hasFileUrl;
   const canDelete = devis.status === DevisStatus.PROGRESS && onDelete;
   const isDeleteDisabled = isDeleting || !canDelete;
@@ -283,8 +284,8 @@ const DevisCardPresenter: React.FC<DevisCardPresenterProps> = ({
           )}
         </View>
 
-        {/* Bottom row: Download button (full width when available) */}
-        {hasFileUrl && (
+        {/* Bottom row: Download button (full width when available and not expired) */}
+        {canDownload && (
           <TouchableOpacity
             style={[
               dynamicStyles.actionButton,
@@ -315,6 +316,8 @@ const DevisCardPresenter: React.FC<DevisCardPresenterProps> = ({
             )}
           </TouchableOpacity>
         )}
+
+
       </View>
     </View>
   );

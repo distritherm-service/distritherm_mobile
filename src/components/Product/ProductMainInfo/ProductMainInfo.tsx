@@ -17,7 +17,9 @@ const ProductMainInfo: React.FC<ProductMainInfoProps> = ({
 }) => {
   const [quantity, setQuantity] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const { user } = useAuth();
+  const [isEditingQuantity, setIsEditingQuantity] = useState<boolean>(false);
+  const [tempQuantityText, setTempQuantityText] = useState<string>('1');
+  const { user, isAuthenticated } = useAuth();
 
   const handleQuantityChange = (newQuantity: number) => {
     if (newQuantity >= 1 && newQuantity <= product.quantity) {

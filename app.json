@@ -16,7 +16,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.DS",
+      "bundleIdentifier": "com.distritherm.dsapp",
 
     },
     "android": {
@@ -24,7 +24,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.DS"
+      "package": "com.distritherm.dsapp"
     },
     "web": {
       "favicon": "./assets/favicon.png",

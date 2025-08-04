@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.anonymous.DS'
+    namespace 'com.distritherm.dsapp'
     defaultConfig {
-        applicationId 'com.anonymous.DS'
+        applicationId 'com.distritherm.dsapp'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
