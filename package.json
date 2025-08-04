@@ -8,6 +8,10 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "ios-clean": "./ios/filter-logs.sh expo run:ios",
+    "prebuild": "expo prebuild",
+    "prebuild-clean": "expo prebuild --clean",
+    "start:tunnel": "expo start --tunnel",
+    "dev": "expo start --dev-client",
     "web": "expo start --web",
     "test": "jest --watchAll",
     "lint": "expo lint"
