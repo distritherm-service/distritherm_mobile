@@ -6,6 +6,9 @@ import {
   ScrollView,
   Pressable,
   ActivityIndicator,
+  SafeAreaView,
+  Animated,
+  Platform,
 } from "react-native";
 import { ms } from "react-native-size-matters";
 import { useColors } from "src/hooks/useColors";
@@ -39,6 +42,11 @@ interface OnSearchSectionPresenterProps {
   categories: Category[];
   marks: Mark[];
   isLoadingFilterData: boolean;
+  // Scroll and animation props
+  isScrollingDown: boolean;
+  onScroll: (event: any) => void;
+  headerTranslateY: Animated.Value;
+  activeFilterCount: number;
 
   onRetrySearch: () => void;
   onClearSearch: () => void;
@@ -69,6 +77,11 @@ const OnSearchSectionPresenter: React.FC<OnSearchSectionPresenterProps> = ({
   categories,
   marks,
   isLoadingFilterData,
+  // Scroll and animation props
+  isScrollingDown,
+  onScroll,
+  headerTranslateY,
+  activeFilterCount,
 
   onRetrySearch,
   onClearSearch,
@@ -82,17 +95,6 @@ const OnSearchSectionPresenter: React.FC<OnSearchSectionPresenterProps> = ({
 }) => {
   const colors = useColors();
 
-  // Count active filters for the filter button indicator
-  const getActiveFilterCount = () => {
-    let count = 0;
-    if (filter.categoryId) count++;
-    if (filter.markId) count++;
-    if (filter.minPrice || filter.maxPrice) count++;
-    return count;
-  };
-
-  const activeFilterCount = getActiveFilterCount();
-
   // Dynamic styles using react-native-size-matters for responsiveness
   const dynamicStyles = StyleSheet.create({
     container: {
@@ -100,20 +102,22 @@ const OnSearchSectionPresenter: React.FC<OnSearchSectionPresenterProps> = ({
       backgroundColor: colors.background,
     },
     header: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      zIndex: 50,
       backgroundColor: colors.secondary[400],
       paddingHorizontal: ms(20),
-      paddingTop: ms(16),
-      paddingBottom: ms(16),
-      borderBottomWidth: ms(3),
+      paddingTop: Platform.OS === 'ios' ? ms(15) : ms(30), 
+      paddingBottom: ms(15),
       borderBottomColor: colors.secondary[500],
-      shadowColor: colors.secondary[600],
-      shadowOffset: {
-        width: 0,
-        height: 3,
-      },
-      shadowOpacity: 0.15,
-      shadowRadius: 8,
-      elevation: 3,
+    },
+    scrollContainer: {
+      flex: 1,
+    },
+    contentContainer: {
+      paddingTop: ms(70), // Espace pour le header
     },
     headerTop: {
       flexDirection: 'row',
@@ -465,10 +469,7 @@ const OnSearchSectionPresenter: React.FC<OnSearchSectionPresenterProps> = ({
     }
 
     return (
-      <ScrollView
-        style={dynamicStyles.resultsContainer}
-        showsVerticalScrollIndicator={false}
-      >
+      <View style={dynamicStyles.resultsContainer}>
         {searchResults.length > 0 && (
           <View style={dynamicStyles.resultsHeader}>
             <Text style={dynamicStyles.resultsCount}>
@@ -485,14 +486,21 @@ const OnSearchSectionPresenter: React.FC<OnSearchSectionPresenterProps> = ({
             renderProductItem(product, index)
           )}
         </View>
-      </ScrollView>
+      </View>
     );
   };
 
   return (
-    <View style={dynamicStyles.container}>
-      {/* Header */}
-      <View style={dynamicStyles.header}>
+    <SafeAreaView style={dynamicStyles.container}>
+      {/* Header sticky */}
+      <Animated.View 
+        style={[
+          dynamicStyles.header,
+          {
+            transform: [{ translateY: headerTranslateY }],
+          },
+        ]}
+      >
         <View style={dynamicStyles.headerTop}>
           <Pressable
             style={dynamicStyles.backButton}
@@ -546,14 +554,22 @@ const OnSearchSectionPresenter: React.FC<OnSearchSectionPresenterProps> = ({
             </Pressable>
           </View>
         </View>
-      </View>
+      </Animated.View>
 
-      {/* Content */}
-      <View style={{ flex: 1 }}>{renderContent()}</View>
+      {/* Contenu scrollable */}
+      <ScrollView
+        style={dynamicStyles.scrollContainer}
+        contentContainerStyle={dynamicStyles.contentContainer}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
+        showsVerticalScrollIndicator={false}
+      >
+        {renderContent()}
+      </ScrollView>
 
       {/* Filter Modal */}
       {renderFilterModal()}
-    </View>
+    </SafeAreaView>
   );
 };
 

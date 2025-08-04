@@ -24,6 +24,7 @@ interface HeaderPresenterProps {
   isBottomSheetVisible: boolean;
   slideAnim: Animated.Value;
   backdropOpacity: Animated.AnimatedInterpolation<string | number>;
+  headerTranslateY: Animated.Value;
   onAgencySelect: (agency: Agency) => void;
   onOpenBottomSheet: () => void;
   onCloseBottomSheet: () => void;
@@ -37,6 +38,7 @@ const HeaderPresenter: React.FC<HeaderPresenterProps> = ({
   isBottomSheetVisible,
   slideAnim,
   backdropOpacity,
+  headerTranslateY,
   onAgencySelect,
   onOpenBottomSheet,
   onCloseBottomSheet,
@@ -47,7 +49,14 @@ const HeaderPresenter: React.FC<HeaderPresenterProps> = ({
 
   const dynamicStyles = StyleSheet.create({
     container: {
-      padding: ms(5),
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      zIndex: 1000,
+      backgroundColor: colors.background,
+      paddingTop: ms(50), // Espace pour la status bar
+      paddingHorizontal: ms(5),
     },
     topContent: {
       width: "100%",
@@ -55,7 +64,6 @@ const HeaderPresenter: React.FC<HeaderPresenterProps> = ({
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
-      paddingVertical: ms(6),
     },
     bottomContent: {
       width: "90%",
@@ -124,7 +132,14 @@ const HeaderPresenter: React.FC<HeaderPresenterProps> = ({
   });
 
   return (
-    <View style={dynamicStyles.container}>
+    <Animated.View 
+      style={[
+        dynamicStyles.container,
+        {
+          transform: [{ translateY: headerTranslateY }],
+        },
+      ]}
+    >
       <View style={dynamicStyles.topContent}>
         <View>
           <Image
@@ -282,7 +297,7 @@ const HeaderPresenter: React.FC<HeaderPresenterProps> = ({
           leftLogo={faSearch}
         /> */}
       </View>
-    </View>
+    </Animated.View>
   );
 };
 

@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import HeaderPresenter from "./HeaderPresenter";
 import { Agency } from "src/types/Agency";
 import agenciesService from "src/services/agenciesService";
+import { ms } from "react-native-size-matters";
 
 const { height: screenHeight } = Dimensions.get("window");
 
@@ -12,7 +13,11 @@ const { height: screenHeight } = Dimensions.get("window");
 const SELECTED_AGENCY_KEY = 'selectedAgency';
 const DEFAULT_AGENCY_NAME = 'Taverny (95150)';
 
-const Header = () => {
+interface HeaderProps {
+  isScrollingDown?: boolean;
+}
+
+const Header = ({ isScrollingDown = false }: HeaderProps) => {
   const [agencies, setAgencies] = useState<Agency[] | null>(null);
   const [selectedAgency, setSelectedAgency] = useState<Agency | null>(null);
   const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
@@ -20,9 +25,12 @@ const Header = () => {
   const [searchValue, setSearchValue] = useState('');
   const { register, handleSubmit, control, formState: { errors } } = useForm();
 
-  // Animations
+  // Animations pour bottom sheet
   const slideAnim = useRef(new Animated.Value(screenHeight)).current;
   const backdropAnim = useRef(new Animated.Value(0)).current;
+  
+  // Animation pour header sticky
+  const headerTranslateY = useRef(new Animated.Value(0)).current;
 
   const backdropOpacity = backdropAnim.interpolate({
     inputRange: [0, 1],
@@ -163,6 +171,15 @@ const Header = () => {
     }
   }, [isBottomSheetVisible]);
 
+  // Effect pour l'animation du header sticky
+  useEffect(() => {
+    Animated.timing(headerTranslateY, {
+      toValue: isScrollingDown ? -ms(120) : 0, // -120 pour cacher complètement le header
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [isScrollingDown, headerTranslateY]);
+
   // Handlers
   const handleAgencySelect = async (agency: Agency) => {
     setSelectedAgency(agency);
@@ -185,6 +202,7 @@ const Header = () => {
       isBottomSheetVisible={isBottomSheetVisible}
       slideAnim={slideAnim}
       backdropOpacity={backdropOpacity}
+      headerTranslateY={headerTranslateY}
       onAgencySelect={handleAgencySelect}
       onOpenBottomSheet={openBottomSheet}
       onCloseBottomSheet={closeBottomSheet}

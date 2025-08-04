@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigation } from "@react-navigation/native";
+import { Animated } from "react-native";
+import { ms } from "react-native-size-matters";
 import OnSearchSectionPresenter from "./OnSearchSectionPresenter";
 import productsService, { SearchFilters } from "src/services/productsService";
 import { ProductBasicDto } from "src/types/Product";
@@ -8,6 +10,7 @@ import categoriesService from "src/services/categoriesService";
 import marksService from "src/services/marksService";
 import interactionsService from "src/services/interactionsService";
 import { useAuth } from "src/hooks/useAuth";
+import { useScrollDown } from "src/hooks/useScrollDown";
 
 interface Category {
   id: number;
@@ -49,6 +52,29 @@ const OnSearchSection: React.FC<OnSearchSectionProps> = ({
   const [isLoadingFilterData, setIsLoadingFilterData] = useState(false);
 
   const { user } = useAuth();
+  const { isScrollingDown, onScroll } = useScrollDown({ threshold: 65 });
+  
+  // Animation pour le header sticky
+  const headerTranslateY = useRef(new Animated.Value(0)).current;
+  
+  useEffect(() => {
+    Animated.timing(headerTranslateY, {
+      toValue: isScrollingDown ? -ms(135) : 0, // -130 pour cacher complètement le header OnSearchSection
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [isScrollingDown]);
+
+  // Count active filters for the filter button indicator
+  const getActiveFilterCount = () => {
+    let count = 0;
+    if (filter.categoryId) count++;
+    if (filter.markId) count++;
+    if (filter.minPrice || filter.maxPrice) count++;
+    return count;
+  };
+
+  const activeFilterCount = getActiveFilterCount();
 
   /**
    * Pre-load categories and marks data
@@ -374,6 +400,11 @@ const OnSearchSection: React.FC<OnSearchSectionProps> = ({
       onClearIndividualFilter={handleClearIndividualFilter}
       onClearAllFilters={handleClearAllFilters}
       onProductPress={handleProductPress}
+      // Scroll and animation props
+      isScrollingDown={isScrollingDown}
+      onScroll={onScroll}
+      headerTranslateY={headerTranslateY}
+      activeFilterCount={activeFilterCount}
     />
   );
 };
