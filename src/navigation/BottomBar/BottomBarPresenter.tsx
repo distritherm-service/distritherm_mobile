@@ -26,6 +26,7 @@ import {
 } from "./constants";
 import { isTablet } from "src/utils/deviceUtils";
 import { useKeyboard } from "src/hooks/useKeyboard";
+import KeyboardAwareBottomBar from "./KeyboardAwareBottomBar";
 
 interface BottomBarPresenterProps {
   activeTab: string;
@@ -172,16 +173,20 @@ const BottomBarPresenter: React.FC<BottomBarPresenterProps> = ({
       <View style={styles.content}>{renderScreen(activeTab)}</View>
 
       {/* Barre de navigation avec creux arrondi */}
-      <Animated.View
-        style={[
-          styles.bottomBarContainer,
-          { 
-            height: BOTTOM_BAR_HEIGHT + bottomInset,
-            transform: [{ translateY: bottomBarAnimation }]
-          },
-        ]}
-        pointerEvents={keyboardShown || keyboardVisible ? "none" : "box-none"}
+      <KeyboardAwareBottomBar 
+        bottomBarHeight={BOTTOM_BAR_HEIGHT} 
+        bottomInset={bottomInset}
       >
+        <Animated.View
+          style={[
+            styles.bottomBarContainer,
+            { 
+              height: BOTTOM_BAR_HEIGHT + bottomInset,
+              transform: [{ translateY: bottomBarAnimation }]
+            },
+          ]}
+          pointerEvents={keyboardShown || keyboardVisible ? "none" : "box-none"}
+        >
         {/* Fond de la barre avec creux */}
         <CurvedBottomBar
           width={dimensions.width}
@@ -241,6 +246,7 @@ const BottomBarPresenter: React.FC<BottomBarPresenterProps> = ({
           />
         </View>
       </Animated.View>
+      </KeyboardAwareBottomBar>
     </View>
   );
 };

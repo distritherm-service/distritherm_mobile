@@ -9,6 +9,7 @@ import SearchBar from "src/components/Home/SearchBar/SearchBar";
 import { useColors } from "src/hooks/useColors";
 import { useScrollDown } from "src/hooks/useScrollDown";
 import { SearchParams } from "src/navigation/types";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface HomePresenterProps {
   onSearchBarPress: () => void;
@@ -23,8 +24,8 @@ const HomePresenter: React.FC<HomePresenterProps> = ({
 }) => {
   const colors = useColors();
   const { isScrollingDown, onScroll } = useScrollDown({ threshold: 10 });
-  
-  const statusBarHeight = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) + ms(50) : ms(20);
+  const insets = useSafeAreaInsets();
+  const statusBarHeight = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) + ms(50) : ms(40);
   
   // Dynamic styles using react-native-size-matters for responsiveness
   const dynamicStyles = StyleSheet.create({
@@ -40,12 +41,11 @@ const HomePresenter: React.FC<HomePresenterProps> = ({
     },
     categorySection: {
       minHeight: ms(120), // Using react-native-size-matters for responsive height
-      marginVertical: ms(10), // Using react-native-size-matters for responsive margin
+      marginBottom: ms(10), // Using react-native-size-matters for responsive margin
       backgroundColor: colors.background,
     },
     searchBarContainer: {
       paddingHorizontal: ms(16),
-      marginBottom: ms(16),
     },
   });
 

@@ -19,6 +19,7 @@ import { faChevronDown, faChevronUp, faSearch } from "@fortawesome/free-solid-sv
 import Input from "src/components/Input/Input";
 import { InputType } from "src/types/InputType";
 import { StatusBar } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface HeaderPresenterProps {
   agencies: Agency[] | null;
@@ -48,6 +49,8 @@ const HeaderPresenter: React.FC<HeaderPresenterProps> = ({
   onSearchChange,
 }) => {
   const colors = useColors();
+  const insets = useSafeAreaInsets();
+  const statusBarHeight = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) + ms(10) : insets.top;
   const dynamicStyles = StyleSheet.create({
     container: {
       position: 'absolute',
@@ -56,7 +59,7 @@ const HeaderPresenter: React.FC<HeaderPresenterProps> = ({
       right: 0,
       zIndex: 1000,
       backgroundColor: colors.background,
-      paddingTop: (StatusBar.currentHeight || 0) + ms(10),
+      paddingTop: statusBarHeight,
       paddingHorizontal: ms(5),
     },
     topContent: {
