@@ -3,18 +3,18 @@
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
-    "start": "expo start",
+    "start": "npx expo start",
     "reset-project": "node ./scripts/reset-project.js",
-    "android": "expo run:android",
-    "ios": "expo run:ios",
-    "ios-clean": "./ios/filter-logs.sh expo run:ios",
-    "prebuild": "expo prebuild",
-    "prebuild-clean": "expo prebuild --clean",
-    "start:tunnel": "expo start --tunnel",
-    "dev": "expo start --dev-client",
-    "web": "expo start --web",
+    "android": "npx expo run:android",
+    "ios": "npx expo run:ios", 
+    "ios-clean": "./ios/filter-logs.sh npx expo run:ios",
+    "prebuild": "npx expo prebuild",
+    "prebuild-clean": "npx expo prebuild --clean",
+    "start:tunnel": "npx expo start --tunnel",
+    "dev": "npx expo start --dev-client",
+    "web": "npx expo start --web",
     "test": "jest --watchAll",
-    "lint": "expo lint"
+    "lint": "npx expo lint"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",

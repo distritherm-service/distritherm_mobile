@@ -109,15 +109,15 @@ const OnSearchSectionPresenter: React.FC<OnSearchSectionPresenterProps> = ({
       zIndex: 50,
       backgroundColor: colors.secondary[400],
       paddingHorizontal: ms(20),
-      paddingTop: Platform.OS === 'ios' ? ms(15) : ms(30), 
-      paddingBottom: ms(15),
+      paddingBottom: ms(10),
       borderBottomColor: colors.secondary[500],
+      paddingTop: ms(10),
     },
     scrollContainer: {
       flex: 1,
     },
     contentContainer: {
-      paddingTop: ms(70), // Espace pour le header
+      paddingTop: ms(65),
     },
     headerTop: {
       flexDirection: 'row',

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ScrollView, SafeAreaView, Platform } from "react-native";
+import { StyleSheet, Text, View, ScrollView, SafeAreaView, Platform, StatusBar } from "react-native";
 import React from "react";
 import { ms } from "react-native-size-matters"; // Using react-native-size-matters for responsive design
 import CategoryList from "src/components/Home/CategoryList/CategoryList";
@@ -23,7 +23,9 @@ const HomePresenter: React.FC<HomePresenterProps> = ({
 }) => {
   const colors = useColors();
   const { isScrollingDown, onScroll } = useScrollDown({ threshold: 10 });
-
+  
+  const statusBarHeight = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) + ms(50) : ms(20);
+  
   // Dynamic styles using react-native-size-matters for responsiveness
   const dynamicStyles = StyleSheet.create({
     container: {
@@ -34,7 +36,7 @@ const HomePresenter: React.FC<HomePresenterProps> = ({
       flex: 1,
     },
     contentContainer: {
-      paddingTop: Platform.OS === 'ios' ? ms(50) : ms(75), // Espace pour le header sticky
+      paddingTop: statusBarHeight, // Espace pour le header sticky
     },
     categorySection: {
       minHeight: ms(120), // Using react-native-size-matters for responsive height

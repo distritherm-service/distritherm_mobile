@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Platform, StyleSheet, Dimensions } from "react-native";
+import { View, Platform, StyleSheet, Dimensions, Animated, Keyboard } from "react-native";
 import {
   faHome,
   faSearch,
@@ -25,6 +25,7 @@ import {
   ICON_SIZE,
 } from "./constants";
 import { isTablet } from "src/utils/deviceUtils";
+import { useKeyboard } from "src/hooks/useKeyboard";
 
 interface BottomBarPresenterProps {
   activeTab: string;
@@ -42,6 +43,7 @@ const BottomBarPresenter: React.FC<BottomBarPresenterProps> = ({
   isEmailUnverified = false,
 }) => {
   const insets = useSafeAreaInsets();
+  const { keyboardShown, keyboardHeight, keyboardAnimationDuration } = useKeyboard();
   const bottomInset =
     Platform.OS == "android"
       ? Math.max(insets.bottom, 10)
@@ -54,6 +56,12 @@ const BottomBarPresenter: React.FC<BottomBarPresenterProps> = ({
     width: SCREEN_WIDTH,
     height: BOTTOM_BAR_HEIGHT + bottomInset,
   });
+
+  // Animation du bottom bar
+  const [bottomBarAnimation] = useState(new Animated.Value(0));
+  
+  // Fallback direct pour le clavier
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   // Mise à jour des dimensions en cas de changement d'orientation
   useEffect(() => {
@@ -74,6 +82,66 @@ const BottomBarPresenter: React.FC<BottomBarPresenterProps> = ({
       subscription.remove();
     };
   }, [bottomInset]);
+
+  // Gestion de l'affichage/masquage du bottom bar avec le clavier
+  useEffect(() => {
+    console.log('🔄 BottomBar: keyboardShown changed:', keyboardShown);
+    if (keyboardShown) {
+      console.log('📱 Hiding bottom bar with animation');
+      // Animation pour cacher le bottom bar (déplacer vers le bas)
+      Animated.timing(bottomBarAnimation, {
+        toValue: BOTTOM_BAR_HEIGHT + bottomInset,
+        duration: keyboardAnimationDuration || 250,
+        useNativeDriver: true,
+      }).start(() => {
+        console.log('✅ Bottom bar hidden');
+      });
+    } else {
+      console.log('📱 Showing bottom bar with animation');
+      // Animation pour afficher le bottom bar (remettre en position)
+      Animated.timing(bottomBarAnimation, {
+        toValue: 0,
+        duration: keyboardAnimationDuration || 250,
+        useNativeDriver: true,
+      }).start(() => {
+        console.log('✅ Bottom bar shown');
+      });
+    }
+  }, [keyboardShown, bottomBarAnimation, bottomInset, keyboardAnimationDuration]);
+
+  // Fallback: écoute directe du clavier au cas où le hook ne fonctionne pas
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      console.log('🔄 FALLBACK: Keyboard shown via direct listener');
+      setKeyboardVisible(true);
+      if (!keyboardShown) {
+        console.log('🔄 FALLBACK: Hook failed, using fallback animation');
+        Animated.timing(bottomBarAnimation, {
+          toValue: BOTTOM_BAR_HEIGHT + bottomInset,
+          duration: 250,
+          useNativeDriver: true,
+        }).start();
+      }
+    });
+
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      console.log('🔄 FALLBACK: Keyboard hidden via direct listener');
+      setKeyboardVisible(false);
+      if (!keyboardShown) {
+        console.log('🔄 FALLBACK: Hook failed, using fallback animation');
+        Animated.timing(bottomBarAnimation, {
+          toValue: 0,
+          duration: 250,
+          useNativeDriver: true,
+        }).start();
+      }
+    });
+
+    return () => {
+      keyboardDidShowListener?.remove();
+      keyboardDidHideListener?.remove();
+    };
+  }, [keyboardShown, bottomBarAnimation, bottomInset]);
 
   // Configuration des tabs
   const tabs = [
@@ -104,12 +172,15 @@ const BottomBarPresenter: React.FC<BottomBarPresenterProps> = ({
       <View style={styles.content}>{renderScreen(activeTab)}</View>
 
       {/* Barre de navigation avec creux arrondi */}
-      <View
+      <Animated.View
         style={[
           styles.bottomBarContainer,
-          { height: BOTTOM_BAR_HEIGHT + bottomInset },
+          { 
+            height: BOTTOM_BAR_HEIGHT + bottomInset,
+            transform: [{ translateY: bottomBarAnimation }]
+          },
         ]}
-        pointerEvents="box-none"
+        pointerEvents={keyboardShown || keyboardVisible ? "none" : "box-none"}
       >
         {/* Fond de la barre avec creux */}
         <CurvedBottomBar
@@ -169,7 +240,7 @@ const BottomBarPresenter: React.FC<BottomBarPresenterProps> = ({
             badgeCount={cartItemCount}
           />
         </View>
-      </View>
+      </Animated.View>
     </View>
   );
 };

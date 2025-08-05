@@ -48,7 +48,6 @@ const HeaderPresenter: React.FC<HeaderPresenterProps> = ({
   onSearchChange,
 }) => {
   const colors = useColors();
-
   const dynamicStyles = StyleSheet.create({
     container: {
       position: 'absolute',
@@ -57,7 +56,7 @@ const HeaderPresenter: React.FC<HeaderPresenterProps> = ({
       right: 0,
       zIndex: 1000,
       backgroundColor: colors.background,
-      paddingTop: Platform.OS === 'ios' ? ms(50) : ms(25),
+      paddingTop: (StatusBar.currentHeight || 0) + ms(10),
       paddingHorizontal: ms(5),
     },
     topContent: {

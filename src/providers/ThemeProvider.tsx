@@ -1,11 +1,11 @@
 import React, {
   createContext,
   useContext,
-  useState,
-  useEffect,
+  // useState,  // Temporairement non utilisé
+  // useEffect, // Temporairement non utilisé
   ReactNode,
 } from "react";
-import { Appearance, ColorSchemeName } from "react-native";
+// import { Appearance, ColorSchemeName } from "react-native"; // Temporairement non utilisé
 import { lightTheme, darkTheme, ThemeColors } from "../utils/colors";
 
 interface ThemeContextType {
@@ -20,20 +20,27 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const [colorScheme, setColorScheme] = useState<ColorSchemeName>(
-    Appearance.getColorScheme()
-  );
+  // TEMPORAIREMENT DÉSACTIVÉ : Mode sombre
+  // Toujours utiliser le thème clair pour éviter les problèmes de rendu
+  
+  // const [colorScheme, setColorScheme] = useState<ColorSchemeName>(
+  //   Appearance.getColorScheme()
+  // );
 
-  useEffect(() => {
-    const subscription = Appearance.addChangeListener(({ colorScheme }) => {
-      setColorScheme(colorScheme);
-    });
+  // useEffect(() => {
+  //   const subscription = Appearance.addChangeListener(({ colorScheme }) => {
+  //     setColorScheme(colorScheme);
+  //   });
 
-    return () => subscription?.remove?.();
-  }, []);
+  //   return () => subscription?.remove?.();
+  // }, []);
 
-  const isDark = colorScheme === "dark";
-  const theme = isDark ? darkTheme : lightTheme;
+  // const isDark = colorScheme === "dark";
+  // const theme = isDark ? darkTheme : lightTheme;
+
+  // FORCER LE MODE CLAIR TEMPORAIREMENT
+  const isDark = false;
+  const theme = lightTheme;
 
   return (
     <ThemeContext.Provider
