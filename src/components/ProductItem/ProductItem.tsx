@@ -61,6 +61,7 @@ const ProductItem: React.FC<ProductItemProps> = ({
   // États pour la gestion de l'image
   const [imageError, setImageError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasImageUrl, setHasImageUrl] = useState(false);
 
   // État pour gérer le statut favori localement
   const [isFavorited, setIsFavorited] = useState(currentProduct.isFavorited);
@@ -70,6 +71,20 @@ const ProductItem: React.FC<ProductItemProps> = ({
     setIsFavorited(currentProduct.isFavorited);
   }, [currentProduct.isFavorited]);
 
+  // Gérer le changement d'URL d'image
+  useEffect(() => {
+    const imageUrl = currentProduct.imagesUrl?.[0];
+    if (imageUrl && imageUrl !== NO_IMAGE_URL) {
+      setHasImageUrl(true);
+      setIsLoading(true);
+      setImageError(false);
+    } else {
+      setHasImageUrl(false);
+      setIsLoading(false);
+      setImageError(true);
+    }
+  }, [currentProduct.imagesUrl]);
+
   // Handlers pour l'image
   const handleImageError = () => {
     setImageError(true);
@@ -78,10 +93,11 @@ const ProductItem: React.FC<ProductItemProps> = ({
 
   const handleImageLoad = () => {
     setIsLoading(false);
+    setImageError(false);
   };
 
   const getImageSource = () => {
-    if (imageError || !currentProduct.imagesUrl?.[0]) {
+    if (!hasImageUrl || imageError || !currentProduct.imagesUrl?.[0]) {
       return { uri: NO_IMAGE_URL };
     }
     return { uri: currentProduct.imagesUrl[0] };

@@ -682,25 +682,33 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
 
   // Main cart content
   return (
-    <PageContainer
-      headerBack={false}
-      bottomBar={true}
-      isScrollable={false}
-      style={dynamicStyles.container}
-    >
-      {renderHeader()}
-      <ScrollView
-        style={dynamicStyles.contentContainer}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: ms(32) }}
+    <>
+      <PageContainer
+        headerBack={false}
+        bottomBar={true}
+        isScrollable={false}
+        style={dynamicStyles.container}
       >
+        {renderHeader()}
+        <ScrollView
+          style={dynamicStyles.contentContainer}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: ms(32) }}
+          scrollEnabled={!showReservationModal}
+          keyboardShouldPersistTaps="handled"
+          nestedScrollEnabled={false}
+        >
         {/* Cart Items */}
         <FlatList
           data={cart.cartItems || []}
           renderItem={renderCartItem}
           keyExtractor={(item) => item.id.toString()}
           scrollEnabled={false}
+          nestedScrollEnabled={false}
           showsVerticalScrollIndicator={false}
+          removeClippedSubviews={true}
+          maxToRenderPerBatch={10}
+          windowSize={5}
         />
 
         {/* Summary Section */}
@@ -855,6 +863,8 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
           </View>
         </View>
       </ScrollView>
+      </PageContainer>
+      
       <ReservationModal
         visible={showReservationModal}
         user={user}
@@ -862,7 +872,7 @@ const CartPresenter: React.FC<CartPresenterProps> = ({
         onClose={onCloseReservationModal}
         onCreateReservation={onCreateReservation}
       />
-    </PageContainer>
+    </>
   );
 };
 

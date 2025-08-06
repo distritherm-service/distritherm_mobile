@@ -6,8 +6,9 @@ import {
   Pressable,
   Platform,
   ImageSourcePropType,
+  Animated,
 } from "react-native";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { ms } from "react-native-size-matters";
 import { useColors } from "src/hooks/useColors";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
@@ -54,69 +55,106 @@ const ProductItemPresenter: React.FC<ProductItemPresenterProps> = ({
   onImageLoad,
 }) => {
   const colors = useColors();
+  
+  // Vérifications de sécurité pour éviter les erreurs undefined
+  if (!colors) {
+    return null;
+  }
+
+  // Vérifications des props critiques
+  const safeName = name || '';
+  const safeCategory = category || '';
+  const safePrice = typeof price === 'number' ? price : 0;
+  const safeUnit = unit || '';
+  const safeInStock = typeof inStock === 'boolean' ? inStock : true;
+  
+  // Animation pour le skeleton
+  const skeletonOpacity = useRef(new Animated.Value(0.3)).current;
+
+  useEffect(() => {
+    if (isLoading && !imageError) {
+      const animation = Animated.loop(
+        Animated.sequence([
+          Animated.timing(skeletonOpacity, {
+            toValue: 0.8,
+            duration: 800,
+            useNativeDriver: true,
+          }),
+          Animated.timing(skeletonOpacity, {
+            toValue: 0.3,
+            duration: 800,
+            useNativeDriver: true,
+          }),
+        ])
+      );
+      animation.start();
+      return () => animation.stop();
+    }
+  }, [isLoading, imageError, skeletonOpacity]);
 
   // Dynamic styles using colors from useColors hook
   const dynamicStyles = {
     container: {
-      backgroundColor: colors.surface,
-      borderColor: colors.border,
-      shadowColor: colors.text,
+      backgroundColor: colors.surface || '#FFFFFF',
+      borderColor: colors.border || '#E5E5E5',
+      shadowColor: colors.text || '#000000',
     },
     productImage: {
-      backgroundColor: colors.background,
-      borderColor: colors.borderDark,
+      backgroundColor: colors.background || '#F5F5F5',
+      borderColor: colors.borderDark || '#CCCCCC',
     },
-    loadingOverlay: {
-      backgroundColor: colors.surface,
-    },
-    loadingText: {
-      color: colors.textSecondary,
+    imageSkeleton: {
+      backgroundColor: colors.background || '#F5F5F5',
     },
     promotionBadge: {
-      backgroundColor: colors.accent[500],
-      shadowColor: colors.accent[900],
+      backgroundColor: colors.accent?.[500] || '#EF4444',
+      shadowColor: colors.accent?.[900] || '#7F1D1D',
     },
     proBadge: {
-      backgroundColor: colors.success[500],
-      shadowColor: colors.success[900],
+      backgroundColor: colors.success?.[500] || '#10B981',
+      shadowColor: colors.success?.[900] || '#064E3B',
     },
     badgeText: {
-      color: colors.surface,
+      color: colors.surface || '#FFFFFF',
     },
     favoriteButton: {
-      backgroundColor: colors.surface,
-      borderColor: colors.border,
+      backgroundColor: colors.surface || '#FFFFFF',
+      borderColor: colors.border || '#E5E5E5',
     },
     favoriteButtonActive: {
-      backgroundColor: colors.accent[500],
-      borderColor: colors.accent[600],
+      backgroundColor: colors.accent?.[500] || '#EF4444',
+      borderColor: colors.accent?.[600] || '#DC2626',
     },
     favoriteIcon: {
-      color: isFavorited ? colors.surface : colors.textSecondary,
+      color: isFavorited ? (colors.surface || '#FFFFFF') : (colors.textSecondary || '#6B7280'),
     },
     categoryText: {
-      color: colors.secondary[600],
+      color: colors.secondary?.[600] || '#4B5563',
     },
     productName: {
-      color: colors.text,
+      color: colors.text || '#1F2937',
     },
     priceBackground: {
-      backgroundColor: colors.secondary[50],
+      backgroundColor: colors.secondary?.[50] || '#F9FAFB',
     },
     price: {
-      color: colors.secondary[700],
+      color: colors.secondary?.[700] || '#374151',
     },
     originalPrice: {
-      color: colors.textSecondary,
+      color: colors.textSecondary || '#6B7280',
     },
     unit: {
-      color: colors.textSecondary,
+      color: colors.textSecondary || '#6B7280',
     },
     stockDot: {
-      backgroundColor: inStock ? colors.success[500] : colors.danger[500],
+      backgroundColor: safeInStock 
+        ? (colors.success?.[500] || '#10B981') 
+        : (colors.danger?.[500] || '#EF4444'),
     },
     stockText: {
-      color: inStock ? colors.success[600] : colors.danger[600],
+      color: safeInStock 
+        ? (colors.success?.[600] || '#059669') 
+        : (colors.danger?.[600] || '#DC2626'),
     },
   };
 
@@ -161,17 +199,16 @@ const ProductItemPresenter: React.FC<ProductItemPresenterProps> = ({
           resizeMode="cover"
         />
 
-        {/* Loading Overlay */}
-        {isLoading && (
-          <View
+        {/* Image Skeleton */}
+        {isLoading && !imageError && (
+          <Animated.View
             style={[
-              styles.loadingOverlay,
-              dynamicStyles.loadingOverlay,
+              styles.imageSkeleton,
+              dynamicStyles.imageSkeleton,
               isTabletDevice && styles.productImageTablet,
+              { opacity: skeletonOpacity },
             ]}
-          >
-            <Text style={[styles.loadingText, dynamicStyles.loadingText]}>📦</Text>
-          </View>
+          />
         )}
 
         {/* Discount Badge - Pro (Green) or Promotion (Red) */}
@@ -208,28 +245,28 @@ const ProductItemPresenter: React.FC<ProductItemPresenterProps> = ({
         {/* Category */}
         <View style={styles.categoryContainer}>
           <Text style={[styles.category, dynamicStyles.categoryText]} numberOfLines={1}>
-            {category}
+            {safeCategory}
           </Text>
         </View>
 
         {/* Product Name */}
         <Text style={[styles.productName, dynamicStyles.productName]} numberOfLines={2}>
-          {name}
+          {safeName}
         </Text>
 
         {/* Price Container */}
         <View style={styles.priceContainer}>
           <View style={[styles.priceBackground, dynamicStyles.priceBackground]}>
-            {originalPrice && (
+            {originalPrice && typeof originalPrice === 'number' && (
               <Text style={[styles.originalPrice, dynamicStyles.originalPrice]}>
                 {originalPrice.toFixed(2)} €
               </Text>
             )}
             <View style={styles.priceRow}>
               <Text style={[styles.price, dynamicStyles.price]}>
-                {price.toFixed(2)} €
+                {safePrice.toFixed(2)} €
               </Text>
-              <Text style={[styles.unit, dynamicStyles.unit]}>/{unit}</Text>
+              <Text style={[styles.unit, dynamicStyles.unit]}>/{safeUnit}</Text>
             </View>
           </View>
         </View>
@@ -243,7 +280,7 @@ const ProductItemPresenter: React.FC<ProductItemPresenterProps> = ({
             ]}
           />
           <Text style={[styles.stockStatus, dynamicStyles.stockText]}>
-            {inStock ? "En stock" : "Rupture"}
+            {safeInStock ? "En stock" : "Rupture"}
           </Text>
         </View>
       </View>
@@ -292,18 +329,14 @@ const styles = StyleSheet.create({
     height: ms(200),
     borderRadius: ms(16),
   },
-  loadingOverlay: {
+  imageSkeleton: {
     position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
     borderRadius: ms(12),
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  loadingText: {
-    fontSize: ms(32),
+    borderWidth: 1,
   },
   discountBadge: {
     position: "absolute",
