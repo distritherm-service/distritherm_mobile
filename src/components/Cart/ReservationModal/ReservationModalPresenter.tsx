@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -7,9 +7,10 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  Platform,
-  TouchableWithoutFeedback,
+  Animated,
   Dimensions,
+  StatusBar,
+  RefreshControl,
 } from "react-native";
 import { ms } from "react-native-size-matters";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
@@ -21,6 +22,9 @@ import {
   faEnvelope,
   faStickyNote,
   faEye,
+  faClock,
+  faCalendar,
+  faExclamationTriangle,
 } from "@fortawesome/free-solid-svg-icons";
 import { Control } from "react-hook-form";
 import Input from "src/components/Input/Input";
@@ -71,6 +75,9 @@ interface ReservationModalPresenterProps {
   isCreatingReservation: boolean;
   existingReservation?: EReservation;
   mode?: 'create' | 'view';
+  errors: any;
+  slideAnim: Animated.Value;
+  fadeAnim: Animated.Value;
   onClose: () => void;
   onSubmit: () => void;
   onTimeSlotSelect: (timeSlot: string) => void;
@@ -84,530 +91,659 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
   isCreatingReservation,
   existingReservation,
   mode = 'create',
+  errors,
+  slideAnim,
+  fadeAnim,
   onClose,
   onSubmit,
   onTimeSlotSelect,
 }) => {
   const colors = useColors();
 
-  const styles = StyleSheet.create({
-    overlay: {
+  // Modern, elegant styles inspired by DevisFicheProduct
+  const styles = {
+    // Modal structure
+    modalOverlay: {
       flex: 1,
-      backgroundColor: "rgba(0, 0, 0, 0.5)",
-      justifyContent: "flex-end",
+      backgroundColor: colors.modalBackground,
+      justifyContent: "flex-end" as const,
     },
-    container: {
-      backgroundColor: colors.primary[50],
-      borderTopLeftRadius: ms(20),
-      borderTopRightRadius: ms(20),
-      maxHeight: screenHeight * 0.85,
-      flex: 1,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: -4 },
-      shadowOpacity: 0.1,
-      shadowRadius: 12,
-      elevation: 8,
+    modalContainer: {
+      backgroundColor: colors.background,
+      borderTopLeftRadius: ms(32),
+      borderTopRightRadius: ms(32),
+      height: screenHeight * 0.90,
+      shadowColor: "#0f172a",
+      shadowOffset: { width: 0, height: -12 },
+      shadowOpacity: 0.35,
+      shadowRadius: 32,
+      elevation: 24,
+      zIndex: 50,
     },
-    handle: {
-      width: ms(40),
-      height: ms(4),
-      backgroundColor: colors.tertiary[300],
-      borderRadius: ms(2),
-      alignSelf: "center",
-      marginTop: ms(8),
-      marginBottom: ms(16),
-    },
+
+    // Header section with premium design
     header: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      paddingHorizontal: ms(20),
-      paddingBottom: ms(16),
+      paddingHorizontal: ms(24),
+      paddingTop: ms(16),
+      paddingBottom: ms(20),
       borderBottomWidth: 1,
-      borderBottomColor: colors.tertiary[200],
+      borderBottomColor: colors.tertiary[200] + "20",
+      backgroundColor: colors.background,
+      borderTopLeftRadius: ms(32),
+      borderTopRightRadius: ms(32),
     },
-    title: {
-      fontSize: ms(20),
-      fontWeight: "700",
-      color: colors.tertiary[500],
+    dragIndicator: {
+      width: ms(48),
+      height: ms(5),
+      backgroundColor: colors.tertiary[300],
+      borderRadius: ms(4),
+      alignSelf: "center" as const,
+      marginBottom: ms(20),
+      opacity: 0.6,
+    },
+    headerContent: {
+      flexDirection: "row" as const,
+      alignItems: "center" as const,
+      justifyContent: "space-between" as const,
+    },
+    headerLeft: {
       flex: 1,
+      flexDirection: "row" as const,
+      alignItems: "center" as const,
+    },
+    headerIconContainer: {
+      width: ms(56),
+      height: ms(56),
+      borderRadius: ms(28),
+      backgroundColor: colors.secondary[100],
+      justifyContent: "center" as const,
+      alignItems: "center" as const,
+      marginRight: ms(16),
+      shadowColor: colors.secondary[500],
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    headerTitles: {
+      flex: 1,
+    },
+    headerTitle: {
+      fontSize: ms(20),
+      fontWeight: "800" as const,
+      color: colors.tertiary[500],
+      marginBottom: ms(2),
+    },
+    headerSubtitle: {
+      fontSize: ms(12),
+      fontWeight: "500" as const,
+      color: colors.tertiary[400],
+      lineHeight: ms(16),
     },
     closeButton: {
-      backgroundColor: colors.tertiary[50],
-      borderRadius: ms(20),
       width: ms(40),
       height: ms(40),
-      justifyContent: "center",
-      alignItems: "center",
+      borderRadius: ms(20),
+      backgroundColor: colors.tertiary[100],
+      justifyContent: "center" as const,
+      alignItems: "center" as const,
       borderWidth: 1,
       borderColor: colors.tertiary[200],
     },
+
+    // Content area
     content: {
       flex: 1,
-      backgroundColor: colors.primary[50],
+      backgroundColor: colors.background,
     },
     scrollContent: {
-      paddingHorizontal: ms(20),
-      paddingBottom: ms(20),
+      paddingHorizontal: ms(24),
+      paddingBottom: ms(24),
       flexGrow: 1,
     },
+
+    // Sections
     section: {
-      marginVertical: ms(10),
-      backgroundColor: colors.primary[50],
+      marginBottom: ms(24),
+    },
+    sectionTitle: {
+      fontSize: ms(16),
+      fontWeight: "700" as const,
+      color: colors.tertiary[500],
+      marginBottom: ms(16),
+      flexDirection: "row" as const,
+      alignItems: "center" as const,
+    },
+    clientInfoInput: {
+      marginBottom: ms(16),
+    },
+
+    // Time slot selection
+    timeSlotsContainer: {
+      marginBottom: ms(16),
+    },
+    timeSlotButton: {
+      paddingVertical: ms(14),
+      paddingHorizontal: ms(16),
       borderRadius: ms(12),
+      borderWidth: 1,
+      borderColor: colors.tertiary[200],
+      backgroundColor: colors.background,
+      marginBottom: ms(8),
+      flexDirection: "row" as const,
+      alignItems: "center" as const,
+      justifyContent: "center" as const,
+    },
+    timeSlotButtonSelected: {
+      backgroundColor: colors.secondary[50],
+      borderColor: colors.secondary[500],
+      borderWidth: 2,
+    },
+    timeSlotButtonText: {
+      fontSize: ms(14),
+      fontWeight: "600" as const,
+      color: colors.tertiary[600],
+      marginLeft: ms(8),
+    },
+    timeSlotButtonTextSelected: {
+      color: colors.secondary[700],
+      fontWeight: "700" as const,
+    },
+
+    // Reservation info (view mode)
+    reservationInfoContainer: {
+      backgroundColor: colors.tertiary[50],
+      borderRadius: ms(16),
       padding: ms(16),
       borderWidth: 1,
       borderColor: colors.tertiary[200],
     },
-    sectionTitle: {
-      fontSize: ms(16),
-      fontWeight: "700",
-      color: colors.tertiary[500],
-      marginBottom: ms(12),
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-    timeSlotContainer: {
-      flexDirection: "row",
-      flexWrap: "wrap",
-      gap: ms(8),
-      marginTop: ms(12),
-    },
-    timeSlotButton: {
-      backgroundColor: colors.primary[50],
-      borderRadius: ms(12),
-      paddingHorizontal: ms(16),
-      paddingVertical: ms(12),
-      borderWidth: 1.5,
-      borderColor: colors.secondary[200],
-      flex: 0.48,
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    timeSlotButtonActive: {
-      backgroundColor: colors.secondary[400],
-      borderColor: colors.secondary[500],
-    },
-    timeSlotButtonDisabled: {
-      opacity: 0.6,
-      backgroundColor: colors.tertiary[100],
-    },
-    timeSlotText: {
-      fontSize: ms(14),
-      color: colors.tertiary[500],
-      fontWeight: "600",
-      textAlign: 'center',
-    },
-    timeSlotTextActive: {
-      color: colors.primary[50],
-      fontWeight: "700",
-    },
-    timeSlotTextDisabled: {
-      color: colors.tertiary[400],
-    },
-    errorMessage: {
-      color: colors.danger[600],
-      fontSize: ms(12),
-      marginTop: ms(8),
-      fontWeight: "500",
-      backgroundColor: colors.danger[50],
-      paddingHorizontal: ms(12),
-      paddingVertical: ms(8),
-      borderRadius: ms(8),
-      textAlign: "center",
-      borderLeftWidth: ms(3),
-      borderLeftColor: colors.danger[400],
-    },
-    actions: {
-      flexDirection: "row",
-      gap: ms(12),
-      padding: ms(20),
-      paddingBottom: Platform.OS === 'ios' ? ms(34) : ms(20),
-      borderTopWidth: 1,
-      borderTopColor: colors.tertiary[200],
-      backgroundColor: colors.primary[50],
-    },
-    button: {
-      flex: 1,
-      borderRadius: ms(12),
-      paddingVertical: ms(14),
-      alignItems: "center",
-      justifyContent: "center",
-      minHeight: ms(48),
-    },
-    cancelButton: {
-      backgroundColor: colors.primary[50],
-      borderWidth: 1.5,
-      borderColor: colors.tertiary[300],
-    },
-    confirmButton: {
-      backgroundColor: colors.secondary[400],
-      borderWidth: 1,
-      borderColor: colors.secondary[500],
-    },
-    buttonText: {
-      fontSize: ms(15),
-      fontWeight: "700",
-      textAlign: 'center',
-    },
-    cancelButtonText: {
-      color: colors.tertiary[500],
-    },
-    confirmButtonText: {
-      color: colors.primary[50],
-    },
-    loadingContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    loadingText: {
-      marginLeft: ms(8),
-      fontSize: ms(15),
-      fontWeight: "700",
-      color: colors.primary[50],
-    },
-    reservationInfoContainer: {
-      marginTop: ms(8),
-    },
     reservationInfoRow: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
+      flexDirection: "row" as const,
+      justifyContent: "space-between" as const,
+      alignItems: "center" as const,
       marginBottom: ms(12),
       paddingVertical: ms(4),
     },
     reservationInfoLabel: {
       fontSize: ms(14),
-      fontWeight: "600",
+      fontWeight: "600" as const,
       color: colors.tertiary[600],
       flex: 1,
     },
     reservationInfoValue: {
       fontSize: ms(14),
-      fontWeight: "500",
+      fontWeight: "500" as const,
       color: colors.tertiary[500],
       flex: 1,
-      textAlign: "right",
+      textAlign: "right" as const,
     },
     statusBadge: {
       paddingHorizontal: ms(12),
       paddingVertical: ms(6),
       borderRadius: ms(20),
-      alignSelf: "flex-end",
+      alignSelf: "flex-end" as const,
     },
     statusText: {
       fontSize: ms(12),
-      fontWeight: "700",
+      fontWeight: "700" as const,
       color: colors.primary[50],
-      textAlign: "center",
+      textAlign: "center" as const,
     },
-  });
+
+    // Error display
+    errorContainer: {
+      backgroundColor: colors.danger[50],
+      borderWidth: 1,
+      borderColor: colors.danger[200],
+      borderRadius: ms(12),
+      padding: ms(12),
+      marginHorizontal: ms(24),
+      marginBottom: ms(12),
+      flexDirection: "row" as const,
+      alignItems: "center" as const,
+    },
+    errorText: {
+      fontSize: ms(13),
+      fontWeight: "600" as const,
+      color: colors.danger[600],
+      flex: 1,
+      marginLeft: ms(6),
+    },
+
+    // Actions
+    actions: {
+      paddingHorizontal: ms(24),
+      paddingTop: ms(12),
+      paddingBottom: ms(24),
+      backgroundColor: colors.background,
+      borderTopWidth: 1,
+      borderTopColor: colors.tertiary[200] + "30",
+    },
+    button: {
+      paddingVertical: ms(12),
+      borderRadius: ms(12),
+      alignItems: "center" as const,
+      justifyContent: "center" as const,
+      marginBottom: ms(8),
+      shadowColor: colors.text,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.08,
+      shadowRadius: 6,
+      elevation: 3,
+    },
+    confirmButton: {
+      backgroundColor: colors.secondary[500],
+    },
+    cancelButton: {
+      backgroundColor: colors.tertiary[100],
+      borderWidth: 1,
+      borderColor: colors.tertiary[300],
+    },
+    buttonText: {
+      fontSize: ms(14),
+      fontWeight: "700" as const,
+    },
+    confirmButtonText: {
+      color: colors.primary[50],
+    },
+    cancelButtonText: {
+      color: colors.tertiary[600],
+    },
+    loadingContainer: {
+      flexDirection: "row" as const,
+      alignItems: "center" as const,
+      justifyContent: "center" as const,
+    },
+    loadingText: {
+      marginLeft: ms(8),
+      color: colors.primary[50],
+    },
+  };
+
+  // Render form inputs for create mode
+  const renderFormInputs = () => (
+    <>
+      {/* Date Selection */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>
+          <FontAwesomeIcon
+            icon={faCalendar}
+            size={ms(14)}
+            color={colors.secondary[500]}
+          />
+          {" "}Date de retrait
+        </Text>
+        <Input
+          control={control}
+          name="pickupDate"
+          placeholder="JJ/MM/AAAA"
+          rules={{
+            required: "La date de retrait est obligatoire",
+            pattern: {
+              value: /^(\d{2})\/(\d{2})\/(\d{4})$/,
+              message: "Format de date invalide (JJ/MM/AAAA)"
+            }
+          }}
+          type={InputType.Date}
+          leftLogo={faCalendar}
+          editable={true}
+        />
+      </View>
+
+      {/* Time Slot Selection */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>
+          <FontAwesomeIcon
+            icon={faClock}
+            size={ms(14)}
+            color={colors.secondary[500]}
+          />
+          {" "}Créneau horaire
+        </Text>
+        <View style={styles.timeSlotsContainer}>
+          {timeSlots.map((slot) => (
+            <TouchableOpacity
+              key={slot.value}
+              style={[
+                styles.timeSlotButton,
+                watchedTimeSlot === slot.value && styles.timeSlotButtonSelected,
+              ]}
+              onPress={() => onTimeSlotSelect(slot.value)}
+              activeOpacity={0.7}
+            >
+              <FontAwesomeIcon
+                icon={faClock}
+                size={ms(16)}
+                color={
+                  watchedTimeSlot === slot.value
+                    ? colors.secondary[500]
+                    : colors.tertiary[400]
+                }
+              />
+              <Text
+                style={[
+                  styles.timeSlotButtonText,
+                  watchedTimeSlot === slot.value && styles.timeSlotButtonTextSelected,
+                ]}
+              >
+                {slot.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+
+      {/* Customer Information */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>
+          <FontAwesomeIcon
+            icon={faUser}
+            size={ms(14)}
+            color={colors.secondary[500]}
+          />
+          {" "}Informations du client
+        </Text>
+        
+        <View style={styles.clientInfoInput}>
+          <Input
+            control={control}
+            name="customerName"
+            placeholder="Nom complet"
+            rules={{ required: "Le nom est obligatoire" }}
+            type={InputType.Name}
+            leftLogo={faUser}
+            editable={true}
+          />
+        </View>
+        
+        <View style={styles.clientInfoInput}>
+          <Input
+            control={control}
+            name="customerPhone"
+            placeholder="Numéro de téléphone"
+            rules={{ 
+              required: "Le téléphone est obligatoire",
+              pattern: {
+                value: /^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$/,
+                message: "Numéro de téléphone invalide"
+              }
+            }}
+            type={InputType.PhoneNumber}
+            leftLogo={faPhone}
+            editable={true}
+          />
+        </View>
+        
+        <View style={styles.clientInfoInput}>
+          <Input
+            control={control}
+            name="customerEmail"
+            placeholder="Adresse email"
+            rules={{ 
+              required: "L'email est obligatoire",
+              pattern: {
+                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                message: "Adresse email invalide"
+              }
+            }}
+            type={InputType.EmailAddress}
+            leftLogo={faEnvelope}
+            editable={true}
+          />
+        </View>
+      </View>
+
+      {/* Notes */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>
+          <FontAwesomeIcon
+            icon={faStickyNote}
+            size={ms(14)}
+            color={colors.secondary[500]}
+          />
+          {" "}Remarques (optionnel)
+        </Text>
+        <Input
+          control={control}
+          name="notes"
+          placeholder="Ajoutez vos remarques..."
+          rules={{}}
+          type={InputType.Message}
+          multiline={true}
+          numberOfLines={3}
+          leftLogo={faStickyNote}
+          editable={true}
+        />
+      </View>
+    </>
+  );
+
+  // Render reservation info for view mode
+  const renderReservationInfo = () => {
+    if (!existingReservation) return null;
+
+    return (
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>
+          <FontAwesomeIcon
+            icon={faEye}
+            size={ms(14)}
+            color={colors.secondary[500]}
+          />
+          {" "}Informations de la réservation
+        </Text>
+        
+        <View style={styles.reservationInfoContainer}>
+          <View style={styles.reservationInfoRow}>
+            <Text style={styles.reservationInfoLabel}>Date de retrait :</Text>
+            <Text style={styles.reservationInfoValue}>
+              {existingReservation.pickupDate 
+                ? new Date(existingReservation.pickupDate).toLocaleDateString('fr-FR')
+                : 'Non définie'
+              }
+            </Text>
+          </View>
+          
+          <View style={styles.reservationInfoRow}>
+            <Text style={styles.reservationInfoLabel}>Créneau :</Text>
+            <Text style={styles.reservationInfoValue}>
+              {existingReservation.pickupTimeSlot || 'Non défini'}
+            </Text>
+          </View>
+          
+          <View style={styles.reservationInfoRow}>
+            <Text style={styles.reservationInfoLabel}>Client :</Text>
+            <Text style={styles.reservationInfoValue}>
+              {existingReservation.customerName || 'Non défini'}
+            </Text>
+          </View>
+          
+          <View style={styles.reservationInfoRow}>
+            <Text style={styles.reservationInfoLabel}>Téléphone :</Text>
+            <Text style={styles.reservationInfoValue}>
+              {existingReservation.customerPhone || 'Non défini'}
+            </Text>
+          </View>
+          
+          <View style={styles.reservationInfoRow}>
+            <Text style={styles.reservationInfoLabel}>Email :</Text>
+            <Text style={styles.reservationInfoValue}>
+              {existingReservation.customerEmail || 'Non défini'}
+            </Text>
+          </View>
+          
+          {existingReservation.notes && (
+            <View style={styles.reservationInfoRow}>
+              <Text style={styles.reservationInfoLabel}>Remarques :</Text>
+              <Text style={styles.reservationInfoValue}>
+                {existingReservation.notes}
+              </Text>
+            </View>
+          )}
+          
+          <View style={[styles.statusBadge, { backgroundColor: getStatusColor(existingReservation.status) }]}>
+            <Text style={styles.statusText}>
+              {getStatusText(existingReservation.status)}
+            </Text>
+          </View>
+        </View>
+      </View>
+    );
+  };
+
+  // Main content rendering
+  const renderContent = () => {
+    return (
+      <ScrollView
+        style={styles.content}
+        showsVerticalScrollIndicator={false}
+        bounces={true}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={styles.scrollContent}
+      >
+        {mode === 'view' ? renderReservationInfo() : renderFormInputs()}
+      </ScrollView>
+    );
+  };
 
   return (
     <Modal
       visible={visible}
-      transparent={true}
+      transparent
       animationType="none"
       onRequestClose={onClose}
-      statusBarTranslucent={true}
+      statusBarTranslucent
     >
-      <TouchableWithoutFeedback onPress={onClose}>
-        <View style={styles.overlay}>
-          <TouchableWithoutFeedback onPress={() => {}}>
-            <View style={styles.container}>
-              <View style={styles.handle} />
-              
-              <View style={styles.header}>
-                <Text style={styles.title}>
-                  {mode === 'view' ? 'Détails de la réservation' : 'Réserver pour retrait'}
-                </Text>
-                <TouchableOpacity
-                  style={styles.closeButton}
-                  onPress={onClose}
-                  activeOpacity={0.7}
-                >
+      <StatusBar
+        backgroundColor="transparent"
+        barStyle="light-content"
+      />
+
+      <Animated.View style={[styles.modalOverlay, { opacity: fadeAnim }]}>
+        <TouchableOpacity
+          style={{ flex: 1 }}
+          activeOpacity={1}
+          onPress={onClose}
+        />
+
+        <Animated.View
+          style={[
+            styles.modalContainer,
+            { transform: [{ translateY: slideAnim }] },
+          ]}
+        >
+          {/* Header */}
+          <View style={styles.header}>
+            <View style={styles.dragIndicator} />
+
+            <View style={styles.headerContent}>
+              <View style={styles.headerLeft}>
+                <View style={styles.headerIconContainer}>
                   <FontAwesomeIcon
-                    icon={faTimes}
-                    size={ms(16)}
-                    color={colors.tertiary[500]}
-                  />
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.content}>
-                <ScrollView
-                  showsVerticalScrollIndicator={false}
-                  keyboardShouldPersistTaps="handled"
-                  bounces={true}
-                  keyboardDismissMode="on-drag"
-                  contentContainerStyle={styles.scrollContent}
-                  nestedScrollEnabled={true}
-                  scrollEventThrottle={16}
-                  contentInsetAdjustmentBehavior="automatic"
-                >
-                {mode === 'view' && existingReservation && (
-                  <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>
-                      <FontAwesomeIcon
-                        icon={faEye}
-                        size={ms(14)}
-                        color={colors.secondary[500]}
-                      />
-                      {" "}Informations de la réservation
-                    </Text>
-                    
-                    <View style={styles.reservationInfoContainer}>
-                      <View style={styles.reservationInfoRow}>
-                        <Text style={styles.reservationInfoLabel}>Statut :</Text>
-                        <View style={[styles.statusBadge, { backgroundColor: getStatusColor(existingReservation.status) }]}>
-                          <Text style={styles.statusText}>{getStatusText(existingReservation.status)}</Text>
-                        </View>
-                      </View>
-                      
-                      <View style={styles.reservationInfoRow}>
-                        <Text style={styles.reservationInfoLabel}>Créée le :</Text>
-                        <Text style={styles.reservationInfoValue}>
-                          {new Date(existingReservation.createdAt).toLocaleDateString('fr-FR', {
-                            day: '2-digit',
-                            month: '2-digit', 
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </Text>
-                      </View>
-                      
-                      {existingReservation.cart && (
-                        <View style={styles.reservationInfoRow}>
-                          <Text style={styles.reservationInfoLabel}>Panier :</Text>
-                          <Text style={styles.reservationInfoValue}>#{existingReservation.cartId}</Text>
-                        </View>
-                      )}
-                    </View>
-                  </View>
-                )}
-                
-                <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>
-                    <FontAwesomeIcon
-                      icon={faCalendarAlt}
-                      size={ms(14)}
-                      color={colors.secondary[500]}
-                    />
-                    {" "}Informations de retrait
-                  </Text>
-                  
-                  <Input
-                    name="pickupDate"
-                    control={control}
-                    type={InputType.DATE}
-                    label="Date de retrait *"
-                    placeholder="JJ/MM/AAAA"
-                    leftLogo={faCalendarAlt}
-                    editable={mode === 'create'}
-                    rules={mode === 'create' ? {
-                      required: 'La date de retrait est obligatoire',
-                      pattern: {
-                        value: /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/,
-                        message: 'Format attendu: JJ/MM/AAAA'
-                      },
-                      validate: {
-                        validDate: (value: string) => {
-                          if (!value) return true;
-                          const [day, month, year] = value.split('/').map(Number);
-                          const date = new Date(year, month - 1, day);
-                          const isValidDate = 
-                            date.getFullYear() === year &&
-                            date.getMonth() === month - 1 &&
-                            date.getDate() === day;
-                          const isNotPast = date >= new Date(new Date().setHours(0, 0, 0, 0));
-                          
-                          if (!isValidDate) return 'Date invalide';
-                          if (!isNotPast) return 'La date ne peut pas être dans le passé';
-                          return true;
-                        }
-                      }
-                    } : {}}
-                  />
-
-                  <View style={{ marginTop: ms(12) }}>
-                    <Text style={styles.sectionTitle}>Créneau horaire *</Text>
-                    <View style={styles.timeSlotContainer}>
-                      {timeSlots.map((slot) => (
-                        <TouchableOpacity
-                          key={slot.value}
-                          style={[
-                            styles.timeSlotButton,
-                            watchedTimeSlot === slot.value && styles.timeSlotButtonActive,
-                            mode === 'view' && styles.timeSlotButtonDisabled,
-                          ]}
-                          onPress={mode === 'create' ? () => onTimeSlotSelect(slot.value) : undefined}
-                          disabled={mode === 'view'}
-                          activeOpacity={mode === 'create' ? 0.8 : 1}
-                        >
-                          <Text
-                            style={[
-                              styles.timeSlotText,
-                              watchedTimeSlot === slot.value && styles.timeSlotTextActive,
-                              mode === 'view' && styles.timeSlotTextDisabled,
-                            ]}
-                          >
-                            {slot.label}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </View>
-                    {!watchedTimeSlot && mode === 'create' && (
-                      <Text style={styles.errorMessage}>
-                        ⚠️ Veuillez sélectionner un créneau horaire
-                      </Text>
-                    )}
-                  </View>
-                </View>
-
-                <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>
-                    <FontAwesomeIcon
-                      icon={faUser}
-                      size={ms(14)}
-                      color={colors.secondary[500]}
-                    />
-                    {" "}Informations de contact
-                  </Text>
-
-                  <Input
-                    name="customerName"
-                    control={control}
-                    type={InputType.DEFAULT}
-                    label="Nom complet *"
-                    placeholder="Votre nom complet"
-                    leftLogo={faUser}
-                    editable={mode === 'create'}
-                    rules={mode === 'create' ? {
-                      required: 'Le nom est obligatoire',
-                      minLength: {
-                        value: 2,
-                        message: 'Le nom doit contenir au moins 2 caractères'
-                      }
-                    } : {}}
-                  />
-
-                  <Input
-                    name="customerPhone"
-                    control={control}
-                    type={InputType.NUMERIC}
-                    label="Téléphone *"
-                    placeholder="Votre numéro de téléphone"
-                    leftLogo={faPhone}
-                    editable={mode === 'create'}
-                    rules={mode === 'create' ? {
-                      required: 'Le téléphone est obligatoire',
-                      pattern: {
-                        value: /^[0-9+\-\s()]+$/,
-                        message: 'Format de téléphone invalide'
-                      }
-                    } : {}}
-                  />
-
-                  <Input
-                    name="customerEmail"
-                    control={control}
-                    type={InputType.EMAIL_ADDRESS}
-                    label="Email *"
-                    placeholder="Votre adresse email"
-                    leftLogo={faEnvelope}
-                    editable={mode === 'create'}
-                    rules={mode === 'create' ? {
-                      required: 'L\'email est obligatoire',
-                      pattern: {
-                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                        message: 'Format d\'email invalide'
-                      }
-                    } : {}}
+                    icon={faCalendarAlt}
+                    size={ms(20)}
+                    color={colors.secondary[500]}
                   />
                 </View>
-
-                <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>
-                    <FontAwesomeIcon
-                      icon={faStickyNote}
-                      size={ms(14)}
-                      color={colors.secondary[500]}
-                    />
-                    {mode === 'view' ? " Notes de la réservation" : " Notes optionnelles"}
+                <View style={styles.headerTitles}>
+                  <Text style={styles.headerTitle}>
+                    {mode === 'view' ? 'Réservation' : 'Nouvelle Réservation'}
                   </Text>
-
-                  <Input
-                    name="notes"
-                    control={control}
-                    type={InputType.TEXTAREA}
-                    label={mode === 'view' ? "Instructions particulières laissées" : "Instructions particulières"}
-                    placeholder={mode === 'view' ? "Aucune note spécifique" : "Ajoutez des instructions particulières pour le retrait..."}
-                    multiline={true}
-                    numberOfLines={mode === 'view' ? 4 : 3}
-                    leftLogo={faStickyNote}
-                    editable={mode === 'create'}
-                  />
+                  <Text style={styles.headerSubtitle}>
+                    {mode === 'view' 
+                      ? `ID: ${existingReservation?.id || 'N/A'}`
+                      : 'Réservez vos produits pour un retrait'
+                    }
+                  </Text>
                 </View>
-                </ScrollView>
               </View>
 
-              <View style={styles.actions}>
-                {mode === 'view' ? (
-                  <TouchableOpacity
-                    style={[styles.button, styles.confirmButton]}
-                    onPress={onClose}
-                    activeOpacity={0.8}
-                  >
-                    <Text style={[styles.buttonText, styles.confirmButtonText]}>
-                      Fermer
-                    </Text>
-                  </TouchableOpacity>
-                ) : (
-                  <>
-                    <TouchableOpacity
-                      style={[styles.button, styles.cancelButton]}
-                      onPress={onClose}
-                      activeOpacity={0.8}
-                    >
-                      <Text style={[styles.buttonText, styles.cancelButtonText]}>
-                        Annuler
-                      </Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={[
-                        styles.button, 
-                        styles.confirmButton,
-                        isCreatingReservation && { opacity: 0.7 }
-                      ]}
-                      onPress={onSubmit}
-                      disabled={isCreatingReservation}
-                      activeOpacity={0.8}
-                    >
-                      {isCreatingReservation ? (
-                        <View style={styles.loadingContainer}>
-                          <ActivityIndicator size="small" color={colors.primary[50]} />
-                          <Text style={[styles.buttonText, styles.loadingText]}>
-                            Traitement...
-                          </Text>
-                        </View>
-                      ) : (
-                        <Text style={[styles.buttonText, styles.confirmButtonText]}>
-                          ✓ Confirmer
-                        </Text>
-                      )}
-                    </TouchableOpacity>
-                  </>
-                )}
-              </View>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={onClose}
+                activeOpacity={0.7}
+              >
+                <FontAwesomeIcon
+                  icon={faTimes}
+                  size={ms(18)}
+                  color={colors.tertiary[600]}
+                />
+              </TouchableOpacity>
             </View>
-          </TouchableWithoutFeedback>
-        </View>
-      </TouchableWithoutFeedback>
+          </View>
+
+          {/* Content */}
+          {renderContent()}
+
+          {/* Error Display */}
+          {Object.keys(errors).length > 0 && mode === 'create' && (
+            <View style={styles.errorContainer}>
+              <FontAwesomeIcon
+                icon={faExclamationTriangle}
+                size={ms(16)}
+                color={colors.danger[500]}
+              />
+              <Text style={styles.errorText}>
+                Veuillez corriger les erreurs dans le formulaire
+              </Text>
+            </View>
+          )}
+
+          {/* Actions */}
+          <View style={styles.actions}>
+            {mode === 'view' ? (
+              <TouchableOpacity
+                style={[styles.button, styles.confirmButton]}
+                onPress={onClose}
+                activeOpacity={0.8}
+              >
+                <Text style={[styles.buttonText, styles.confirmButtonText]}>
+                  Fermer
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <>
+                <TouchableOpacity
+                  style={[styles.button, styles.cancelButton]}
+                  onPress={onClose}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[styles.buttonText, styles.cancelButtonText]}>
+                    Annuler
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.button,
+                    styles.confirmButton,
+                    isCreatingReservation && { opacity: 0.7 }
+                  ]}
+                  onPress={onSubmit}
+                  disabled={isCreatingReservation}
+                  activeOpacity={0.8}
+                >
+                  {isCreatingReservation ? (
+                    <View style={styles.loadingContainer}>
+                      <ActivityIndicator size="small" color={colors.primary[50]} />
+                      <Text style={[styles.buttonText, styles.loadingText]}>
+                        Traitement...
+                      </Text>
+                    </View>
+                  ) : (
+                    <Text style={[styles.buttonText, styles.confirmButtonText]}>
+                      ✓ Confirmer la réservation
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
+        </Animated.View>
+      </Animated.View>
     </Modal>
   );
 };
 
-export default ReservationModalPresenter; 
+export default ReservationModalPresenter;

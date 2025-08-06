@@ -16,19 +16,19 @@ const SectionHeaderPresenter: React.FC<SectionHeaderProps> = ({
   const colors = useColors();
 
   const dynamicStyles = StyleSheet.create({
-    // Modern header with tertiary colors
+    // Compact modern header with tertiary colors
     headerContainer: {
       backgroundColor: colors.tertiary[500], // Using tertiary color
-      paddingHorizontal: ms(20),
-      paddingTop: ms(16),
-      paddingBottom: ms(20),
-      borderBottomLeftRadius: ms(24),
-      borderBottomRightRadius: ms(24),
+      paddingHorizontal: ms(16),
+      paddingTop: ms(10),
+      paddingBottom: ms(12),
+      borderBottomLeftRadius: ms(20),
+      borderBottomRightRadius: ms(20),
       shadowColor: colors.tertiary[400],
-      shadowOffset: { width: 0, height: ms(6) },
-      shadowOpacity: 0.12,
-      shadowRadius: ms(12),
-      elevation: 8,
+      shadowOffset: { width: 0, height: ms(4) },
+      shadowOpacity: 0.10,
+      shadowRadius: ms(8),
+      elevation: 6,
     },
     headerContent: {
       flexDirection: "row",
@@ -42,45 +42,45 @@ const SectionHeaderPresenter: React.FC<SectionHeaderProps> = ({
     },
     headerIcon: {
       backgroundColor: colors.tertiary[100],
-      width: ms(40),
-      height: ms(40),
-      borderRadius: ms(20),
+      width: ms(32),
+      height: ms(32),
+      borderRadius: ms(16),
       justifyContent: "center",
       alignItems: "center",
-      marginRight: ms(12),
+      marginRight: ms(10),
     },
     headerTextContainer: {
       flex: 1,
     },
     headerTitle: {
       color: colors.primary[50],
-      fontSize: ms(20),
+      fontSize: ms(18),
       fontWeight: "800",
-      letterSpacing: ms(0.3),
+      letterSpacing: ms(0.2),
     },
     headerSubtitle: {
       color: colors.tertiary[200],
-      fontSize: ms(12),
+      fontSize: ms(11),
       fontWeight: "500",
-      marginTop: ms(2),
+      marginTop: ms(1),
     },
     headerBadge: {
       backgroundColor: colors[badgeColor][500],
-      minWidth: ms(32),
-      height: ms(32),
-      borderRadius: ms(16),
+      minWidth: ms(28),
+      height: ms(28),
+      borderRadius: ms(14),
       justifyContent: "center",
       alignItems: "center",
-      paddingHorizontal: ms(10),
+      paddingHorizontal: ms(8),
       shadowColor: colors[badgeColor][400],
-      shadowOffset: { width: 0, height: ms(3) },
-      shadowOpacity: 0.25,
-      shadowRadius: ms(6),
-      elevation: 5,
+      shadowOffset: { width: 0, height: ms(2) },
+      shadowOpacity: 0.20,
+      shadowRadius: ms(4),
+      elevation: 4,
     },
     headerBadgeText: {
       color: colors.primary[50],
-      fontSize: ms(14),
+      fontSize: ms(12),
       fontWeight: "700",
     },
   });
@@ -92,7 +92,7 @@ const SectionHeaderPresenter: React.FC<SectionHeaderProps> = ({
           <View style={dynamicStyles.headerIcon}>
             <FontAwesomeIcon
               icon={icon}
-              size={ms(20)}
+              size={ms(16)}
               color={colors.tertiary[500]}
             />
           </View>

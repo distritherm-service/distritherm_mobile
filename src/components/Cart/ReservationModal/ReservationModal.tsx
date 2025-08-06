@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
-import { Alert } from "react-native";
+import { Alert, Animated, Dimensions } from "react-native";
 import { CreateReservationDto, EReservation } from "src/types/Reservation";
 import ReservationModalPresenter from "./ReservationModalPresenter";
+
+const { height: screenHeight } = Dimensions.get("window");
 
 // Form data interface
 export interface ReservationFormData {
@@ -33,6 +35,10 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
   onClose,
   onCreateReservation,
 }) => {
+  // Animation values
+  const slideAnim = useRef(new Animated.Value(screenHeight)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
   // Helper function to get default values
   const getDefaultValues = (): ReservationFormData => {
     if (existingReservation && mode === 'view') {
@@ -75,6 +81,37 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
     { label: '09:00-12:00', value: '09:00-12:00' },
     { label: '14:00-18:00', value: '14:00-18:00' },
   ];
+
+  // Modal animations
+  useEffect(() => {
+    if (visible) {
+      Animated.parallel([
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 450,
+          useNativeDriver: true,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 350,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      Animated.parallel([
+        Animated.timing(slideAnim, {
+          toValue: screenHeight,
+          duration: 350,
+          useNativeDriver: true,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [visible, slideAnim, fadeAnim]);
 
   // Reset form when modal closes or data changes
   React.useEffect(() => {
@@ -130,6 +167,9 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
       isCreatingReservation={isCreatingReservation}
       existingReservation={existingReservation}
       mode={mode}
+      errors={errors}
+      slideAnim={slideAnim}
+      fadeAnim={fadeAnim}
       onClose={onClose}
       onSubmit={handleSubmit(onSubmit)}
       onTimeSlotSelect={handleTimeSlotSelect}
