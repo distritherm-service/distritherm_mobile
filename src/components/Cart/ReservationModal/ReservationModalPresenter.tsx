@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { useRef, useEffect } from "react";
+import React from "react";
 import {
   StyleSheet,
   View,
@@ -13,6 +13,8 @@ import {
   Dimensions,
   StatusBar,
   RefreshControl,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { ms } from "react-native-size-matters";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
@@ -27,6 +29,8 @@ import {
   faClock,
   faCalendar,
   faExclamationTriangle,
+  faChevronUp,
+  faChevronDown,
 } from "@fortawesome/free-solid-svg-icons";
 import { Control } from "react-hook-form";
 import Input from "src/components/Input/Input";
@@ -80,9 +84,18 @@ interface ReservationModalPresenterProps {
   errors: any;
   slideAnim: Animated.Value;
   fadeAnim: Animated.Value;
+  modalHeight: number;
+  scrollIndicator: {
+    showTop: boolean;
+    showBottom: boolean;
+  };
+  scrollViewRef: React.RefObject<ScrollView | null>;
   onClose: () => void;
   onSubmit: () => void;
   onTimeSlotSelect: (timeSlot: string) => void;
+  onScroll: (event: any) => void;
+  onScrollToTop: () => void;
+  onScrollToBottom: () => void;
 }
 
 const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
@@ -96,15 +109,17 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
   errors,
   slideAnim,
   fadeAnim,
+  modalHeight,
+  scrollIndicator,
+  scrollViewRef,
   onClose,
   onSubmit,
   onTimeSlotSelect,
+  onScroll,
+  onScrollToTop,
+  onScrollToBottom,
 }) => {
   const colors = useColors();
-
-  // Calculate available height for modal (screen - statusbar)
-  const statusBarHeight = StatusBar.currentHeight || 0;
-  const availableHeight = screenHeight - statusBarHeight;
 
   // Modern, elegant styles inspired by DevisFicheProduct
   const styles = {
@@ -122,8 +137,8 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
       backgroundColor: colors.background,
       borderTopLeftRadius: ms(32),
       borderTopRightRadius: ms(32),
-      maxHeight: availableHeight * 0.85,
-      height: availableHeight * 0.85,
+      maxHeight: modalHeight,
+      height: modalHeight,
       shadowColor: "#0f172a",
       shadowOffset: { width: 0, height: -12 },
       shadowOpacity: 0.35,
@@ -211,7 +226,6 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
     },
     scrollContent: {
       paddingHorizontal: ms(24),
-      paddingBottom: ms(100), // Extra space for keyboard
       flexGrow: 1,
     },
 
@@ -372,6 +386,46 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
     loadingText: {
       marginLeft: ms(8),
       color: colors.primary[50],
+    },
+
+    // Scroll indicators
+    scrollIndicatorContainer: {
+      position: "absolute" as const,
+      right: ms(8),
+      top: "50%" as const,
+      transform: [{ translateY: -ms(40) }],
+      zIndex: 60,
+      flexDirection: "column" as const,
+      alignItems: "center" as const,
+      gap: ms(8),
+    },
+    scrollIndicator: {
+      width: ms(32),
+      height: ms(32),
+      borderRadius: ms(16),
+      backgroundColor: colors.secondary[500] + "90",
+      justifyContent: "center" as const,
+      alignItems: "center" as const,
+      shadowColor: colors.text,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.15,
+      shadowRadius: 4,
+      elevation: 4,
+    },
+    scrollIndicatorHidden: {
+      opacity: 0,
+      transform: [{ scale: 0.8 }],
+    },
+    scrollIndicatorVisible: {
+      opacity: 1,
+      transform: [{ scale: 1 }],
+    },
+
+    // KeyboardAvoidingView
+    keyboardAvoidingView: {
+      flex: 0,
+      justifyContent: "flex-end" as const,
+      width: "100%" as const,
     },
   };
 
@@ -616,22 +670,73 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
   // Main content rendering
   const renderContent = () => {
     return (
-      <ScrollView
-        style={styles.content}
-        showsVerticalScrollIndicator={false}
-        bounces={true}
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={styles.scrollContent}
-        nestedScrollEnabled={false}
-        scrollEventThrottle={16}
-        removeClippedSubviews={false}
-        keyboardDismissMode="interactive"
-        automaticallyAdjustKeyboardInsets={true}
-        contentInsetAdjustmentBehavior="automatic"
-        scrollEnabled={true}
-      >
-        {mode === "view" ? renderReservationInfo() : renderFormInputs()}
-      </ScrollView>
+      <>
+        <ScrollView
+          ref={scrollViewRef}
+          style={styles.content}
+          showsVerticalScrollIndicator={false}
+          bounces={true}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={styles.scrollContent}
+          nestedScrollEnabled={false}
+          scrollEventThrottle={16}
+          removeClippedSubviews={false}
+          keyboardDismissMode="on-drag"
+          automaticallyAdjustKeyboardInsets={false}
+          contentInsetAdjustmentBehavior="never"
+          scrollEnabled={true}
+          onScroll={onScroll}
+          maintainVisibleContentPosition={{
+            minIndexForVisible: 0,
+            autoscrollToTopThreshold: 10,
+          }}
+        >
+          {mode === "view" ? renderReservationInfo() : renderFormInputs()}
+        </ScrollView>
+
+        {/* Scroll Indicators */}
+        <View style={styles.scrollIndicatorContainer}>
+          <Animated.View
+            style={[
+              styles.scrollIndicator,
+              scrollIndicator.showTop 
+                ? styles.scrollIndicatorVisible 
+                : styles.scrollIndicatorHidden,
+            ]}
+          >
+            <TouchableOpacity
+              onPress={onScrollToTop}
+              activeOpacity={0.7}
+            >
+              <FontAwesomeIcon
+                icon={faChevronUp}
+                size={ms(14)}
+                color={colors.primary[50]}
+              />
+            </TouchableOpacity>
+          </Animated.View>
+
+          <Animated.View
+            style={[
+              styles.scrollIndicator,
+              scrollIndicator.showBottom 
+                ? styles.scrollIndicatorVisible 
+                : styles.scrollIndicatorHidden,
+            ]}
+          >
+            <TouchableOpacity
+              onPress={onScrollToBottom}
+              activeOpacity={0.7}
+            >
+              <FontAwesomeIcon
+                icon={faChevronDown}
+                size={ms(14)}
+                color={colors.primary[50]}
+              />
+            </TouchableOpacity>
+          </Animated.View>
+        </View>
+      </>
     );
   };
 
@@ -653,122 +758,128 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
           onPress={onClose}
         />
 
-        <Animated.View
-          style={[
-            styles.modalContainer,
-            { transform: [{ translateY: slideAnim }] },
-          ]}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={styles.keyboardAvoidingView}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
         >
-          {/* Header */}
-          <View style={styles.header}>
-            <View style={styles.dragIndicator} />
+          <Animated.View
+            style={[
+              styles.modalContainer,
+              { transform: [{ translateY: slideAnim }] },
+            ]}
+          >
+            {/* Header */}
+            <View style={styles.header}>
+              <View style={styles.dragIndicator} />
 
-            <View style={styles.headerContent}>
-              <View style={styles.headerLeft}>
-                <View style={styles.headerIconContainer}>
+              <View style={styles.headerContent}>
+                <View style={styles.headerLeft}>
+                  <View style={styles.headerIconContainer}>
+                    <FontAwesomeIcon
+                      icon={faCalendarAlt}
+                      size={ms(20)}
+                      color={colors.secondary[500]}
+                    />
+                  </View>
+                  <View style={styles.headerTitles}>
+                    <Text style={styles.headerTitle}>
+                      {mode === "view" ? "Réservation" : "Nouvelle Réservation"}
+                    </Text>
+                    <Text style={styles.headerSubtitle}>
+                      {mode === "view"
+                        ? `ID: ${existingReservation?.id || "N/A"}`
+                        : "Réservez vos produits pour un retrait"}
+                    </Text>
+                  </View>
+                </View>
+
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={onClose}
+                  activeOpacity={0.7}
+                >
                   <FontAwesomeIcon
-                    icon={faCalendarAlt}
-                    size={ms(20)}
-                    color={colors.secondary[500]}
+                    icon={faTimes}
+                    size={ms(18)}
+                    color={colors.tertiary[600]}
                   />
-                </View>
-                <View style={styles.headerTitles}>
-                  <Text style={styles.headerTitle}>
-                    {mode === "view" ? "Réservation" : "Nouvelle Réservation"}
-                  </Text>
-                  <Text style={styles.headerSubtitle}>
-                    {mode === "view"
-                      ? `ID: ${existingReservation?.id || "N/A"}`
-                      : "Réservez vos produits pour un retrait"}
-                  </Text>
-                </View>
+                </TouchableOpacity>
               </View>
+            </View>
 
-              <TouchableOpacity
-                style={styles.closeButton}
-                onPress={onClose}
-                activeOpacity={0.7}
-              >
+            {/* Content */}
+            {renderContent()}
+
+            {/* Error Display */}
+            {Object.keys(errors).length > 0 && mode === "create" && (
+              <View style={styles.errorContainer}>
                 <FontAwesomeIcon
-                  icon={faTimes}
-                  size={ms(18)}
-                  color={colors.tertiary[600]}
+                  icon={faExclamationTriangle}
+                  size={ms(16)}
+                  color={colors.danger[500]}
                 />
-              </TouchableOpacity>
-            </View>
-          </View>
+                <Text style={styles.errorText}>
+                  Veuillez corriger les erreurs dans le formulaire
+                </Text>
+              </View>
+            )}
 
-          {/* Content */}
-          {renderContent()}
-
-          {/* Error Display */}
-          {Object.keys(errors).length > 0 && mode === "create" && (
-            <View style={styles.errorContainer}>
-              <FontAwesomeIcon
-                icon={faExclamationTriangle}
-                size={ms(16)}
-                color={colors.danger[500]}
-              />
-              <Text style={styles.errorText}>
-                Veuillez corriger les erreurs dans le formulaire
-              </Text>
-            </View>
-          )}
-
-          {/* Actions */}
-              <View style={styles.actions}>
-            {mode === "view" ? (
+            {/* Actions */}
+            <View style={styles.actions}>
+              {mode === "view" ? (
+                <TouchableOpacity
+                  style={[styles.button, styles.confirmButton]}
+                  onPress={onClose}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[styles.buttonText, styles.confirmButtonText]}>
+                    Fermer
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <>
                   <TouchableOpacity
-                    style={[styles.button, styles.confirmButton]}
+                    style={[styles.button, styles.cancelButton]}
                     onPress={onClose}
                     activeOpacity={0.8}
                   >
-                    <Text style={[styles.buttonText, styles.confirmButtonText]}>
-                      Fermer
+                    <Text style={[styles.buttonText, styles.cancelButtonText]}>
+                      Annuler
                     </Text>
                   </TouchableOpacity>
-                ) : (
-                  <>
-                    <TouchableOpacity
-                      style={[styles.button, styles.cancelButton]}
-                      onPress={onClose}
-                      activeOpacity={0.8}
-                    >
-                      <Text style={[styles.buttonText, styles.cancelButtonText]}>
-                        Annuler
-                      </Text>
-                    </TouchableOpacity>
 
-                    <TouchableOpacity
-                      style={[
-                        styles.button, 
-                        styles.confirmButton,
-                    isCreatingReservation && { opacity: 0.7 },
-                      ]}
-                      onPress={onSubmit}
-                      disabled={isCreatingReservation}
-                      activeOpacity={0.8}
-                    >
-                      {isCreatingReservation ? (
-                        <View style={styles.loadingContainer}>
-                      <ActivityIndicator
-                        size="small"
-                        color={colors.primary[50]}
-                      />
-                          <Text style={[styles.buttonText, styles.loadingText]}>
-                            Traitement...
-                          </Text>
-                        </View>
-                      ) : (
-                        <Text style={[styles.buttonText, styles.confirmButtonText]}>
-                      ✓ Confirmer la réservation
+                  <TouchableOpacity
+                    style={[
+                      styles.button, 
+                      styles.confirmButton,
+                      isCreatingReservation && { opacity: 0.7 },
+                    ]}
+                    onPress={onSubmit}
+                    disabled={isCreatingReservation}
+                    activeOpacity={0.8}
+                  >
+                    {isCreatingReservation ? (
+                      <View style={styles.loadingContainer}>
+                        <ActivityIndicator
+                          size="small"
+                          color={colors.primary[50]}
+                        />
+                        <Text style={[styles.buttonText, styles.loadingText]}>
+                          Traitement...
                         </Text>
-                      )}
-                    </TouchableOpacity>
-                  </>
-                )}
-              </View>
-        </Animated.View>
+                      </View>
+                    ) : (
+                      <Text style={[styles.buttonText, styles.confirmButtonText]}>
+                        ✓ Confirmer la réservation
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                </>
+              )}
+            </View>
+          </Animated.View>
+        </KeyboardAvoidingView>
       </Animated.View>
     </Modal>
   );

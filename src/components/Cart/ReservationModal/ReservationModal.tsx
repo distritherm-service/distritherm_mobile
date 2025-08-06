@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Alert, Animated, Dimensions } from "react-native";
+import { Alert, Animated, Dimensions, Keyboard, ScrollView, StatusBar } from "react-native";
 import { CreateReservationDto, EReservation } from "src/types/Reservation";
 import ReservationModalPresenter from "./ReservationModalPresenter";
 
@@ -38,6 +38,23 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
   // Animation values
   const slideAnim = useRef(new Animated.Value(screenHeight)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  // Keyboard detection state
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+  // Scroll indicator state
+  const [scrollIndicator, setScrollIndicator] = useState({
+    showTop: false,
+    showBottom: false,
+  });
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  // Calculate available height and dynamic modal height
+  const statusBarHeight = StatusBar.currentHeight || 0;
+  const availableHeight = screenHeight - statusBarHeight;
+  const modalHeight = isKeyboardVisible 
+    ? availableHeight * 0.55  // Plus compact avec clavier pour laisser plus d'espace
+    : availableHeight * 0.85;
 
   // Helper function to get default values
   const getDefaultValues = (): ReservationFormData => {
@@ -81,6 +98,21 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
     { label: '09:00-12:00', value: '09:00-12:00' },
     { label: '14:00-18:00', value: '14:00-18:00' },
   ];
+
+  // Keyboard detection
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setIsKeyboardVisible(true);
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setIsKeyboardVisible(false);
+    });
+
+    return () => {
+      keyboardDidShowListener?.remove();
+      keyboardDidHideListener?.remove();
+    };
+  }, []);
 
   // Modal animations
   useEffect(() => {
@@ -158,6 +190,28 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
     setValue('pickupTimeSlot', timeSlot);
   };
 
+  // Handle scroll events for indicator
+  const handleScroll = (event: any) => {
+    const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
+    const scrollY = contentOffset.y;
+    const scrollHeight = contentSize.height;
+    const viewHeight = layoutMeasurement.height;
+
+    setScrollIndicator({
+      showTop: scrollY > 20,
+      showBottom: scrollY < scrollHeight - viewHeight - 20,
+    });
+  };
+
+  // Scroll functions
+  const scrollToTop = () => {
+    scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+  };
+
+  const scrollToBottom = () => {
+    scrollViewRef.current?.scrollToEnd({ animated: true });
+  };
+
   return (
     <ReservationModalPresenter
       visible={visible}
@@ -170,9 +224,15 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
       errors={errors}
       slideAnim={slideAnim}
       fadeAnim={fadeAnim}
+      modalHeight={modalHeight}
+      scrollIndicator={scrollIndicator}
+      scrollViewRef={scrollViewRef}
       onClose={onClose}
       onSubmit={handleSubmit(onSubmit)}
       onTimeSlotSelect={handleTimeSlotSelect}
+      onScroll={handleScroll}
+      onScrollToTop={scrollToTop}
+      onScrollToBottom={scrollToBottom}
     />
   );
 };

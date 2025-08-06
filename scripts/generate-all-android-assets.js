@@ -216,14 +216,20 @@ async function generateAllAndroidAssets() {
         <item name="android:windowIsTranslucent">true</item>
     </style>
 
-    <!-- Splash Screen Theme -->
-    <style name="Theme.App.SplashScreen" parent="AppTheme">
+    <!-- Splash Screen Theme - TOUJOURS CLAIR (ne s'adapte pas au mode sombre) -->
+    <style name="Theme.App.SplashScreen" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowBackground">@drawable/launch_screen</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowIsTranslucent">false</item>
+        <!-- Forcer le mode clair pour la barre de statut -->
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:statusBarColor">@android:color/white</item>
+        <!-- Forcer le mode clair pour la barre de navigation -->
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:navigationBarColor">@android:color/white</item>
     </style>
 
 </resources>`;
