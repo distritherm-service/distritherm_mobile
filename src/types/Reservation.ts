@@ -14,6 +14,7 @@ export type ReservationFilter = "ALL" | EReservationStatus;
 
 /**
  * Interface pour un élément de réservation (snapshot du produit)
+ * Note: totalHt et totalTtc sont calculés côté frontend: priceHt/priceTtc * quantity
  */
 export interface ReservationItem {
   id: number;
@@ -24,14 +25,13 @@ export interface ReservationItem {
   quantity: number;
   priceHt: number;
   priceTtc: number;
-  totalHt: number;
-  totalTtc: number;
   imageUrl?: string | null;
   createdAt: Date;
 }
 
 /**
  * Interface pour une réservation
+ * Note: totalHt et totalTtc sont calculés côté frontend à partir du panier associé
  */
 export interface EReservation {
   id: number;
@@ -43,13 +43,18 @@ export interface EReservation {
   customerPhone: string;
   customerEmail: string;
   notes?: string | null;
-  totalHt: number;
-  totalTtc: number;
   createdAt: Date;
   updatedAt: Date;
   cart?: {
     id: number;
     user?: any;
+    cartItems?: Array<{
+      id: number;
+      quantity: number;
+      priceHt: number;
+      priceTtc: number;
+      product?: any;
+    }>;
     [key: string]: any;
   };
   reservationItems?: ReservationItem[];

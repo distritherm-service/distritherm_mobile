@@ -10,6 +10,7 @@ export enum DevisStatus {
 
 /**
  * Interface pour un élément de devis (snapshot du produit)
+ * Note: totalHt et totalTtc sont calculés côté frontend: priceHt/priceTtc * quantity
  */
 export interface DevisItem {
   id: number;
@@ -20,14 +21,13 @@ export interface DevisItem {
   quantity: number;
   priceHt: number;
   priceTtc: number;
-  totalHt: number;
-  totalTtc: number;
   imageUrl?: string | null;
   createdAt: Date;
 }
 
 /**
  * Interface pour un devis
+ * Note: totalHt et totalTtc sont calculés côté frontend à partir du panier associé
  */
 export interface Devis {
   id: number;
@@ -38,11 +38,16 @@ export interface Devis {
   createdAt: Date;
   updatedAt: Date;
   cartId: number;
-  totalHt: number;
-  totalTtc: number;
   cart?: {
     id: number;
     user?: any;
+    cartItems?: Array<{
+      id: number;
+      quantity: number;
+      priceHt: number;
+      priceTtc: number;
+      product?: any;
+    }>;
     [key: string]: any;
   };
   commercial?: {
