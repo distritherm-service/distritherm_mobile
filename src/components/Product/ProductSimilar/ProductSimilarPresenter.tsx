@@ -13,7 +13,7 @@ import { ms } from 'react-native-size-matters'; // Using react-native-size-matte
 import { useColors } from 'src/hooks/useColors';
 import { ProductBasicDto } from 'src/types/Product';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faArrowRight, faExclamationTriangle, faRefresh } from '@fortawesome/free-solid-svg-icons';
+import { faExclamationTriangle, faRefresh } from '@fortawesome/free-solid-svg-icons';
 import ProductItem from 'src/components/ProductItem/ProductItem';
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -22,7 +22,6 @@ interface ProductSimilarPresenterProps {
   similarProducts: ProductBasicDto[];
   loading: boolean;
   error: string | null;
-  onSeeAllPress: () => void;
   onRetry: () => void;
 }
 
@@ -30,7 +29,6 @@ const ProductSimilarPresenter: React.FC<ProductSimilarPresenterProps> = ({
   similarProducts,
   loading,
   error,
-  onSeeAllPress,
   onRetry,
 }) => {
   const colors = useColors();
@@ -122,24 +120,7 @@ const ProductSimilarPresenter: React.FC<ProductSimilarPresenterProps> = ({
           Produits similaires
         </Text>
         
-        {!loading && similarProducts.length > 0 && (
-          <Pressable
-            style={({ pressed }) => [
-              styles.seeAllButton,
-              pressed && { backgroundColor: colors.tertiary[100] }
-            ]}
-            onPress={onSeeAllPress}
-          >
-            <Text style={[styles.seeAllText, { color: colors.secondary[600] }]}>
-              Voir tout
-            </Text>
-            <FontAwesomeIcon
-              icon={faArrowRight}
-              size={ms(14)} // Using react-native-size-matters for responsive design
-              color={colors.secondary[600]}
-            />
-          </Pressable>
-        )}
+
       </View>
 
       {loading ? (
@@ -194,17 +175,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 0.3,
   },
-  seeAllButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: ms(8), // Using react-native-size-matters for responsive design
-    paddingVertical: ms(4), // Using react-native-size-matters for responsive design
-  },
-  seeAllText: {
-    fontSize: ms(14), // Using react-native-size-matters for responsive design
-    fontWeight: '600',
-    marginRight: ms(4), // Using react-native-size-matters for responsive design
-  },
+
   listContainer: {
     paddingHorizontal: ms(16), // Using react-native-size-matters for responsive design
   },

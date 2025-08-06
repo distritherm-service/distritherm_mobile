@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigation } from '@react-navigation/native';
 import productsService from 'src/services/productsService';
 import { ProductBasicDto } from 'src/types/Product';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from 'src/navigation/types';
 import ProductSimilarPresenter from './ProductSimilarPresenter';
-
-type NavigationProp = StackNavigationProp<RootStackParamList>;
 
 interface ProductSimilarProps {
   currentProductId: number;
@@ -24,7 +19,6 @@ const ProductSimilar: React.FC<ProductSimilarProps> = ({
   const [similarProducts, setSimilarProducts] = useState<ProductBasicDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const navigation = useNavigation<NavigationProp>();
 
   useEffect(() => {
     const fetchSimilarProducts = async () => {
@@ -52,20 +46,13 @@ const ProductSimilar: React.FC<ProductSimilarProps> = ({
     fetchSimilarProducts();
   }, [currentProductId, categoryId, markId]);
 
-  const handleSeeAllPress = () => {
-    if (categoryId) {
-      // Navigate to category screen or products list with category filter
-      // You might need to implement this navigation based on your app structure
 
-    }
-  };
 
   return (
     <ProductSimilarPresenter
       similarProducts={similarProducts}
       loading={loading}
       error={error}
-      onSeeAllPress={handleSeeAllPress}
       onRetry={() => {
         setError(null);
         // Trigger useEffect again by updating a dependency

@@ -39,7 +39,7 @@ const ForgotPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // Form for password change
-  const { control, handleSubmit, watch, formState } = useForm<ChangePasswordFormData>({
+  const { control, handleSubmit, watch, formState: { isDirty } } = useForm<ChangePasswordFormData>({
     defaultValues: {
       currentPassword: "",
       newPassword: "",
@@ -93,7 +93,7 @@ const ForgotPassword = () => {
   };
 
   const handleBack = () => {
-    if (formState.isDirty) {
+    if (isDirty) {
       Alert.alert(
         "Modifications non sauvegardées",
         "Vous avez des modifications non sauvegardées. Voulez-vous vraiment quitter ?",

@@ -125,6 +125,7 @@ const InputPresenter: React.FC<InputPresenterProps> = ({
       position: 'relative',
       flexDirection: 'row',
       alignItems: 'center',
+      justifyContent: 'center', // Centrage horizontal si nécessaire
     },
 
          // Base input styles
@@ -137,8 +138,9 @@ const InputPresenter: React.FC<InputPresenterProps> = ({
        fontSize: ms(15), // Using react-native-size-matters
        color: colors.tertiary[500],
        paddingHorizontal: ms(14), // Using react-native-size-matters
-       paddingVertical: ms(12), // Ajout d'un padding vertical pour éviter les débordements
-       minHeight: ms(48), // Augmentation légère pour une meilleure lisibilité
+       paddingVertical: 0, // Suppression du padding vertical pour contrôler précisément la hauteur
+       height: ms(48), // Hauteur fixe au lieu de minHeight pour éviter les variations
+       lineHeight: ms(20), // Hauteur de ligne fixe pour éviter les décalages
        textAlignVertical: 'center', // Centrage vertical par défaut
        shadowColor: colors.tertiary[500],
        shadowOffset: { width: 0, height: 1 },
@@ -157,9 +159,11 @@ const InputPresenter: React.FC<InputPresenterProps> = ({
      },
 
          textareaInput: {
+       height: undefined, // Remet height en auto pour les textarea
        minHeight: ms(90), // Using react-native-size-matters - reduced from 100 to 90
        paddingTop: ms(12), // Using react-native-size-matters - reduced from 15 to 12
        paddingBottom: ms(12), // Ajout d'un padding bottom pour éviter que le texte touche le bord
+       paddingVertical: ms(12), // Remet le padding vertical pour les textarea
        textAlignVertical: 'top',
        lineHeight: ms(20), // Ajout d'une hauteur de ligne pour améliorer la lisibilité
      },
@@ -525,6 +529,7 @@ const InputPresenter: React.FC<InputPresenterProps> = ({
           maxLength={type === InputType.DATE ? 10 : undefined}
           scrollEnabled={isTextareaField} // Permettre le scroll pour les textarea
           blurOnSubmit={!isTextareaField} // Empêcher la fermeture du clavier sur Enter pour les textarea
+          textContentType={isPasswordField ? 'password' : 'none'} // Optimise l'affichage pour les mots de passe
         />
         {renderRightIcon()}
       </View>
@@ -554,6 +559,8 @@ const InputPresenter: React.FC<InputPresenterProps> = ({
               styles.selectText,
               isPlaceholder && styles.selectPlaceholder,
             ]}
+            numberOfLines={1}
+            ellipsizeMode="tail"
           >
             {displayText}
           </Text>
@@ -575,7 +582,11 @@ const InputPresenter: React.FC<InputPresenterProps> = ({
     <View style={[styles.container, containerStyle]}>
       {label && (
         <View style={styles.labelContainer}>
-          <Text style={[styles.label, labelStyle]}>
+          <Text 
+            style={[styles.label, labelStyle]}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
             {label}{required && <Text style={{ color: '#EF4444' }}> *</Text>}
           </Text>
           {!required && (
@@ -589,7 +600,11 @@ const InputPresenter: React.FC<InputPresenterProps> = ({
       {isSelectField ? renderSelect() : renderTextInput()}
       
       {error && (
-        <Text style={styles.errorText}>
+        <Text 
+          style={styles.errorText}
+          numberOfLines={2}
+          ellipsizeMode="tail"
+        >
           {error}
         </Text>
       )}

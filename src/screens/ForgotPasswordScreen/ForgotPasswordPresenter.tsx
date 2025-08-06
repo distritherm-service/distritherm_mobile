@@ -315,7 +315,7 @@ const ForgotPasswordPresenter: React.FC<ForgotPasswordPresenterProps> = ({
                   type={InputType.PASSWORD}
                   label="Mot de passe actuel"
                   required={true}
-                  placeholder="Entrez votre mot de passe actuel"
+                  placeholder="Mot de passe actuel"
                   leftLogo={faLock}
                   rules={validationRules.currentPassword}
                 />
@@ -326,7 +326,7 @@ const ForgotPasswordPresenter: React.FC<ForgotPasswordPresenterProps> = ({
                   type={InputType.PASSWORD}
                   label="Nouveau mot de passe"
                   required={true}
-                  placeholder="Entrez votre nouveau mot de passe"
+                  placeholder="Nouveau mot de passe"
                   leftLogo={faShieldHalved}
                   rules={{
                     ...validationRules.newPassword,
@@ -340,7 +340,7 @@ const ForgotPasswordPresenter: React.FC<ForgotPasswordPresenterProps> = ({
                   type={InputType.PASSWORD}
                   label="Confirmer le mot de passe"
                   required={true}
-                  placeholder="Confirmez votre nouveau mot de passe"
+                  placeholder="Confirmez le mot de passe"
                   leftLogo={faLock}
                   rules={{
                     ...validationRules.confirmPassword,
@@ -405,7 +405,11 @@ const ForgotPasswordPresenter: React.FC<ForgotPasswordPresenterProps> = ({
                 color={colors.tertiary[400]}
                 style={dynamicStyles.infoIcon}
               />
-              <Text style={dynamicStyles.infoText}>
+              <Text 
+                style={dynamicStyles.infoText}
+                numberOfLines={3}
+                ellipsizeMode="tail"
+              >
                 Votre mot de passe sera immédiatement mis à jour et vous devrez vous reconnecter sur vos autres appareils
               </Text>
             </View>
