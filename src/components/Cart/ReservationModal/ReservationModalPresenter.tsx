@@ -11,6 +11,8 @@ import {
   Dimensions,
   StatusBar,
   RefreshControl,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { ms } from "react-native-size-matters";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
@@ -99,6 +101,8 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
   onTimeSlotSelect,
 }) => {
   const colors = useColors();
+
+
 
   // Modern, elegant styles inspired by DevisFicheProduct
   const styles = {
@@ -204,7 +208,7 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
 
     // Sections
     section: {
-      marginBottom: ms(24),
+      marginBottom: ms(15),
     },
     sectionTitle: {
       fontSize: ms(16),
@@ -365,15 +369,15 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
   const renderFormInputs = () => (
     <>
       {/* Date Selection */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>
-          <FontAwesomeIcon
+                  <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>
+                      <FontAwesomeIcon
             icon={faCalendar}
-            size={ms(14)}
-            color={colors.secondary[500]}
-          />
+                        size={ms(14)}
+                        color={colors.secondary[500]}
+                      />
           {" "}Date de retrait
-        </Text>
+                    </Text>
         <Input
           control={control}
           name="pickupDate"
@@ -385,28 +389,28 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
               message: "Format de date invalide (JJ/MM/AAAA)"
             }
           }}
-          type={InputType.Date}
+          type={InputType.NUMERIC}
           leftLogo={faCalendar}
           editable={true}
         />
-      </View>
-
+                      </View>
+                      
       {/* Time Slot Selection */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>
-          <FontAwesomeIcon
+                <View style={styles.section}>
+                  <Text style={styles.sectionTitle}>
+                    <FontAwesomeIcon
             icon={faClock}
-            size={ms(14)}
-            color={colors.secondary[500]}
-          />
+                      size={ms(14)}
+                      color={colors.secondary[500]}
+                    />
           {" "}Créneau horaire
-        </Text>
+                  </Text>
         <View style={styles.timeSlotsContainer}>
-          {timeSlots.map((slot) => (
-            <TouchableOpacity
-              key={slot.value}
-              style={[
-                styles.timeSlotButton,
+                      {timeSlots.map((slot) => (
+                        <TouchableOpacity
+                          key={slot.value}
+                          style={[
+                            styles.timeSlotButton,
                 watchedTimeSlot === slot.value && styles.timeSlotButtonSelected,
               ]}
               onPress={() => onTimeSlotSelect(slot.value)}
@@ -421,46 +425,46 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
                     : colors.tertiary[400]
                 }
               />
-              <Text
-                style={[
+                          <Text
+                            style={[
                   styles.timeSlotButtonText,
                   watchedTimeSlot === slot.value && styles.timeSlotButtonTextSelected,
-                ]}
-              >
-                {slot.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
+                            ]}
+                          >
+                            {slot.label}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                  </View>
+                </View>
 
       {/* Customer Information */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>
-          <FontAwesomeIcon
-            icon={faUser}
-            size={ms(14)}
-            color={colors.secondary[500]}
-          />
+                <View style={styles.section}>
+                  <Text style={styles.sectionTitle}>
+                    <FontAwesomeIcon
+                      icon={faUser}
+                      size={ms(14)}
+                      color={colors.secondary[500]}
+                    />
           {" "}Informations du client
-        </Text>
-        
+                  </Text>
+
         <View style={styles.clientInfoInput}>
-          <Input
+                  <Input
             control={control}
-            name="customerName"
+                    name="customerName"
             placeholder="Nom complet"
             rules={{ required: "Le nom est obligatoire" }}
-            type={InputType.Name}
-            leftLogo={faUser}
+                    type={InputType.DEFAULT}
+                    leftLogo={faUser}
             editable={true}
           />
         </View>
         
         <View style={styles.clientInfoInput}>
-          <Input
+                  <Input
             control={control}
-            name="customerPhone"
+                    name="customerPhone"
             placeholder="Numéro de téléphone"
             rules={{ 
               required: "Le téléphone est obligatoire",
@@ -469,50 +473,50 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
                 message: "Numéro de téléphone invalide"
               }
             }}
-            type={InputType.PhoneNumber}
-            leftLogo={faPhone}
+                    type={InputType.NUMERIC}
+                    leftLogo={faPhone}
             editable={true}
           />
         </View>
         
         <View style={styles.clientInfoInput}>
-          <Input
+                  <Input
             control={control}
-            name="customerEmail"
+                    name="customerEmail"
             placeholder="Adresse email"
             rules={{ 
               required: "L'email est obligatoire",
-              pattern: {
-                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                      pattern: {
+                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                 message: "Adresse email invalide"
-              }
+                      }
             }}
-            type={InputType.EmailAddress}
+            type={InputType.EMAIL_ADDRESS}
             leftLogo={faEnvelope}
             editable={true}
-          />
+                  />
         </View>
-      </View>
+                </View>
 
       {/* Notes */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>
-          <FontAwesomeIcon
-            icon={faStickyNote}
-            size={ms(14)}
-            color={colors.secondary[500]}
-          />
+                <View style={styles.section}>
+                  <Text style={styles.sectionTitle}>
+                    <FontAwesomeIcon
+                      icon={faStickyNote}
+                      size={ms(14)}
+                      color={colors.secondary[500]}
+                    />
           {" "}Remarques (optionnel)
-        </Text>
-        <Input
+                  </Text>
+                  <Input
           control={control}
-          name="notes"
+                    name="notes"
           placeholder="Ajoutez vos remarques..."
           rules={{}}
-          type={InputType.Message}
-          multiline={true}
+                    type={InputType.TEXTAREA}
+                    multiline={true}
           numberOfLines={3}
-          leftLogo={faStickyNote}
+                    leftLogo={faStickyNote}
           editable={true}
         />
       </View>
@@ -601,6 +605,10 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
         bounces={true}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.scrollContent}
+        nestedScrollEnabled={false}
+        scrollEventThrottle={1}
+        removeClippedSubviews={false}
+        keyboardDismissMode="interactive"
       >
         {mode === 'view' ? renderReservationInfo() : renderFormInputs()}
       </ScrollView>
@@ -633,8 +641,13 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
             { transform: [{ translateY: slideAnim }] },
           ]}
         >
-          {/* Header */}
-          <View style={styles.header}>
+          <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={0}
+          >
+            {/* Header */}
+            <View style={styles.header}>
             <View style={styles.dragIndicator} />
 
             <View style={styles.headerContent}>
@@ -691,59 +704,60 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
           )}
 
           {/* Actions */}
-          <View style={styles.actions}>
-            {mode === 'view' ? (
-              <TouchableOpacity
-                style={[styles.button, styles.confirmButton]}
-                onPress={onClose}
-                activeOpacity={0.8}
-              >
-                <Text style={[styles.buttonText, styles.confirmButtonText]}>
-                  Fermer
-                </Text>
-              </TouchableOpacity>
-            ) : (
-              <>
-                <TouchableOpacity
-                  style={[styles.button, styles.cancelButton]}
-                  onPress={onClose}
-                  activeOpacity={0.8}
-                >
-                  <Text style={[styles.buttonText, styles.cancelButtonText]}>
-                    Annuler
-                  </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[
-                    styles.button,
-                    styles.confirmButton,
-                    isCreatingReservation && { opacity: 0.7 }
-                  ]}
-                  onPress={onSubmit}
-                  disabled={isCreatingReservation}
-                  activeOpacity={0.8}
-                >
-                  {isCreatingReservation ? (
-                    <View style={styles.loadingContainer}>
-                      <ActivityIndicator size="small" color={colors.primary[50]} />
-                      <Text style={[styles.buttonText, styles.loadingText]}>
-                        Traitement...
-                      </Text>
-                    </View>
-                  ) : (
+              <View style={styles.actions}>
+                {mode === 'view' ? (
+                  <TouchableOpacity
+                    style={[styles.button, styles.confirmButton]}
+                    onPress={onClose}
+                    activeOpacity={0.8}
+                  >
                     <Text style={[styles.buttonText, styles.confirmButtonText]}>
-                      ✓ Confirmer la réservation
+                      Fermer
                     </Text>
-                  )}
-                </TouchableOpacity>
-              </>
-            )}
-          </View>
+                  </TouchableOpacity>
+                ) : (
+                  <>
+                    <TouchableOpacity
+                      style={[styles.button, styles.cancelButton]}
+                      onPress={onClose}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={[styles.buttonText, styles.cancelButtonText]}>
+                        Annuler
+                      </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[
+                        styles.button, 
+                        styles.confirmButton,
+                        isCreatingReservation && { opacity: 0.7 }
+                      ]}
+                      onPress={onSubmit}
+                      disabled={isCreatingReservation}
+                      activeOpacity={0.8}
+                    >
+                      {isCreatingReservation ? (
+                        <View style={styles.loadingContainer}>
+                          <ActivityIndicator size="small" color={colors.primary[50]} />
+                          <Text style={[styles.buttonText, styles.loadingText]}>
+                            Traitement...
+                          </Text>
+                        </View>
+                      ) : (
+                        <Text style={[styles.buttonText, styles.confirmButtonText]}>
+                      ✓ Confirmer la réservation
+                        </Text>
+                      )}
+                    </TouchableOpacity>
+                  </>
+                )}
+              </View>
+          </KeyboardAvoidingView>
         </Animated.View>
       </Animated.View>
     </Modal>
   );
 };
 
-export default ReservationModalPresenter;
+export default ReservationModalPresenter; 

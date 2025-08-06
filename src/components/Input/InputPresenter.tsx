@@ -341,28 +341,87 @@ const InputPresenter: React.FC<InputPresenterProps> = ({
     }
   };
 
-  // Format date input for JJ/MM/AAAA format
-  const formatDateInput = (text: string): string => {
-    // Remove all non-numeric characters
+  // Format date input for JJ/MM/AAAA format with intelligent handling
+  const formatDateInput = (text: string, previousValue: string = ''): string => {
+    // Remove all non-numeric characters from the new input
     const numericOnly = text.replace(/\D/g, '');
+    const prevNumericOnly = previousValue.replace(/\D/g, '');
     
-    // Apply formatting based on length
-    if (numericOnly.length <= 2) {
-      return numericOnly;
-    } else if (numericOnly.length <= 4) {
-      return `${numericOnly.slice(0, 2)}/${numericOnly.slice(2)}`;
-    } else if (numericOnly.length <= 8) {
-      return `${numericOnly.slice(0, 2)}/${numericOnly.slice(2, 4)}/${numericOnly.slice(4, 8)}`;
+    // Limit to 8 digits max (DDMMYYYY)
+    const limitedNumeric = numericOnly.slice(0, 8);
+    
+    // Handle deletion or replacement
+    if (numericOnly.length < prevNumericOnly.length) {
+      // User is deleting, handle gracefully
+      if (limitedNumeric.length <= 2) {
+        return limitedNumeric;
+      } else if (limitedNumeric.length <= 4) {
+        return `${limitedNumeric.slice(0, 2)}/${limitedNumeric.slice(2)}`;
+      } else {
+        return `${limitedNumeric.slice(0, 2)}/${limitedNumeric.slice(2, 4)}/${limitedNumeric.slice(4)}`;
+      }
+    }
+    
+    // Handle fresh input or addition
+    if (limitedNumeric.length <= 2) {
+      return limitedNumeric;
+    } else if (limitedNumeric.length <= 4) {
+      let month = limitedNumeric.slice(2);
+      
+      // Smart month handling
+      if (month.length === 1) {
+        // If user types '2' as first digit of month, auto-complete to '02'
+        if (month === '2') {
+          return `${limitedNumeric.slice(0, 2)}/02`;
+        }
+        // If user types digit > 1, keep as is
+        return `${limitedNumeric.slice(0, 2)}/${month}`;
+      } else if (month.length === 2) {
+        const monthNum = parseInt(month, 10);
+        // Validate and auto-correct month
+        if (monthNum === 0) {
+          month = '01';
+        } else if (monthNum > 12) {
+          // Smart correction: if > 20, assume user meant '02', else add leading zero
+          if (monthNum >= 20) {
+            month = '02';
+          } else {
+            month = `0${month.charAt(0)}`;
+          }
+        }
+        return `${limitedNumeric.slice(0, 2)}/${month}`;
+      }
+      
+      return `${limitedNumeric.slice(0, 2)}/${month}`;
     } else {
-      // Limit to 8 digits max (DDMMYYYY)
-      return `${numericOnly.slice(0, 2)}/${numericOnly.slice(2, 4)}/${numericOnly.slice(4, 8)}`;
+      // Handle full date with year
+      let month = limitedNumeric.slice(2, 4);
+      const year = limitedNumeric.slice(4);
+      
+      // Validate and auto-correct month
+      const monthNum = parseInt(month, 10);
+      if (monthNum === 0) {
+        month = '01';
+      } else if (monthNum > 12) {
+        if (monthNum >= 20) {
+          month = '02';
+        } else {
+          month = `0${month.charAt(0)}`;
+        }
+      }
+      
+      return `${limitedNumeric.slice(0, 2)}/${month}/${year}`;
     }
   };
 
   // Handle text change with date formatting
   const handleTextChange = (text: string) => {
     if (type === InputType.DATE) {
-      const formattedText = formatDateInput(text);
+      const formattedText = formatDateInput(text, value);
+      onChangeText(formattedText);
+    } else if (type === InputType.NUMERIC && placeholder === "JJ/MM/AAAA") {
+      // Special case for date input using NUMERIC type
+      const formattedText = formatDateInput(text, value);
       onChangeText(formattedText);
     } else {
       onChangeText(text);
