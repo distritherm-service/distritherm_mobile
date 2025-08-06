@@ -215,6 +215,7 @@ const ProfileLinks: React.FC<ProfileLinksProps> = ({
         icon: 'clock',
         onPress: handleManagePostulation,
         isDestructive: false,
+        isPending: true,
       };
     }
 

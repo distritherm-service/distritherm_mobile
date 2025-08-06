@@ -137,7 +137,9 @@ const InputPresenter: React.FC<InputPresenterProps> = ({
        fontSize: ms(15), // Using react-native-size-matters
        color: colors.tertiary[500],
        paddingHorizontal: ms(14), // Using react-native-size-matters
-       minHeight: ms(46), // Using react-native-size-matters - reduced from 50 to 46
+       paddingVertical: ms(12), // Ajout d'un padding vertical pour éviter les débordements
+       minHeight: ms(48), // Augmentation légère pour une meilleure lisibilité
+       textAlignVertical: 'center', // Centrage vertical par défaut
        shadowColor: colors.tertiary[500],
        shadowOffset: { width: 0, height: 1 },
        shadowOpacity: 0.05,
@@ -157,7 +159,9 @@ const InputPresenter: React.FC<InputPresenterProps> = ({
          textareaInput: {
        minHeight: ms(90), // Using react-native-size-matters - reduced from 100 to 90
        paddingTop: ms(12), // Using react-native-size-matters - reduced from 15 to 12
+       paddingBottom: ms(12), // Ajout d'un padding bottom pour éviter que le texte touche le bord
        textAlignVertical: 'top',
+       lineHeight: ms(20), // Ajout d'une hauteur de ligne pour améliorer la lisibilité
      },
 
     // Error state
@@ -298,6 +302,12 @@ const InputPresenter: React.FC<InputPresenterProps> = ({
     },
 
     emptyStateText: {
+      fontSize: ms(14), // Using react-native-size-matters
+      color: colors.tertiary[400],
+      textAlign: 'center',
+    },
+
+    placeholderTextStyle: {
       color: colors.tertiary[400],
       fontSize: ms(15), // Using react-native-size-matters
     },
@@ -305,9 +315,12 @@ const InputPresenter: React.FC<InputPresenterProps> = ({
     // Error text
     errorText: {
       color: colors.error,
-      fontSize: ms(13), // Using react-native-size-matters
-      marginTop: ms(6), // Using react-native-size-matters
+      fontSize: ms(12), // Using react-native-size-matters - réduction pour éviter les débordements
+      marginTop: ms(4), // Using react-native-size-matters - réduction pour un espacement plus compact
+      marginLeft: ms(2), // Using react-native-size-matters - léger décalage pour l'alignement
       fontWeight: '500',
+      lineHeight: ms(16), // Using react-native-size-matters - hauteur de ligne contrôlée
+      flexWrap: 'wrap', // Permettre le retour à la ligne si nécessaire
     },
   });
 
@@ -510,6 +523,8 @@ const InputPresenter: React.FC<InputPresenterProps> = ({
           numberOfLines={isTextareaField ? numberOfLines : 1}
           textAlignVertical={isTextareaField ? 'top' : 'center'}
           maxLength={type === InputType.DATE ? 10 : undefined}
+          scrollEnabled={isTextareaField} // Permettre le scroll pour les textarea
+          blurOnSubmit={!isTextareaField} // Empêcher la fermeture du clavier sur Enter pour les textarea
         />
         {renderRightIcon()}
       </View>

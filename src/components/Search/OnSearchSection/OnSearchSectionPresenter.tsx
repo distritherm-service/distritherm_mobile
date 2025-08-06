@@ -118,6 +118,7 @@ const OnSearchSectionPresenter: React.FC<OnSearchSectionPresenterProps> = ({
     },
     contentContainer: {
       paddingTop: ms(65),
+      flexGrow: 1,
     },
     headerTop: {
       flexDirection: 'row',

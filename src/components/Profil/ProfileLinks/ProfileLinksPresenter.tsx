@@ -185,7 +185,9 @@ const ProfileLinksPresenter: React.FC<ProfileLinksPresenterProps> = ({
               colors={
                 item.isDestructive 
                   ? ['#ef4444', '#dc2626'] as const 
-                  : [colors.tertiary[400], colors.tertiary[600]] as const
+                  : item.isPending
+                    ? ['#EAB308', '#F59E0B'] as const  // Gradient jaune pour les demandes en cours
+                    : [colors.tertiary[400], colors.tertiary[600]] as const
               }
               style={dynamicStyles.iconContainer}
               start={{ x: 0, y: 0 }}
@@ -215,7 +217,9 @@ const ProfileLinksPresenter: React.FC<ProfileLinksPresenterProps> = ({
               colors={
                 item.isDestructive 
                   ? ['#ef4444', '#dc2626'] as const
-                  : [colors.tertiary[300], colors.tertiary[500]] as const
+                  : item.isPending
+                    ? ['#EAB308', '#F59E0B'] as const  // Gradient jaune pour les demandes en cours
+                    : [colors.tertiary[300], colors.tertiary[500]] as const
               }
               style={dynamicStyles.arrowContainer}
               start={{ x: 0, y: 0 }}

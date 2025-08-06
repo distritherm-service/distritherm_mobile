@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
   },
   bottomBarContainer: {
     backgroundColor: colors.accent.primary,
-    paddingTop: IS_TABLET ? ms(8) : ms(6),
+    paddingTop: IS_TABLET ? ms(6) : ms(4),
     // paddingBottom sera géré dynamiquement par useSafeAreaInsets
     borderTopWidth: 0,
     shadowColor: colors.effects?.shadowStrong || colors.shadow,
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
   tabItem: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: IS_TABLET ? ms(6) : ms(8),
+    paddingVertical: IS_TABLET ? ms(5) : ms(6),
     paddingHorizontal: IS_TABLET ? ms(8) : ms(8),
     borderRadius: ms(12),
     minWidth: IS_TABLET ? ms(70) : ms(48),

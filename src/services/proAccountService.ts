@@ -78,7 +78,7 @@ export const getPostulationStatusLabel = (status: ProAccountPostulationStatus): 
 export const getPostulationStatusColor = (status: ProAccountPostulationStatus): string => {
   switch (status) {
     case ProAccountPostulationStatus.PENDING:
-      return '#F59E0B'; // Orange/Amber moderne
+      return '#EAB308'; // Jaune vif pour distinguer les demandes en cours
     case ProAccountPostulationStatus.APPROVED:
       return '#10B981'; // Vert/Emerald moderne
     default:

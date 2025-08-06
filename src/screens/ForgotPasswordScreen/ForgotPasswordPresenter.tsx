@@ -125,66 +125,7 @@ const ForgotPasswordPresenter: React.FC<ForgotPasswordPresenterProps> = ({
       fontWeight: "700",
       color: colors.tertiary[700],
     },
-    inputContainer: {
-      marginBottom: ms(16),
-    },
-    inputLabel: {
-      fontSize: ms(16),
-      fontWeight: "600",
-      color: colors.tertiary[700],
-      marginBottom: ms(10),
-      paddingLeft: ms(4),
-    },
-    inputWrapper: {
-      flexDirection: "row",
-      alignItems: "center",
-      backgroundColor: colors.primary[50],
-      borderRadius: ms(16),
-      borderWidth: ms(2),
-      borderColor: colors.primary[300],
-      minHeight: ms(56),
-      shadowColor: colors.tertiary[800],
-      shadowOffset: { width: 0, height: ms(2) },
-      shadowOpacity: 0.04,
-      shadowRadius: ms(8),
-      elevation: 2,
-    },
-    inputError: {
-      borderColor: colors.error,
-      backgroundColor: "#FEF2F2",
-      shadowColor: colors.error,
-    },
-    iconContainer: {
-      width: ms(50),
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    inputIcon: {
-      // Using react-native-size-matters for responsive icon sizing
-    },
-    textInput: {
-      flex: 1,
-      fontSize: ms(16),
-      color: colors.tertiary[800],
-      paddingVertical: ms(16),
-      paddingRight: ms(16),
-      fontWeight: "500",
-    },
-    errorContainer: {
-      flexDirection: "row",
-      alignItems: "center",
-      marginTop: ms(6),
-      paddingLeft: ms(4),
-    },
-    errorIcon: {
-      marginRight: ms(6),
-    },
-    errorText: {
-      fontSize: ms(13),
-      color: colors.error,
-      fontWeight: "500",
-      flex: 1,
-    },
+
     requirementsContainer: {
       marginTop: ms(16), // Using react-native-size-matters for responsive margin
       paddingTop: ms(16), // Using react-native-size-matters for responsive padding

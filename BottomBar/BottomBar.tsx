@@ -351,7 +351,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: colors.secondary[400],
-    paddingTop: IS_TABLET ? ms(4) : ms(3),
+    paddingTop: IS_TABLET ? ms(3) : ms(2),
     borderTopWidth: 0,
     shadowColor: colors.tertiary[300],
     shadowOffset: {
@@ -377,7 +377,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: IS_TABLET ? ms(6) : ms(4),
+    paddingVertical: IS_TABLET ? ms(5) : ms(3),
     paddingHorizontal: IS_TABLET ? ms(4) : ms(2),
     maxWidth: IS_TABLET ? ms(80) : ms(65),
   },

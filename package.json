@@ -6,7 +6,7 @@
     "start": "npx expo start",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "npx expo run:android",
-    "ios": "npx expo run:ios", 
+    "ios": "npx expo run:ios",
     "ios-clean": "./ios/filter-logs.sh npx expo run:ios",
     "prebuild": "npx expo prebuild",
     "prebuild-clean": "npx expo prebuild --clean",
@@ -62,6 +62,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "@expo/image-utils": "^0.7.6",
     "@react-native-community/cli": "^18.0.0",
     "@types/axios": "^0.9.36",
     "@types/react": "~19.0.10",
@@ -71,6 +72,7 @@
     "glob": "^10.3.10",
     "lru-cache": "^10.2.0",
     "rimraf": "^5.0.5",
+    "sharp": "^0.34.3",
     "typescript": "~5.8.3"
   },
   "overrides": {

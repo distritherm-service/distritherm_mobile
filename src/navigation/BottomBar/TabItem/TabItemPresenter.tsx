@@ -183,13 +183,13 @@ const styles = StyleSheet.create({
     marginTop: ms(3),
   },
   label: {
-    fontSize: ms(8),
+    fontSize: ms(9),
     fontWeight: '500',
     color: colors.primary[200],
     textAlign: 'center',
   },
   labelActive: {
-    fontSize: ms(9),
+    fontSize: ms(10),
     fontWeight: 'bold',
     color: colors.primary[50],
   },
