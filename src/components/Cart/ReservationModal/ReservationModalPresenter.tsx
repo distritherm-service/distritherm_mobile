@@ -421,12 +421,7 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
       transform: [{ scale: 1 }],
     },
 
-    // KeyboardAvoidingView
-    keyboardAvoidingView: {
-      flex: 0,
-      justifyContent: "flex-end" as const,
-      width: "100%" as const,
-    },
+
   };
 
   // Render form inputs for create mode
@@ -751,18 +746,19 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
     >
       <StatusBar backgroundColor="transparent" barStyle="light-content" />
 
-      <Animated.View style={[styles.modalOverlay, { opacity: fadeAnim }]}>
-        <TouchableOpacity
-          style={{ flex: 1 }}
-          activeOpacity={1}
-          onPress={onClose}
-        />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "position"}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : -50}
+        enabled={true}
+      >
+        <Animated.View style={[styles.modalOverlay, { opacity: fadeAnim }]}>
+          <TouchableOpacity
+            style={{ flex: 1 }}
+            activeOpacity={1}
+            onPress={onClose}
+          />
 
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={styles.keyboardAvoidingView}
-          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
-        >
           <Animated.View
             style={[
               styles.modalContainer,
@@ -879,8 +875,8 @@ const ReservationModalPresenter: React.FC<ReservationModalPresenterProps> = ({
               )}
             </View>
           </Animated.View>
-        </KeyboardAvoidingView>
-      </Animated.View>
+        </Animated.View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 };

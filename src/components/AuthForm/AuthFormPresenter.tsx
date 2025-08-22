@@ -48,7 +48,7 @@ const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
   const dynamicStyles = StyleSheet.create({
     safeArea: {
       flex: 1,
-      backgroundColor: colors.primary[50],
+      backgroundColor: colors.primary[50], // Fond blanc pour la page
     },
     container: {
       flex: 1,
@@ -134,7 +134,7 @@ const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
     },
     formContainer: {
       width: "100%",
-      backgroundColor: colors.primary[50],
+      backgroundColor: "#FAFAFA", // Fond blanc très légèrement grisé
       borderRadius: ms(20), // Using react-native-size-matters for responsive border radius
       padding: ms(24), // Using react-native-size-matters for responsive padding
       overflow: "hidden",
@@ -274,9 +274,8 @@ const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
 
   return (
     <View style={dynamicStyles.safeArea}>
-      <LinearGradient
-        colors={[colors.primary[50], colors.primary[100], colors.primary[200]]}
-        style={dynamicStyles.container}
+      <View
+        style={[dynamicStyles.container, { backgroundColor: colors.primary[50] }]} // Fond blanc simple
       >
         {/* Sticky redirection button fixed to screen */}
         <StickyRedirectionButton />
@@ -365,7 +364,7 @@ const AuthFormPresenter: React.FC<AuthFormPresenterProps> = ({
           </ScrollView>
 
         </View>
-      </LinearGradient>
+      </View>
     </View>
   );
 };
